@@ -3,7 +3,7 @@ import unittest
 import osc_types
 
 
-class TestOscMessage(unittest.TestCase):
+class TestString(unittest.TestCase):
 
   def test_get_string(self):
     cases = {
@@ -16,7 +16,7 @@ class TestOscMessage(unittest.TestCase):
     }
 
     for dgram, expected in cases.items():
-      self.assertEquals(expected, osc_types.GetString(dgram, 0))
+      self.assertEqual(expected, osc_types.GetString(dgram, 0))
 
   def test_get_string_raises_on_wrong_dgram(self):
     cases = [
@@ -24,6 +24,7 @@ class TestOscMessage(unittest.TestCase):
       b'blablaba',
       b'',
       b'\x00',
+      True,
     ]
 
     for case in cases:
@@ -34,6 +35,103 @@ class TestOscMessage(unittest.TestCase):
 
   def test_get_string_raises_on_wrong_start_index_negative(self):
     self.assertRaises(osc_types.ParseError, osc_types.GetString, b'abc\x00', -1)
+
+
+class TestInteger(unittest.TestCase):
+
+  def test_get_integer(self):
+    cases = {
+      b"\x00\x00\x00\x00": (0, 4),
+      b"\x00\x00\x00\x01": (1, 4),
+      b"\x00\x00\x00\x02": (2, 4),
+      b"\x00\x00\x00\x03": (3, 4),
+
+      b"\x00\x00\x01\x00": (256, 4),
+      b"\x00\x01\x00\x00": (65536, 4),
+      b"\x01\x00\x00\x00": (16777216, 4),
+
+      b"\x00\x00\x00\x01GARBAGE": (1, 4),
+    }
+
+    for dgram, expected in cases.items():
+      self.assertEqual(expected, osc_types.GetInteger(dgram, 0))
+
+  def test_get_integer_raises_on_wrong_dgram(self):
+    cases = [
+      b'',
+      True,
+    ]
+
+    for case in cases:
+      self.assertRaises(osc_types.ParseError, osc_types.GetInteger, case, 0)
+
+  def test_get_integer_raises_on_wrong_start_index(self):
+    self.assertRaises(osc_types.ParseError, osc_types.GetInteger, b'\x00\x00\x00\x11', 1)
+
+  def test_get_integer_raises_on_wrong_start_index_negative(self):
+    self.assertRaises(osc_types.ParseError, osc_types.GetInteger, b'\x00\x00\x00\x00', -1)
+
+
+class TestFloat(unittest.TestCase):
+
+  def test_get_float(self):
+    cases = {
+      b"\x00\x00\x00\x00": (0.0, 4),
+      b"?\x80\x00\x00'": (1.0, 4),
+      b'@\x00\x00\x00': (2.0, 4),
+
+      b"\x00\x00\x00\x00GARBAGE": (0.0, 4),
+    }
+
+    for dgram, expected in cases.items():
+      self.assertAlmostEqual(expected, osc_types.GetFloat(dgram, 0))
+
+  def test_get_float_raises_on_wrong_dgram(self):
+    cases = [
+      b'',
+      True,
+    ]
+
+    for case in cases:
+      self.assertRaises(osc_types.ParseError, osc_types.GetFloat, case, 0)
+
+  def test_get_float_raises_on_wrong_start_index(self):
+    self.assertRaises(osc_types.ParseError, osc_types.GetFloat, b'\x00\x00\x00\x11', 1)
+
+  def test_get_float_raises_on_wrong_start_index_negative(self):
+    self.assertRaises(osc_types.ParseError, osc_types.GetFloat, b'\x00\x00\x00\x00', -1)
+
+
+class TestBlob(unittest.TestCase):
+
+  def test_get_blob(self):
+    cases = {
+      b"\x00\x00\x00\x00": (b"", 4),
+      b"\x00\x00\x00\x08stuff\x00\x00\x00": (b"stuff\x00\x00\x00", 12),
+      b"\x00\x00\x00\x04\x00\x00\x00\x00": (b"\x00\x00\x00\x00", 8),
+
+      b"\x00\x00\x00\x08stuff\x00\x00\x00datagramcontinues": (b"stuff\x00\x00\x00", 12),
+    }
+
+    for dgram, expected in cases.items():
+      self.assertEqual(expected, osc_types.GetBlob(dgram, 0))
+
+  def test_get_blob_raises_on_wrong_dgram(self):
+    cases = [
+      b'',
+      True,
+      b"\x00\x00\x00\x08",
+    ]
+
+    for case in cases:
+      self.assertRaises(osc_types.ParseError, osc_types.GetBlob, case, 0)
+
+  def test_get_blob_raises_on_wrong_start_index(self):
+    self.assertRaises(osc_types.ParseError, osc_types.GetBlob, b'\x00\x00\x00\x11', 1)
+
+  def test_get_blog_raises_on_wrong_start_index_negative(self):
+    self.assertRaises(osc_types.ParseError, osc_types.GetBlob, b'\x00\x00\x00\x00', -1)
+
 
 if __name__ == "__main__":
   unittest.main()
