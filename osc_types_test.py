@@ -1,5 +1,6 @@
 import unittest
 
+import ntp
 import osc_types
 
 
@@ -131,6 +132,17 @@ class TestBlob(unittest.TestCase):
 
   def test_get_blog_raises_on_wrong_start_index_negative(self):
     self.assertRaises(osc_types.ParseError, osc_types.GetBlob, b'\x00\x00\x00\x00', -1)
+
+
+class TestNTPTimestamp(unittest.TestCase):
+
+  def test_immediately_dgram(self):
+    dgram = ntp.IMMEDIATELY
+    self.assertEqual(osc_types.IMMEDIATELY, osc_types.GetDate(dgram, 0))
+
+  def test_origin_of_time(self):
+    dgram = b'\x00' * 8
+    self.assertGreater(0, osc_types.GetDate(dgram, 0))
 
 
 if __name__ == "__main__":

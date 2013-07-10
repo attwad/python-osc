@@ -1,8 +1,14 @@
+import decimal
+import ntp
 import struct
-
+import time
 
 class ParseError(Exception):
   """Base exception for when a datagram parsing error occurs."""
+
+
+# Constant for special ntp datagram sequences that represent an immediate time.
+IMMEDIATELY = "IMMEDIATELY"
 
 
 def GetString(dgram, start_index):
@@ -46,7 +52,7 @@ def GetString(dgram, start_index):
 def GetInteger(dgram, start_index):
   """32-bit big-endian two's complement integer."""
   try:
-    if start_index + 4 > len(dgram[start_index:]):
+    if len(dgram[start_index:]) < 4:
       raise ParseError('Datagram is too short')
     return (
         struct.unpack('>i', dgram[start_index:start_index+4])[0],
@@ -60,7 +66,7 @@ def GetInteger(dgram, start_index):
 def GetFloat(dgram, start_index):
   """32-bit big-endian IEEE 754 floating point number."""
   try:
-    if start_index + 4 > len(dgram[start_index:]):
+    if len(dgram[start_index:]) < 4:
       raise ParseError('Datagram is too short')
     return (
         struct.unpack('>f', dgram[start_index:start_index+4])[0],
@@ -86,3 +92,22 @@ def GetBlob(dgram, start_index):
     return dgram[start_index + int_offset:end_index], end_index
   except TypeError as te:
     raise ParseError('Could not parse datagram %s' % te)
+
+
+def GetDate(dgram, start_index):
+  """64-bit big-endian fixed-point time tag.
+
+  The first 32 bits specify the number of seconds since midnight on
+  January 1, 1900, and the last 32 bits specify fractional parts of a second
+  to a precision of about 200 picoseconds.
+  """
+  # Check for the special case first.
+  if dgram == ntp.IMMEDIATELY:
+    return IMMEDIATELY
+  num_secs, start_index = GetInteger(dgram, start_index)
+  fraction, start_index = GetInteger(dgram, start_index)
+  # Get a decimal representation from those two values.
+  dec = decimal.Decimal(str(num_secs) + '.' + str(fraction))
+  # And convert it to float simply.
+  system_time = float(dec)
+  return ntp.NtpToSystemTime(system_time)
