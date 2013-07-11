@@ -1,7 +1,9 @@
+"""Module containing parsing functions to get OSC types from datagrams."""
 import decimal
 import ntp
 import struct
 import time
+
 
 class ParseError(Exception):
   """Base exception for when a datagram parsing error occurs."""
@@ -9,6 +11,11 @@ class ParseError(Exception):
 
 # Constant for special ntp datagram sequences that represent an immediate time.
 IMMEDIATELY = "IMMEDIATELY"
+
+# Datagram length for types that have a fixed size.
+_INT_DGRAM_LEN = 4
+_FLOAT_DGRAM_LEN = 4
+_DATE_DGRAM_LEN = _INT_DGRAM_LEN * 2
 
 
 def GetString(dgram, start_index):
@@ -64,11 +71,11 @@ def GetInteger(dgram, start_index):
     ParseError if the datagram could not be parsed.
   """
   try:
-    if len(dgram[start_index:]) < 4:
+    if len(dgram[start_index:]) < _INT_DGRAM_LEN:
       raise ParseError('Datagram is too short')
     return (
-        struct.unpack('>i', dgram[start_index:start_index+4])[0],
-        start_index + 4)
+        struct.unpack('>i', dgram[start_index:start_index+_INT_DGRAM_LEN])[0],
+        start_index + _INT_DGRAM_LEN)
   except struct.error as se:
     raise ParseError('Cannot parse integer: %s' % se)
   except TypeError as te:
@@ -89,11 +96,11 @@ def GetFloat(dgram, start_index):
     ParseError if the datagram could not be parsed.
   """
   try:
-    if len(dgram[start_index:]) < 4:
+    if len(dgram[start_index:]) < _FLOAT_DGRAM_LEN:
       raise ParseError('Datagram is too short')
     return (
-        struct.unpack('>f', dgram[start_index:start_index+4])[0],
-        start_index + 4)
+        struct.unpack('>f', dgram[start_index:start_index+_FLOAT_DGRAM_LEN])[0],
+        start_index + _FLOAT_DGRAM_LEN)
   except struct.error as se:
     raise ParseError('Cannot parse float: %s' % se)
   except TypeError as te:
@@ -150,7 +157,7 @@ def GetDate(dgram, start_index):
   # Check for the special case first.
   if dgram == ntp.IMMEDIATELY:
     return IMMEDIATELY
-  if len(dgram[start_index:]) < 8:
+  if len(dgram[start_index:]) < _DATE_DGRAM_LEN:
     raise ParseError('Datagram is too short')
   num_secs, start_index = GetInteger(dgram, start_index)
   fraction, start_index = GetInteger(dgram, start_index)
