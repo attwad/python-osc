@@ -104,6 +104,8 @@ def GetDate(dgram, start_index):
   # Check for the special case first.
   if dgram == ntp.IMMEDIATELY:
     return IMMEDIATELY
+  if len(dgram[start_index:]) < 8:
+    raise ParseError('Datagram is too short')
   num_secs, start_index = GetInteger(dgram, start_index)
   fraction, start_index = GetInteger(dgram, start_index)
   # Get a decimal representation from those two values.
