@@ -14,16 +14,17 @@ IMMEDIATELY = "IMMEDIATELY"
 def GetString(dgram, start_index):
   """Get an OSC string from the datagram, starting at pos start_index.
 
-  A sequence of non-null ASCII characters followed by a null,
+  According to the specifications, a string is:
+  "A sequence of non-null ASCII characters followed by a null,
   followed by 0-3 additional null characters to make the total number
-  of bits a multiple of 32.
+  of bits a multiple of 32".
 
   Args:
-    dgram: a datagram packet
-    start_index: an index where the string starts in the datagram
+    dgram: A datagram packet.
+    start_index: An index where the string starts in the datagram.
 
   Returns:
-    A the sub datagram containing the string and the end index.
+    A tuple containing the string and the end index.
 
   Raises:
     ParseError if the datagram could not be parsed.
@@ -50,7 +51,18 @@ def GetString(dgram, start_index):
 
 
 def GetInteger(dgram, start_index):
-  """32-bit big-endian two's complement integer."""
+  """Get a 32-bit big-endian two's complement integer from the datagram.
+
+  Args:
+    dgram: A datagram packet.
+    start_index: An index where the integer starts in the datagram.
+
+  Returns:
+    A tuple containing the integer and the end index.
+
+  Raises:
+    ParseError if the datagram could not be parsed.
+  """
   try:
     if len(dgram[start_index:]) < 4:
       raise ParseError('Datagram is too short')
@@ -64,7 +76,18 @@ def GetInteger(dgram, start_index):
 
 
 def GetFloat(dgram, start_index):
-  """32-bit big-endian IEEE 754 floating point number."""
+  """Get a 32-bit big-endian IEEE 754 floating point number from the datagram.
+
+  Args:
+    dgram: A datagram packet.
+    start_index: An index where the float starts in the datagram.
+
+  Returns:
+    A tuple containing the float and the end index.
+
+  Raises:
+    ParseError if the datagram could not be parsed.
+  """
   try:
     if len(dgram[start_index:]) < 4:
       raise ParseError('Datagram is too short')
@@ -78,10 +101,22 @@ def GetFloat(dgram, start_index):
 
 
 def GetBlob(dgram, start_index):
-  """
-  An int32 size count, followed by that many 8-bit bytes of arbitrary
+  """ Get a blob from the datagram.
+  
+  According to the specifications, a blob is made of
+  "an int32 size count, followed by that many 8-bit bytes of arbitrary
   binary data, followed by 0-3 additional zero bytes to make the total
-  number of bits a multiple of 32.
+  number of bits a multiple of 32".
+
+  Args:
+    dgram: A datagram packet.
+    start_index: An index where the float starts in the datagram.
+
+  Returns:
+    A tuple containing the blob and the end index.
+
+  Raises:
+    ParseError if the datagram could not be parsed.
   """
   size, int_offset = GetInteger(dgram, start_index)
   size += (-size % 4)
@@ -95,11 +130,22 @@ def GetBlob(dgram, start_index):
 
 
 def GetDate(dgram, start_index):
-  """64-bit big-endian fixed-point time tag.
+  """Get a 64-bit big-endian fixed-point time tag as a date from the datagram.
 
-  The first 32 bits specify the number of seconds since midnight on
+  According to the specifications, a date is represented as is:
+  "the first 32 bits specify the number of seconds since midnight on
   January 1, 1900, and the last 32 bits specify fractional parts of a second
-  to a precision of about 200 picoseconds.
+  to a precision of about 200 picoseconds".
+
+  Args:
+    dgram: A datagram packet.
+    start_index: An index where the date starts in the datagram.
+
+  Returns:
+    A tuple containing the system date and the end index.
+
+  Raises:
+    ParseError if the datagram could not be parsed.
   """
   # Check for the special case first.
   if dgram == ntp.IMMEDIATELY:

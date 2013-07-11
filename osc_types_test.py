@@ -1,3 +1,4 @@
+"""Unit tests for the osc_types module."""
 import unittest
 
 import ntp
