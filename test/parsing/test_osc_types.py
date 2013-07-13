@@ -9,12 +9,12 @@ class TestString(unittest.TestCase):
 
   def test_get_string(self):
     cases = {
-      b"A\x00\x00\x00": (b"A\x00\x00\x00", 4),
-      b"AB\x00\x00": (b"AB\x00\x00", 4),
-      b"ABC\x00": (b"ABC\x00", 4),
-      b"ABCD\x00\x00\x00\x00": (b"ABCD\x00\x00\x00\x00", 8),
+      b"A\x00\x00\x00": ("A", 4),
+      b"AB\x00\x00": ("AB", 4),
+      b"ABC\x00": ("ABC", 4),
+      b"ABCD\x00\x00\x00\x00": ("ABCD", 8),
 
-      b"ABCD\x00\x00\x00\x00GARBAGE": (b"ABCD\x00\x00\x00\x00", 8),
+      b"ABCD\x00\x00\x00\x00GARBAGE": ("ABCD", 8),
     }
 
     for dgram, expected in cases.items():

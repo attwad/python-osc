@@ -32,18 +32,18 @@ class OscMessage(object):
       # Get the parameters types.
       type_tag, index = osc_types.GetString(self._dgram, index)
       logging.debug('Found type tag {0}, index now {1}', type_tag, index)
-      if type_tag.startswith(b','):
+      if type_tag.startswith(','):
         type_tag = type_tag[1:]
 
       # Parse each parameter given its type.
       for i, param in enumerate(type_tag):
-        if param == ord("i"):  # Integer.
+        if param == "i":  # Integer.
           self._parameters[i], index = osc_types.GetInteger(self._dgram, index)
-        elif param == ord("f"):  # Float.
+        elif param == "f":  # Float.
           self._parameters[i], index = osc_types.GetFloat(self._dgram, index)
-        elif param == ord("s"):  # String.
+        elif param == "s":  # String.
           self._parameters[i], index = osc_types.GetString(self._dgram, index)
-        elif param == ord("b"):  # Blob.
+        elif param == "b":  # Blob.
           self._parameters[i], index = osc_types.GetBlob(self._dgram, index)
         # TODO: Support more exotic types as described in the specification.
         elif param == 0:

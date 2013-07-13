@@ -21,7 +21,7 @@ _DATE_DGRAM_LEN = _INT_DGRAM_LEN * 2
 
 
 def GetString(dgram, start_index):
-  """Get an OSC string from the datagram, starting at pos start_index.
+  """Get a python string from the datagram, starting at pos start_index.
 
   According to the specifications, a string is:
   "A sequence of non-null ASCII characters followed by a null,
@@ -53,7 +53,8 @@ def GetString(dgram, start_index):
     # do it ourselves.
     if offset > len(dgram[start_index:]):
       raise ParseError('Datagram is too short')
-    return dgram[start_index:start_index + offset], start_index + offset
+    data_str = dgram[start_index:start_index + offset]
+    return data_str.replace(b'\x00', b'').decode('utf-8'), start_index + offset
   except IndexError as ie:
     raise ParseError('Could not parse datagram %s' % ie)
   except TypeError as te:
