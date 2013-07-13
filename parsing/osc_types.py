@@ -33,7 +33,7 @@ def GetString(dgram, start_index):
     start_index: An index where the string starts in the datagram.
 
   Returns:
-    A tuple containing the string and the end index.
+    A tuple containing the string and the new end index.
 
   Raises:
     ParseError if the datagram could not be parsed.
@@ -68,7 +68,7 @@ def GetInteger(dgram, start_index):
     start_index: An index where the integer starts in the datagram.
 
   Returns:
-    A tuple containing the integer and the end index.
+    A tuple containing the integer and the new end index.
 
   Raises:
     ParseError if the datagram could not be parsed.
@@ -93,7 +93,7 @@ def GetFloat(dgram, start_index):
     start_index: An index where the float starts in the datagram.
 
   Returns:
-    A tuple containing the float and the end index.
+    A tuple containing the float and the new end index.
 
   Raises:
     ParseError if the datagram could not be parsed.
@@ -123,18 +123,19 @@ def GetBlob(dgram, start_index):
     start_index: An index where the float starts in the datagram.
 
   Returns:
-    A tuple containing the blob and the end index.
+    A tuple containing the blob and the new end index.
 
   Raises:
     ParseError if the datagram could not be parsed.
   """
   size, int_offset = GetInteger(dgram, start_index)
+  # Make the size a multiple of 32 bits.
   size += (-size % 4)
-  end_index = start_index + int_offset + size
-  if start_index + end_index > len(dgram):
+  end_index = int_offset + size
+  if end_index - start_index > len(dgram[start_index:]):
     raise ParseError('Datagram is too short.')
   try:
-    return dgram[start_index + int_offset:end_index], end_index
+    return dgram[int_offset:end_index], end_index
   except TypeError as te:
     raise ParseError('Could not parse datagram %s' % te)
 
@@ -152,7 +153,7 @@ def GetDate(dgram, start_index):
     start_index: An index where the date starts in the datagram.
 
   Returns:
-    A tuple containing the system date and the end index.
+    A tuple containing the system date and the new end index.
 
   Raises:
     ParseError if the datagram could not be parsed.

@@ -139,6 +139,9 @@ class TestBlob(unittest.TestCase):
   def test_get_blob_raises_on_wrong_start_index(self):
     self.assertRaises(osc_types.ParseError, osc_types.GetBlob, b'\x00\x00\x00\x11', 1)
 
+  def test_get_blob_raises_too_short_buffer(self):
+    self.assertRaises(osc_types.ParseError, osc_types.GetBlob, b'\x00\x00\x00\x11\x00\x00', 1)
+
   def test_get_blog_raises_on_wrong_start_index_negative(self):
     self.assertRaises(osc_types.ParseError, osc_types.GetBlob, b'\x00\x00\x00\x00', -1)
 

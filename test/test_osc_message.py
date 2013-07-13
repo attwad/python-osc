@@ -20,6 +20,16 @@ _DGRAM_SWITCH_GOES_ON = (
     b",f\x00\x00"
     b"?\x00\x00\x00")
 
+_DGRAM_NO_PARAMS = b"/SYNC\x00\x00\x00"
+
+_DGRAM_ALL_STANDARD_TYPES_OF_PARAMS = (
+    b"/SYNC\x00\x00\x00"
+    b",ifsb\x00\x00\x00"
+    b"\x00\x00\x00\x03"  # 3
+    b"@\x00\x00\x00"  # 2.0
+    b"ABC\x00"  # "ABC"
+    b"\x00\x00\x00\x08stuff\x00\x00\x00")  # b"stuff\x00\x00\x00"
+
 
 class TestOscMessage(unittest.TestCase):
 
@@ -43,6 +53,19 @@ class TestOscMessage(unittest.TestCase):
     self.assertEqual(1, msg.param_count)
     self.assertTrue(type(msg.param(0)) == float)
 
+  def test_no_params(self):
+    msg = osc_message.OscMessage(_DGRAM_NO_PARAMS)
+    self.assertEqual(b"/SYNC\x00\x00\x00", msg.address)
+    self.assertEqual(0, msg.param_count)
+
+  def test_all_standard_types_off_params(self):
+    msg = osc_message.OscMessage(_DGRAM_ALL_STANDARD_TYPES_OF_PARAMS)
+    self.assertEqual(b"/SYNC\x00\x00\x00", msg.address)
+    self.assertEqual(4, msg.param_count)
+    self.assertEqual(3, msg.param(0))
+    self.assertAlmostEqual(2.0, msg.param(1))
+    self.assertEqual(b"ABC\x00", msg.param(2))
+    self.assertEqual(b"stuff\x00\x00\x00", msg.param(3))
 
 if __name__ == "__main__":
   unittest.main()
