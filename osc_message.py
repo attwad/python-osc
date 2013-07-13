@@ -19,9 +19,9 @@ class OscMessage(object):
   def __init__(self, dgram):
     self._dgram = dgram
     self._parameters = {}
-    self._ParseDatagram()
+    self._parse_datagram()
 
-  def _ParseDatagram(self):
+  def _parse_datagram(self):
     try:
       self._address_regexp, index = osc_types.GetString(self._dgram, 0)
       logging.debug('Found address {0}, index now {1}', self._address_regexp, index)
