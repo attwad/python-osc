@@ -1,8 +1,10 @@
 """Module containing parsing functions to get OSC types from datagrams."""
+
 import decimal
-import ntp
 import struct
 import time
+
+from parsing import ntp
 
 
 class ParseError(Exception):
@@ -43,14 +45,14 @@ def GetString(dgram, start_index):
     if current_index == start_index:
       raise ParseError('OSC string cannot begin with a null byte')
     # Align to a byte word.
-    if current_index % 4 == 0:
+    if (current_index - start_index) % 4 == 0:
       current_index += 4
     else:
       current_index += (-current_index % 4)
     # Python slices do not raise an IndexError past the last index.
-    if start_index + current_index > len(dgram[start_index:]):
+    if current_index > len(dgram):
       raise ParseError('OSC String is too short')
-    return dgram[start_index:start_index+current_index], current_index
+    return dgram[start_index:current_index], current_index
   except IndexError as ie:
     raise ParseError('Could not parse datagram %s' % ie)
   except TypeError as te:

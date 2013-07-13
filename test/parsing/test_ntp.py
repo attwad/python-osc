@@ -1,6 +1,6 @@
 import unittest
 
-import ntp
+from parsing import ntp
 
 
 class TestNTP(unittest.TestCase):

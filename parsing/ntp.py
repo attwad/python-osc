@@ -1,3 +1,5 @@
+"""Parsing and conversion of NTP dates contained in datagrams."""
+
 import datetime
 import struct
 import time
