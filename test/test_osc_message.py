@@ -67,5 +67,11 @@ class TestOscMessage(unittest.TestCase):
     self.assertEqual(b"ABC\x00", msg.param(2))
     self.assertEqual(b"stuff\x00\x00\x00", msg.param(3))
 
+  def test_raises_on_empty_datargram(self):
+    self.assertRaises(osc_message.ParseError, osc_message.OscMessage, b'')
+
+  def test_raises_on_incorrect_datargram(self):
+    self.assertRaises(osc_message.ParseError, osc_message.OscMessage, b'foobar')
+
 if __name__ == "__main__":
   unittest.main()
