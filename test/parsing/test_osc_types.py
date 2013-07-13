@@ -32,7 +32,7 @@ class TestString(unittest.TestCase):
     for case in cases:
       self.assertRaises(osc_types.ParseError, osc_types.GetString, case, 0)
 
-  def test_get_string_raises_on_wrong_start_index(self):
+  def test_get_string_raises_when_datagram_too_short(self):
     self.assertRaises(osc_types.ParseError, osc_types.GetString, b'abc\x00', 1)
 
   def test_get_string_raises_on_wrong_start_index_negative(self):

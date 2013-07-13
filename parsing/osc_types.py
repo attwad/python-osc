@@ -38,21 +38,22 @@ def GetString(dgram, start_index):
   Raises:
     ParseError if the datagram could not be parsed.
   """
-  current_index = start_index
+  offset = 0
   try:
-    while dgram[current_index] != 0:
-      current_index += 1
-    if current_index == start_index:
+    while dgram[start_index + offset] != 0:
+      offset += 1
+    if offset == 0:
       raise ParseError('OSC string cannot begin with a null byte')
     # Align to a byte word.
-    if (current_index - start_index) % 4 == 0:
-      current_index += 4
+    if (offset) % 4 == 0:
+      offset += 4
     else:
-      current_index += (-current_index % 4)
-    # Python slices do not raise an IndexError past the last index.
-    if current_index > len(dgram):
-      raise ParseError('OSC String is too short')
-    return dgram[start_index:current_index], current_index
+      offset += (-offset % 4)
+    # Python slices do not raise an IndexError past the last index,
+    # do it ourselves.
+    if offset > len(dgram[start_index:]):
+      raise ParseError('Datagram is too short')
+    return dgram[start_index:start_index + offset], start_index + offset
   except IndexError as ie:
     raise ParseError('Could not parse datagram %s' % ie)
   except TypeError as te:

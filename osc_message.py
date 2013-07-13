@@ -24,14 +24,14 @@ class OscMessage(object):
   def _ParseDatagram(self):
     try:
       self._address_regexp, index = osc_types.GetString(self._dgram, 0)
-      print("addr", self._address_regexp, index)
+      logging.debug('Found address {0}, index now {1}', self._address_regexp, index)
       if not self._dgram[index:]:
         # No params is legit, just return now.
         return
 
       # Get the parameters types.
       type_tag, index = osc_types.GetString(self._dgram, index)
-      print("params ", type_tag, index)
+      logging.debug('Found type tag {0}, index now {1}', type_tag, index)
       if type_tag.startswith(b','):
         type_tag = type_tag[1:]
 
