@@ -71,3 +71,11 @@ class OscBundle(object):
   def size(self):
     """Returns the length of the datagram for this bundle."""
     return len(self._dgram)
+
+  def content(self, index):
+    """Returns the bundle's content 0-indexed."""
+    return self._contents[index]
+
+  def __iter__(self):
+    """Returns an iterator over the bundle's content."""
+    return iter(self._contents)

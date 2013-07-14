@@ -150,11 +150,11 @@ class TestNTPTimestamp(unittest.TestCase):
 
   def test_immediately_dgram(self):
     dgram = ntp.IMMEDIATELY
-    self.assertEqual(osc_types.IMMEDIATELY, osc_types.GetDate(dgram, 0))
+    self.assertEqual(osc_types.IMMEDIATELY, osc_types.GetDate(dgram, 0)[0])
 
   def test_origin_of_time(self):
     dgram = b'\x00' * 8
-    self.assertGreater(0, osc_types.GetDate(dgram, 0))
+    self.assertGreater(0, osc_types.GetDate(dgram, 0)[0])
 
   def test_datagram_too_short(self):
     dgram = b'\x00' * 8
