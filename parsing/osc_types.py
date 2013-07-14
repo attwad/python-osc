@@ -160,8 +160,8 @@ def GetDate(dgram, start_index):
     ParseError if the datagram could not be parsed.
   """
   # Check for the special case first.
-  if dgram == ntp.IMMEDIATELY:
-    return IMMEDIATELY
+  if dgram[start_index:start_index + _DATE_DGRAM_LEN] == ntp.IMMEDIATELY:
+    return IMMEDIATELY, start_index + _DATE_DGRAM_LEN
   if len(dgram[start_index:]) < _DATE_DGRAM_LEN:
     raise ParseError('Datagram is too short')
   num_secs, start_index = GetInteger(dgram, start_index)
@@ -170,4 +170,4 @@ def GetDate(dgram, start_index):
   dec = decimal.Decimal(str(num_secs) + '.' + str(fraction))
   # And convert it to float simply.
   system_time = float(dec)
-  return ntp.NtpToSystemTime(system_time)
+  return ntp.NtpToSystemTime(system_time), start_index

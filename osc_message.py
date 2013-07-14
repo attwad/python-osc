@@ -59,6 +59,11 @@ class OscMessage(object):
     """Returns the OSC address regular expression."""
     return self._address_regexp
 
+  @staticmethod
+  def dgram_is_message(dgram):
+    """Returns whether this datagram starts as an OSC message."""
+    return dgram.startswith(b'/')
+
   @property
   def param_count(self):
     """Returns the number of parameters."""
