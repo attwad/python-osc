@@ -77,3 +77,7 @@ class OscMessage(object):
   def param(self, i):
     """Access parameters by 0-based index."""
     return self._parameters[i]
+
+  def __iter__(self):
+    """Returns an iterator over the parameters of this message."""
+    return iter(self._parameters.values())
