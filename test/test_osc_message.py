@@ -66,6 +66,7 @@ class TestOscMessage(unittest.TestCase):
     self.assertAlmostEqual(2.0, msg.param(1))
     self.assertEqual("ABC", msg.param(2))
     self.assertEqual(b"stuff\x00\x00\x00", msg.param(3))
+    self.assertEqual(4, len(list(msg)))
 
   def test_raises_on_empty_datargram(self):
     self.assertRaises(osc_message.ParseError, osc_message.OscMessage, b'')

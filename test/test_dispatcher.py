@@ -56,5 +56,12 @@ class TestDispatcher(unittest.TestCase):
     self.sortAndAssertSequenceEqual(
         [2], self.dispatcher.handlers_for_address("/foo/*/2"))
 
+  def test_match_multiple_stars(self):
+    self.dispatcher.map('/foo/bar/1', 1)
+    self.dispatcher.map('/foo/bar/2', 2)
+
+    self.sortAndAssertSequenceEqual(
+        [1, 2], self.dispatcher.handlers_for_address("/*/*/*"))
+
 if __name__ == "__main__":
   unittest.main()
