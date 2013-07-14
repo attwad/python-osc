@@ -18,7 +18,7 @@ class OscBundle(object):
     self._dgram = dgram
     index = len(_BUNDLE_PREFIX)
     try:
-      self._timestamp, index = osc_types.GetDate(self._dgram, index)
+      self._timestamp, index = osc_types.get_date(self._dgram, index)
     except osc_types.ParseError as pe:
       raise ParseError("Could not get the date from the datagram: %s" % pe)
     # Get the contents as a list of OscBundle and OscMessage.
@@ -34,7 +34,7 @@ class OscBundle(object):
       # an OSC Message or an OSC Bundle.
       while self._dgram[index:]:
         # Get the sub content size.
-        content_size, index = osc_types.GetInteger(self._dgram, index)
+        content_size, index = osc_types.get_int(self._dgram, index)
         # Get the datagram for the sub content.
         content_dgram = self._dgram[index:index + content_size]
         # Increment our position index up to the next possible content.

@@ -23,14 +23,14 @@ class OscMessage(object):
 
   def _ParseDatagram(self):
     try:
-      self._address_regexp, index = osc_types.GetString(self._dgram, 0)
+      self._address_regexp, index = osc_types.get_string(self._dgram, 0)
       logging.debug('Found address {0}, index now {1}', self._address_regexp, index)
       if not self._dgram[index:]:
         # No params is legit, just return now.
         return
 
       # Get the parameters types.
-      type_tag, index = osc_types.GetString(self._dgram, index)
+      type_tag, index = osc_types.get_string(self._dgram, index)
       logging.debug('Found type tag {0}, index now {1}', type_tag, index)
       if type_tag.startswith(','):
         type_tag = type_tag[1:]
@@ -38,13 +38,13 @@ class OscMessage(object):
       # Parse each parameter given its type.
       for i, param in enumerate(type_tag):
         if param == "i":  # Integer.
-          self._parameters[i], index = osc_types.GetInteger(self._dgram, index)
+          self._parameters[i], index = osc_types.get_int(self._dgram, index)
         elif param == "f":  # Float.
-          self._parameters[i], index = osc_types.GetFloat(self._dgram, index)
+          self._parameters[i], index = osc_types.get_float(self._dgram, index)
         elif param == "s":  # String.
-          self._parameters[i], index = osc_types.GetString(self._dgram, index)
+          self._parameters[i], index = osc_types.get_string(self._dgram, index)
         elif param == "b":  # Blob.
-          self._parameters[i], index = osc_types.GetBlob(self._dgram, index)
+          self._parameters[i], index = osc_types.get_blob(self._dgram, index)
         # TODO: Support more exotic types as described in the specification.
         elif param == 0:
           # We've reached the end of the param string, finish now.

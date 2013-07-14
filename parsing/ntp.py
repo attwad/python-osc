@@ -15,7 +15,7 @@ _NTP_EPOCH = datetime.date(1900, 1, 1)
 _NTP_DELTA = (_SYSTEM_EPOCH - _NTP_EPOCH).days * 24 * 3600
 
 
-def NtpToSystemTime(date):
+def ntp_to_system_time(date):
     """Convert a NTP time to system time.
 
     System time is reprensented by seconds since the epoch in UTC.
@@ -23,7 +23,7 @@ def NtpToSystemTime(date):
     return date - _NTP_DELTA
 
 
-def SystemToNtpTime(date):
+def system_time_to_ntp(date):
     """Convert a system time to a NTP time datagram.
 
     System time is reprensented by seconds since the epoch in UTC.

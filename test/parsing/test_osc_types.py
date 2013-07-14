@@ -18,7 +18,7 @@ class TestString(unittest.TestCase):
     }
 
     for dgram, expected in cases.items():
-      self.assertEqual(expected, osc_types.GetString(dgram, 0))
+      self.assertEqual(expected, osc_types.get_string(dgram, 0))
 
   def test_get_string_raises_on_wrong_dgram(self):
     cases = [
@@ -30,13 +30,13 @@ class TestString(unittest.TestCase):
     ]
 
     for case in cases:
-      self.assertRaises(osc_types.ParseError, osc_types.GetString, case, 0)
+      self.assertRaises(osc_types.ParseError, osc_types.get_string, case, 0)
 
   def test_get_string_raises_when_datagram_too_short(self):
-    self.assertRaises(osc_types.ParseError, osc_types.GetString, b'abc\x00', 1)
+    self.assertRaises(osc_types.ParseError, osc_types.get_string, b'abc\x00', 1)
 
   def test_get_string_raises_on_wrong_start_index_negative(self):
-    self.assertRaises(osc_types.ParseError, osc_types.GetString, b'abc\x00', -1)
+    self.assertRaises(osc_types.ParseError, osc_types.get_string, b'abc\x00', -1)
 
 
 class TestInteger(unittest.TestCase):
@@ -56,7 +56,7 @@ class TestInteger(unittest.TestCase):
     }
 
     for dgram, expected in cases.items():
-      self.assertEqual(expected, osc_types.GetInteger(dgram, 0))
+      self.assertEqual(expected, osc_types.get_int(dgram, 0))
 
   def test_get_integer_raises_on_wrong_dgram(self):
     cases = [
@@ -65,17 +65,17 @@ class TestInteger(unittest.TestCase):
     ]
 
     for case in cases:
-      self.assertRaises(osc_types.ParseError, osc_types.GetInteger, case, 0)
+      self.assertRaises(osc_types.ParseError, osc_types.get_int, case, 0)
 
   def test_get_integer_raises_on_wrong_start_index(self):
-    self.assertRaises(osc_types.ParseError, osc_types.GetInteger, b'\x00\x00\x00\x11', 1)
+    self.assertRaises(osc_types.ParseError, osc_types.get_int, b'\x00\x00\x00\x11', 1)
 
   def test_get_integer_raises_on_wrong_start_index_negative(self):
-    self.assertRaises(osc_types.ParseError, osc_types.GetInteger, b'\x00\x00\x00\x00', -1)
+    self.assertRaises(osc_types.ParseError, osc_types.get_int, b'\x00\x00\x00\x00', -1)
 
   def test_datagram_too_short(self):
     dgram = b'\x00' * 3
-    self.assertRaises(osc_types.ParseError, osc_types.GetInteger, dgram, 2)
+    self.assertRaises(osc_types.ParseError, osc_types.get_int, dgram, 2)
 
 
 class TestFloat(unittest.TestCase):
@@ -90,7 +90,7 @@ class TestFloat(unittest.TestCase):
     }
 
     for dgram, expected in cases.items():
-      self.assertAlmostEqual(expected, osc_types.GetFloat(dgram, 0))
+      self.assertAlmostEqual(expected, osc_types.get_float(dgram, 0))
 
   def test_get_float_raises_on_wrong_dgram(self):
     cases = [
@@ -99,17 +99,17 @@ class TestFloat(unittest.TestCase):
     ]
 
     for case in cases:
-      self.assertRaises(osc_types.ParseError, osc_types.GetFloat, case, 0)
+      self.assertRaises(osc_types.ParseError, osc_types.get_float, case, 0)
 
   def test_get_float_raises_on_wrong_start_index(self):
-    self.assertRaises(osc_types.ParseError, osc_types.GetFloat, b'\x00\x00\x00\x11', 1)
+    self.assertRaises(osc_types.ParseError, osc_types.get_float, b'\x00\x00\x00\x11', 1)
 
   def test_get_float_raises_on_wrong_start_index_negative(self):
-    self.assertRaises(osc_types.ParseError, osc_types.GetFloat, b'\x00\x00\x00\x00', -1)
+    self.assertRaises(osc_types.ParseError, osc_types.get_float, b'\x00\x00\x00\x00', -1)
 
   def test_datagram_too_short(self):
     dgram = b'\x00' * 3
-    self.assertRaises(osc_types.ParseError, osc_types.GetFloat, dgram, 2)
+    self.assertRaises(osc_types.ParseError, osc_types.get_float, dgram, 2)
 
 
 class TestBlob(unittest.TestCase):
@@ -124,7 +124,7 @@ class TestBlob(unittest.TestCase):
     }
 
     for dgram, expected in cases.items():
-      self.assertEqual(expected, osc_types.GetBlob(dgram, 0))
+      self.assertEqual(expected, osc_types.get_blob(dgram, 0))
 
   def test_get_blob_raises_on_wrong_dgram(self):
     cases = [
@@ -134,31 +134,31 @@ class TestBlob(unittest.TestCase):
     ]
 
     for case in cases:
-      self.assertRaises(osc_types.ParseError, osc_types.GetBlob, case, 0)
+      self.assertRaises(osc_types.ParseError, osc_types.get_blob, case, 0)
 
   def test_get_blob_raises_on_wrong_start_index(self):
-    self.assertRaises(osc_types.ParseError, osc_types.GetBlob, b'\x00\x00\x00\x11', 1)
+    self.assertRaises(osc_types.ParseError, osc_types.get_blob, b'\x00\x00\x00\x11', 1)
 
   def test_get_blob_raises_too_short_buffer(self):
-    self.assertRaises(osc_types.ParseError, osc_types.GetBlob, b'\x00\x00\x00\x11\x00\x00', 1)
+    self.assertRaises(osc_types.ParseError, osc_types.get_blob, b'\x00\x00\x00\x11\x00\x00', 1)
 
   def test_get_blog_raises_on_wrong_start_index_negative(self):
-    self.assertRaises(osc_types.ParseError, osc_types.GetBlob, b'\x00\x00\x00\x00', -1)
+    self.assertRaises(osc_types.ParseError, osc_types.get_blob, b'\x00\x00\x00\x00', -1)
 
 
 class TestNTPTimestamp(unittest.TestCase):
 
   def test_immediately_dgram(self):
     dgram = ntp.IMMEDIATELY
-    self.assertEqual(osc_types.IMMEDIATELY, osc_types.GetDate(dgram, 0)[0])
+    self.assertEqual(osc_types.IMMEDIATELY, osc_types.get_date(dgram, 0)[0])
 
   def test_origin_of_time(self):
     dgram = b'\x00' * 8
-    self.assertGreater(0, osc_types.GetDate(dgram, 0)[0])
+    self.assertGreater(0, osc_types.get_date(dgram, 0)[0])
 
   def test_datagram_too_short(self):
     dgram = b'\x00' * 8
-    self.assertRaises(osc_types.ParseError, osc_types.GetDate, dgram, 2)
+    self.assertRaises(osc_types.ParseError, osc_types.get_date, dgram, 2)
 
 
 if __name__ == "__main__":

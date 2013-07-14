@@ -20,7 +20,7 @@ _FLOAT_DGRAM_LEN = 4
 _DATE_DGRAM_LEN = _INT_DGRAM_LEN * 2
 
 
-def GetString(dgram, start_index):
+def get_string(dgram, start_index):
   """Get a python string from the datagram, starting at pos start_index.
 
   According to the specifications, a string is:
@@ -61,7 +61,7 @@ def GetString(dgram, start_index):
     raise ParseError('Could not parse datagram %s' % te)
 
 
-def GetInteger(dgram, start_index):
+def get_int(dgram, start_index):
   """Get a 32-bit big-endian two's complement integer from the datagram.
 
   Args:
@@ -86,7 +86,7 @@ def GetInteger(dgram, start_index):
     raise ParseError('Could not parse datagram %s' % te)
 
 
-def GetFloat(dgram, start_index):
+def get_float(dgram, start_index):
   """Get a 32-bit big-endian IEEE 754 floating point number from the datagram.
 
   Args:
@@ -111,7 +111,7 @@ def GetFloat(dgram, start_index):
     raise ParseError('Could not parse datagram %s' % te)
 
 
-def GetBlob(dgram, start_index):
+def get_blob(dgram, start_index):
   """ Get a blob from the datagram.
   
   According to the specifications, a blob is made of
@@ -129,7 +129,7 @@ def GetBlob(dgram, start_index):
   Raises:
     ParseError if the datagram could not be parsed.
   """
-  size, int_offset = GetInteger(dgram, start_index)
+  size, int_offset = get_int(dgram, start_index)
   # Make the size a multiple of 32 bits.
   size += (-size % 4)
   end_index = int_offset + size
@@ -141,7 +141,7 @@ def GetBlob(dgram, start_index):
     raise ParseError('Could not parse datagram %s' % te)
 
 
-def GetDate(dgram, start_index):
+def get_date(dgram, start_index):
   """Get a 64-bit big-endian fixed-point time tag as a date from the datagram.
 
   According to the specifications, a date is represented as is:
@@ -164,10 +164,10 @@ def GetDate(dgram, start_index):
     return IMMEDIATELY, start_index + _DATE_DGRAM_LEN
   if len(dgram[start_index:]) < _DATE_DGRAM_LEN:
     raise ParseError('Datagram is too short')
-  num_secs, start_index = GetInteger(dgram, start_index)
-  fraction, start_index = GetInteger(dgram, start_index)
+  num_secs, start_index = get_int(dgram, start_index)
+  fraction, start_index = get_int(dgram, start_index)
   # Get a decimal representation from those two values.
   dec = decimal.Decimal(str(num_secs) + '.' + str(fraction))
   # And convert it to float simply.
   system_time = float(dec)
-  return ntp.NtpToSystemTime(system_time), start_index
+  return ntp.ntp_to_system_time(system_time), start_index
