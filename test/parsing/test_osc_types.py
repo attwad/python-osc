@@ -94,22 +94,15 @@ class TestFloat(unittest.TestCase):
 
   def test_get_float_raises_on_wrong_dgram(self):
     cases = [
-      b'',
       True,
     ]
 
     for case in cases:
       self.assertRaises(osc_types.ParseError, osc_types.get_float, case, 0)
 
-  def test_get_float_raises_on_wrong_start_index(self):
-    self.assertRaises(osc_types.ParseError, osc_types.get_float, b'\x00\x00\x00\x11', 1)
-
-  def test_get_float_raises_on_wrong_start_index_negative(self):
-    self.assertRaises(osc_types.ParseError, osc_types.get_float, b'\x00\x00\x00\x00', -1)
-
-  def test_datagram_too_short(self):
-    dgram = b'\x00' * 3
-    self.assertRaises(osc_types.ParseError, osc_types.get_float, dgram, 2)
+  def test_datagram_too_short_pads(self):
+    dgram = b'\x00' * 2
+    self.assertEqual((0, 4), osc_types.get_float(b'\x00\x00', 0))
 
 
 class TestBlob(unittest.TestCase):

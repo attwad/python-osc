@@ -101,7 +101,10 @@ def get_float(dgram, start_index):
   """
   try:
     if len(dgram[start_index:]) < _FLOAT_DGRAM_LEN:
-      raise ParseError('Datagram is too short')
+      # Noticed that Reaktor doesn't send the last bunch of \x00 needed to make
+      # the float representation complete in some cases, thus we pad here to
+      # account for that.
+      dgram = dgram + b'\x00' * (_FLOAT_DGRAM_LEN - len(dgram[start_index:]))
     return (
         struct.unpack('>f', dgram[start_index:start_index+_FLOAT_DGRAM_LEN])[0],
         start_index + _FLOAT_DGRAM_LEN)
