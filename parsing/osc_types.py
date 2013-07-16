@@ -43,7 +43,8 @@ def get_string(dgram, start_index):
     while dgram[start_index + offset] != 0:
       offset += 1
     if offset == 0:
-      raise ParseError('OSC string cannot begin with a null byte')
+      raise ParseError(
+          'OSC string cannot begin with a null byte: %s' % dgram[start_index:])
     # Align to a byte word.
     if (offset) % 4 == 0:
       offset += 4
