@@ -29,7 +29,14 @@ class OscPacket(object):
   """
 
   def __init__(self, dgram):
-    """Initialize an OdpPacket with the given UDP datagram."""
+    """Initialize an OdpPacket with the given UDP datagram.
+    
+    Args:
+      - dgram: the raw UDP datagram holding the OSC packet.
+
+    Raises:
+      - ParseError if the datagram could not be parsed.
+    """
     try:
       if osc_bundle.OscBundle.dgram_is_bundle(dgram):
         # TODO: Handle the IMMEDIATELY case.
