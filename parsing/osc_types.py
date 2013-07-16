@@ -12,7 +12,7 @@ class ParseError(Exception):
 
 
 # Constant for special ntp datagram sequences that represent an immediate time.
-IMMEDIATELY = "IMMEDIATELY"
+IMMEDIATELY = 0
 
 # Datagram length for types that have a fixed size.
 _INT_DGRAM_LEN = 4
@@ -158,6 +158,7 @@ def get_date(dgram, start_index):
 
   Returns:
     A tuple containing the system date and the new end index.
+    returns osc_immediately (0) if the corresponding OSC sequence was found.
 
   Raises:
     ParseError if the datagram could not be parsed.
