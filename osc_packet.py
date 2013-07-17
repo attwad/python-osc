@@ -8,6 +8,7 @@ import osc_bundle
 import osc_message
 
 def _timed_msg_of_bundle(bundle):
+  """Returns messages contained in nested bundles."""
   msgs = []
   for content in bundle:
     if type(content) == osc_message.OscMessage:
