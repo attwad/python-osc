@@ -7,20 +7,22 @@ class Dispatcher(object):
   def __init__(self):
     self._map = {}
 
-  def map(self, address, handler):
+  def map(self, address, handler, *args):
     """Map a given address to a handler.
 
     Args:
       - address: An explicit endpoint.
       - handler: A function that will be run when the address matches with
                  the OscMessage passed as parameter.
+      - args: Any additional arguments that will be always passed to the
+              handlers after the osc messages arguments if any.
     """
     # TODO: Check if we need to use a multimap instead, spec is a bit fuzzy
     # about it...
-    self._map[address] = handler
+    self._map[address] = (handler, list(args))
 
   def handlers_for_address(self, address_pattern):
-    """Return a tuple of handler matching the given OSC address pattern."""
+    """Return a tuple of (handler, args) matching the given OSC pattern."""
     handlers = []
     # First convert the address_pattern into a matchable regexp.
     # '?' in the OSC Address Pattern matches any single character.
@@ -34,5 +36,6 @@ class Dispatcher(object):
     # we're fine.
     pattern = pattern + '$'
     pattern = re.compile(pattern)
-    matched = [handler for address, handler in self._map.items() if pattern.match(address)]
+    matched = [
+        handler for addr, handler in self._map.items() if pattern.match(addr)]
     return matched
