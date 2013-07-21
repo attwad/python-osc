@@ -31,7 +31,7 @@ class OscPacket(object):
 
   def __init__(self, dgram):
     """Initialize an OdpPacket with the given UDP datagram.
-    
+
     Args:
       - dgram: the raw UDP datagram holding the OSC packet.
 
@@ -45,7 +45,7 @@ class OscPacket(object):
             _timed_msg_of_bundle(osc_bundle.OscBundle(dgram)),
             key=lambda x: x[0])  # Sort by time, which is the first element.
       elif osc_message.OscMessage.dgram_is_message(dgram):
-        self._messages = (osc_types.IMMEDIATELY, osc_message.OscMessage(dgram))
+        self._messages = ((osc_types.IMMEDIATELY, osc_message.OscMessage(dgram)),)
       else:
         # Empty packet, should not happen as per the spec.
         raise ParseError(
