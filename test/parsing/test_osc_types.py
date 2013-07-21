@@ -178,8 +178,19 @@ class TestBuildMethods(unittest.TestCase):
     self.assertEqual(b'?\x80\x00\x00', osc_types.write_float(1.0))
     self.assertEqual(b'?\x80\x00\x00', osc_types.write_float(1))
 
-  def test_floatt_raises(self):
+  def test_float_raises(self):
     self.assertRaises(osc_types.BuildError, osc_types.write_float, 'not a float')
+
+  def test_blob(self):
+    self.assertEqual(
+        b'\x00\x00\x00\x02\x00\x01\x00\x00',
+        osc_types.write_blob(b'\x00\x01'))
+    self.assertEqual(
+        b'\x00\x00\x00\x04\x00\x01\x02\x03',
+        osc_types.write_blob(b'\x00\x01\x02\x03'))
+
+  def test_blob_raises(self):
+    self.assertRaises(osc_types.BuildError, osc_types.write_blob, b'')
 
 if __name__ == "__main__":
   unittest.main()

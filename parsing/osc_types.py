@@ -194,6 +194,22 @@ def get_blob(dgram, start_index):
     raise ParseError('Could not parse datagram %s' % te)
 
 
+def write_blob(val):
+  """Returns the datagram for the given blob parameter value.
+  
+  Raises:
+    - BuildError if the value was empty or if its size didn't fit an OSC int.
+  """
+  if not val:
+    raise BuildError('Blob value cannot be empty')
+  dgram = write_int(len(val))
+  dgram += val
+  while len(dgram % 4) != 0:
+    dgram += b'\x00'
+  return dgram
+  
+
+
 def get_date(dgram, start_index):
   """Get a 64-bit big-endian fixed-point time tag as a date from the datagram.
 
