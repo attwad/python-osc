@@ -1,4 +1,4 @@
-"""Module containing parsing functions to get OSC types from datagrams."""
+"""Module containing functions to get OSC types from datagrams and vice versa"""
 
 import decimal
 import struct
@@ -11,13 +11,38 @@ class ParseError(Exception):
   """Base exception for when a datagram parsing error occurs."""
 
 
+class BuildError(Exception):
+  """Base exception for when a datagram building error occurs."""
+
+
 # Constant for special ntp datagram sequences that represent an immediate time.
 IMMEDIATELY = 0
 
-# Datagram length for types that have a fixed size.
+# Datagram length in bytes for types that have a fixed size.
 _INT_DGRAM_LEN = 4
 _FLOAT_DGRAM_LEN = 4
 _DATE_DGRAM_LEN = _INT_DGRAM_LEN * 2
+# Strings and blob dgram length is always a multiple of 4 bytes.
+_STRING_DGRAM_PAD = 4
+_BLOB_DGRAM_PAD = 4
+
+
+def write_string(val):
+  """Returns the OSC string equivalent of the given python string.
+  
+  Raises:
+    - BuildError if the string could not be encoded.
+  """
+  try:
+    dgram = val.encode('utf-8')  # Default, but better be explicit.
+  except (UnicodeEncodeError, AttributeError) as e:
+    raise BuildError('Incorrect string, could not encode {}'.format(e))
+  diff = _STRING_DGRAM_PAD - (len(dgram) % _STRING_DGRAM_PAD)
+  if diff:
+    dgram += (b'\x00' * diff)
+  else:
+    dgram += (b'\x00' * 4)
+  return dgram
 
 
 def get_string(dgram, start_index):
@@ -46,10 +71,10 @@ def get_string(dgram, start_index):
       raise ParseError(
           'OSC string cannot begin with a null byte: %s' % dgram[start_index:])
     # Align to a byte word.
-    if (offset) % 4 == 0:
-      offset += 4
+    if (offset) % _STRING_DGRAM_PAD == 0:
+      offset += _STRING_DGRAM_PAD
     else:
-      offset += (-offset % 4)
+      offset += (-offset % _STRING_DGRAM_PAD)
     # Python slices do not raise an IndexError past the last index,
     # do it ourselves.
     if offset > len(dgram[start_index:]):
@@ -60,6 +85,18 @@ def get_string(dgram, start_index):
     raise ParseError('Could not parse datagram %s' % ie)
   except TypeError as te:
     raise ParseError('Could not parse datagram %s' % te)
+
+
+def write_int(val):
+  """Returns the datagram for the given integer parameter value
+  
+  Raises:
+    - BuildError if the int could not be converted.
+  """
+  try:
+    return struct.pack('>i', val)
+  except struct.error as e:
+    raise BuildError('Wrong argument value passed: {}'.format(e))
 
 
 def get_int(dgram, start_index):
@@ -85,6 +122,18 @@ def get_int(dgram, start_index):
     raise ParseError('Cannot parse integer: %s' % se)
   except TypeError as te:
     raise ParseError('Could not parse datagram %s' % te)
+
+
+def write_float(val):
+  """Returns the datagram for the given float parameter value
+  
+  Raises:
+    - BuildError if the float could not be converted.
+  """
+  try:
+    return struct.pack('>f', val)
+  except struct.error as e:
+    raise BuildError('Wrong argument value passed: {}'.format(e))
 
 
 def get_float(dgram, start_index):
@@ -135,7 +184,7 @@ def get_blob(dgram, start_index):
   """
   size, int_offset = get_int(dgram, start_index)
   # Make the size a multiple of 32 bits.
-  size += (-size % 4)
+  size += (-size % _BLOB_DGRAM_PAD)
   end_index = int_offset + size
   if end_index - start_index > len(dgram[start_index:]):
     raise ParseError('Datagram is too short.')

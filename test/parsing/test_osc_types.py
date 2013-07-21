@@ -154,5 +154,32 @@ class TestNTPTimestamp(unittest.TestCase):
     self.assertRaises(osc_types.ParseError, osc_types.get_date, dgram, 2)
 
 
+class TestBuildMethods(unittest.TestCase):
+
+  def test_string(self):
+    self.assertEqual(b'A\x00\x00\x00', osc_types.write_string('A'))
+    self.assertEqual(b'AB\x00\x00', osc_types.write_string('AB'))
+    self.assertEqual(b'ABC\x00', osc_types.write_string('ABC'))
+    self.assertEqual(b'ABCD\x00\x00\x00\x00', osc_types.write_string('ABCD'))
+
+  def test_string_raises(self):
+    self.assertRaises(osc_types.BuildError, osc_types.write_string, 123)
+
+  def test_int(self):
+    self.assertEqual(b'\x00\x00\x00\x00', osc_types.write_int(0))
+    self.assertEqual(b'\x00\x00\x00\x01', osc_types.write_int(1))
+
+  def test_int_raises(self):
+    self.assertRaises(osc_types.BuildError, osc_types.write_int, 'not an int')
+
+  def test_float(self):
+    self.assertEqual(b'\x00\x00\x00\x00', osc_types.write_float(0.0))
+    self.assertEqual(b'?\x00\x00\x00', osc_types.write_float(0.5))
+    self.assertEqual(b'?\x80\x00\x00', osc_types.write_float(1.0))
+    self.assertEqual(b'?\x80\x00\x00', osc_types.write_float(1))
+
+  def test_floatt_raises(self):
+    self.assertRaises(osc_types.BuildError, osc_types.write_float, 'not a float')
+
 if __name__ == "__main__":
   unittest.main()
