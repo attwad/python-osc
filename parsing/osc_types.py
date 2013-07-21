@@ -184,12 +184,12 @@ def get_blob(dgram, start_index):
   """
   size, int_offset = get_int(dgram, start_index)
   # Make the size a multiple of 32 bits.
-  size += (-size % _BLOB_DGRAM_PAD)
+  total_size = size + (-size % _BLOB_DGRAM_PAD)
   end_index = int_offset + size
   if end_index - start_index > len(dgram[start_index:]):
     raise ParseError('Datagram is too short.')
   try:
-    return dgram[int_offset:end_index], end_index
+    return dgram[int_offset:int_offset + size], int_offset + total_size
   except TypeError as te:
     raise ParseError('Could not parse datagram %s' % te)
 
@@ -208,7 +208,6 @@ def write_blob(val):
     dgram += b'\x00'
   return dgram
   
-
 
 def get_date(dgram, start_index):
   """Get a 64-bit big-endian fixed-point time tag as a date from the datagram.
