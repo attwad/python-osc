@@ -204,7 +204,7 @@ def write_blob(val):
     raise BuildError('Blob value cannot be empty')
   dgram = write_int(len(val))
   dgram += val
-  while len(dgram % 4) != 0:
+  while len(dgram) % _BLOB_DGRAM_PAD != 0:
     dgram += b'\x00'
   return dgram
   
