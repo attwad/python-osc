@@ -72,6 +72,11 @@ class OscBundle(object):
     """Returns the length of the datagram for this bundle."""
     return len(self._dgram)
 
+  @property
+  def dgram(self):
+    """Returns the datagram from which this bundle was built."""
+    return self._dgram
+
   def content(self, index):
     """Returns the bundle's content 0-indexed."""
     return self._contents[index]

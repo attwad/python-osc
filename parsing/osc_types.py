@@ -240,3 +240,9 @@ def get_date(dgram, start_index):
   # And convert it to float simply.
   system_time = float(dec)
   return ntp.ntp_to_system_time(system_time), start_index
+
+def write_date(system_time):
+  if system_time == IMMEDIATELY:
+    return ntp.IMMEDIATELY
+
+  return ntp.system_time_to_ntp(system_time)

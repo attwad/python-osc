@@ -72,6 +72,11 @@ class OscMessage(object):
     return len(self._dgram)
 
   @property
+  def dgram(self):
+    """Returns the datagram from which this message was built."""
+    return self._dgram
+
+  @property
   def params(self):
     """Convenience method for list(self) to get the list of parameters."""
     return list(self)
