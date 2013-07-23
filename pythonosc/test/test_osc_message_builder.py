@@ -4,7 +4,7 @@ import osc_message_builder
 
 
 class TestOscMessageBuilder(unittest.TestCase):
-  
+
   def test_just_address(self):
     msg = osc_message_builder.OscMessageBuilder("/a/b/c").build()
     self.assertEqual("/a/b/c", msg.address)

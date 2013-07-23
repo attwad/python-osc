@@ -1,8 +1,8 @@
 """Build OSC bundles for client applications."""
 
-from parsing import osc_types
 import osc_bundle
 import osc_message
+from parsing import osc_types
 
 
 # Shortcut to specify an immediate execution of messages in the bundle.
@@ -17,7 +17,7 @@ class OscBundleBuilder(object):
 
   def __init__(self, timestamp):
     """Build a new bundle with the associated timestamp.
-    
+
     Args:
       - timestamp: system time represented as a floating point number of
                    seconds since the epoch in UTC or IMMEDIATELY.

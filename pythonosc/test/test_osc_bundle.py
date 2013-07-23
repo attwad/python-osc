@@ -1,8 +1,8 @@
 import unittest
 
-from parsing import osc_types
-import osc_bundle
 import osc_message
+import osc_bundle
+from parsing import osc_types
 
 _DGRAM_KNOB_ROTATES_BUNDLE = (
     b"#bundle\x00"
