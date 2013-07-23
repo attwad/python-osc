@@ -7,7 +7,6 @@ import argparse
 import random
 import time
 
-import pythonosc
 from pythonosc import osc_message_builder
 from pythonosc import udp_client
 

@@ -44,6 +44,7 @@ class OscMessageBuilder(object):
     """Returns the (type, value) arguments list of this message."""
     return self._args
 
+  # TODO: Make the arg type optional, use type() to determine what it is.
   def add_arg(self, arg_type, arg_value):
     """Add a typed argument to this message.
 
