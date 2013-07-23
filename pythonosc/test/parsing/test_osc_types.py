@@ -1,8 +1,9 @@
 """Unit tests for the osc_types module."""
 import unittest
 
-from parsing import ntp
-from parsing import osc_types
+import pythonosc
+from pythonosc.parsing import ntp
+from pythonosc.parsing import osc_types
 
 
 class TestString(unittest.TestCase):

@@ -1,7 +1,7 @@
 import unittest
 
-import osc_bundle_builder
-import osc_message_builder
+from pythonosc import osc_bundle_builder
+from pythonosc import osc_message_builder
 
 class TestOscBundleBuilder(unittest.TestCase):
 

@@ -1,6 +1,6 @@
 import unittest
 
-import osc_message_builder
+from pythonosc import osc_message_builder
 
 
 class TestOscMessageBuilder(unittest.TestCase):

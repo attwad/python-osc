@@ -22,9 +22,10 @@ http://docs.python.org/library/socketserver.html
 
 import socketserver
 
-import osc_bundle
-import osc_message
-import osc_packet
+import pythonosc
+from pythonosc import osc_bundle
+from pythonosc import osc_message
+from pythonosc import osc_packet
 
 class _UDPHandler(socketserver.BaseRequestHandler):
   """Handles correct UDP messages for all types of server.

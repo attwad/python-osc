@@ -1,8 +1,9 @@
 import logging
 
-import osc_message
-from parsing import ntp
-from parsing import osc_types
+import pythonosc
+from pythonosc import osc_message
+from pythonosc.parsing import ntp
+from pythonosc.parsing import osc_types
 
 _BUNDLE_PREFIX = b"#bundle\x00"
 

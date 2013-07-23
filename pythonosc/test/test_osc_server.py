@@ -3,8 +3,8 @@ import unittest.mock
 import threading
 import socket
 
-import dispatcher
-import osc_server
+from pythonosc import dispatcher
+from pythonosc import osc_server
 
 
 _SIMPLE_PARAM_INT_MSG = (

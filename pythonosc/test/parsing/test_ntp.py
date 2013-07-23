@@ -1,6 +1,7 @@
 import unittest
 
-from parsing import ntp
+import pythonosc
+from pythonosc.parsing import ntp
 
 
 class TestNTP(unittest.TestCase):

@@ -1,7 +1,8 @@
 """Build OSC messages for client applications."""
 
-from parsing import osc_types
-import osc_message
+import pythonosc
+from pythonosc import osc_message
+from pythonosc.parsing import osc_types
 
 
 class BuildError(Exception):

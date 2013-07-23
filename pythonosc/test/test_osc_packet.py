@@ -1,7 +1,7 @@
 import unittest
 
-import osc_packet
-from parsing import osc_types
+from pythonosc import osc_packet
+from pythonosc.parsing import osc_types
 
 
 _DGRAM_TWO_MESSAGES_IN_BUNDLE = (

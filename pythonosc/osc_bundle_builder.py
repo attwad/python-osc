@@ -1,8 +1,9 @@
 """Build OSC bundles for client applications."""
 
-import osc_bundle
-import osc_message
-from parsing import osc_types
+import pythonosc
+from pythonosc import osc_bundle
+from pythonosc import osc_message
+from pythonosc.parsing import osc_types
 
 
 # Shortcut to specify an immediate execution of messages in the bundle.

@@ -1,6 +1,6 @@
 import unittest
 
-import dispatcher
+from pythonosc import dispatcher
 
 class TestDispatcher(unittest.TestCase):
 

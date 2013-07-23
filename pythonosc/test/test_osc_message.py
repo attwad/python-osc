@@ -1,7 +1,7 @@
 import unittest
 import logging
 
-import osc_message
+from pythonosc import osc_message
 
 
 # Datagrams sent by Reaktor 5.8 by Native Instruments (c).

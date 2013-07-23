@@ -3,9 +3,10 @@
 It gives easy access to OscMessage and OscBundle instances in the packet.
 """
 
-from parsing import osc_types
-import osc_bundle
-import osc_message
+import pythonosc
+from pythonosc.parsing import osc_types
+from pythonosc import osc_bundle
+from pythonosc import osc_message
 
 def _timed_msg_of_bundle(bundle):
   """Returns messages contained in nested bundles."""

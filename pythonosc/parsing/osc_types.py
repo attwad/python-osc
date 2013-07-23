@@ -4,7 +4,7 @@ import decimal
 import struct
 import time
 
-from parsing import ntp
+from pythonosc.parsing import ntp
 
 
 class ParseError(Exception):
