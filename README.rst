@@ -21,33 +21,3 @@ Features
 * int, float, string, blob OSC arguments
 * extensive unit test coverage
 * basic client and server examples
-
-To come:
-* more argument types
-
-============
-Installation
-============
-
-python-osc is a pure python library that has no external dependencies,
-to install it just use pip (prefered):
-
-.. code-block:: bash
-
-    $ pip install python-osc
-
-or from the raw sources for the development version:
-
-.. code-block:: bash
-
-    $ python setup.py test
-    $ python setup.py install
-
-========
-Examples
-========
-
--------------
-Simple client
--------------
-.. literalinclude:: examples/simple_client.py
