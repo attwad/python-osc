@@ -13,8 +13,20 @@ class ParseError(Exception):
 
 
 class OscBundle(object):
+  """Bundles elements that should be triggered at the same time.
+  
+  An element can be another OscBundle or an OscMessage.
+  """
 
   def __init__(self, dgram):
+    """Initializes the OscBundle with the given datagram.
+    
+    Args:
+      dgram: a UDP datagram representing an OscBundle.
+    
+    Raises:
+      ParseError: if the datagram could not be parsed into an OscBundle.
+    """
     # Interesting stuff starts after the initial b"#bundle\x00".
     self._dgram = dgram
     index = len(_BUNDLE_PREFIX)
@@ -48,24 +60,24 @@ class OscBundle(object):
         else:
           logging.warning(
               "Could not identify content type of dgram %s" % content_dgram)
-    except osc_types.ParseError as pe:
-      raise ParseError("Could not parse a content datagram: %s" % pe)
-    except IndexError as ie:
-      raise ParseError("Could not parse a content datagram: %s" % ie)
+    except (osc_types.ParseError, IndexError) as e:
+      raise ParseError("Could not parse a content datagram: %s" % e)
 
     return contents
 
   @staticmethod
   def dgram_is_bundle(dgram):
-    """Returns whether this datagram starts as an OSC bundle."""
+    """Returns whether this datagram starts like an OSC bundle."""
     return dgram.startswith(_BUNDLE_PREFIX)
 
   @property
   def timestamp(self):
+    """Returns the timestamp associated with this bundle."""
     return self._timestamp
 
   @property
   def num_contents(self):
+    """Shortcut for len(*bundle) returning the number of elements of this bundle."""
     return len(self._contents)
 
   @property
