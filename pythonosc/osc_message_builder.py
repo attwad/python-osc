@@ -1,6 +1,7 @@
 """Build OSC messages for client applications."""
 
-import pythonosc
+import builtins
+
 from pythonosc import osc_message
 from pythonosc.parsing import osc_types
 
@@ -44,19 +45,32 @@ class OscMessageBuilder(object):
     """Returns the (type, value) arguments list of this message."""
     return self._args
 
-  # TODO: Make the arg type optional, use type() to determine what it is.
-  def add_arg(self, arg_type, arg_value):
+  def add_arg(self, arg_value, arg_type=None):
     """Add a typed argument to this message.
 
     Args:
-      - arg_type: A value in ARG_TYPE_* defined in this class.
       - arg_value: The corresponding value for the argument.
+      - arg_type: A value in ARG_TYPE_* defined in this class,
+                  if none then the type will be guessed.
     Raises:
       - ValueError: if the type is not supported.
     """
-    if arg_type not in self._SUPPORTED_ARG_TYPES:
+    if arg_type and arg_type not in self._SUPPORTED_ARG_TYPES:
       raise ValueError(
           'arg_type must be one of {}'.format(self._SUPPORTED_ARG_TYPES))
+    if not arg_type:
+      builtin_type = type(arg_value)
+      if builtin_type == builtins.str:
+        arg_type = self.ARG_TYPE_STRING
+      elif builtin_type == builtins.bytes:
+        arg_type = self.ARG_TYPE_BLOB
+      elif builtin_type == builtins.int:
+        arg_type = self.ARG_TYPE_INT
+      elif builtin_type == builtins.float:
+        arg_type = self.ARG_TYPE_FLOAT
+      else:
+        raise ValueError(
+            'Could not determine the type of argument {}'.format(arg_value))
     self._args.append((arg_type, arg_value))
 
   def build(self):

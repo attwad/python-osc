@@ -19,14 +19,14 @@ class TestOscBundleBuilder(unittest.TestCase):
     bundle = osc_bundle_builder.OscBundleBuilder(
         osc_bundle_builder.IMMEDIATELY)
     msg = osc_message_builder.OscMessageBuilder(address = "/SYNC")
-    msg.add_arg(msg.ARG_TYPE_FLOAT, 4.0)
+    msg.add_arg(4.0)
     # Add 4 messages in the bundle, each with more arguments.
     bundle.add_content(msg.build())
-    msg.add_arg(msg.ARG_TYPE_INT, 2)
+    msg.add_arg(2)
     bundle.add_content(msg.build())
-    msg.add_arg(msg.ARG_TYPE_STRING, "value")
+    msg.add_arg("value")
     bundle.add_content(msg.build())
-    msg.add_arg(msg.ARG_TYPE_BLOB, b"\x01\x02\x03")
+    msg.add_arg(b"\x01\x02\x03")
     bundle.add_content(msg.build())
 
     sub_bundle = bundle.build()
