@@ -1,5 +1,11 @@
 """Class that maps OSC addresses to handlers."""
+import collections
 import re
+
+Handler = collections.namedtuple(
+    typename='Handler',
+    field_names=('callback', 'args'))
+
 
 class Dispatcher(object):
   """Register addresses to handlers and can match vice-versa."""
@@ -19,10 +25,10 @@ class Dispatcher(object):
     """
     # TODO: Check if we need to use a multimap instead, spec is a bit fuzzy
     # about it...
-    self._map[address] = (handler, list(args))
+    self._map[address] = Handler(handler, list(args))
 
   def handlers_for_address(self, address_pattern):
-    """Return a tuple of (handler, args) matching the given OSC pattern."""
+    """Return a tuple of Handler namedtuple matching the given OSC pattern."""
     handlers = []
     # First convert the address_pattern into a matchable regexp.
     # '?' in the OSC Address Pattern matches any single character.

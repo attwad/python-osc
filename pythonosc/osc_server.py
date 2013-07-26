@@ -62,11 +62,10 @@ class _UDPHandler(socketserver.BaseRequestHandler):
         if timed_msg.time > now:
           time.sleep(timed_msg.time - now)
         for handler in handlers:
-          # TODO: Use namedtuples.
-          if handler[1]:
-            handler[0](handler[1], *timed_msg.message)
+          if handler.args:
+            handler.callback(handler.args, *timed_msg.message)
           else:
-            handler[0](*timed_msg.message)
+            handler.callback(*timed_msg.message)
     except osc_packet.ParseError as pe:
       pass
 
