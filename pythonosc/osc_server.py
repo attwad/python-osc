@@ -20,9 +20,10 @@ Those servers are using the standard socketserver from the standard library:
 http://docs.python.org/library/socketserver.html
 """
 
+import calendar
 import socketserver
+import time
 
-import pythonosc
 from pythonosc import osc_bundle
 from pythonosc import osc_message
 from pythonosc import osc_packet
@@ -52,16 +53,20 @@ class _UDPHandler(socketserver.BaseRequestHandler):
     # Get OSC messages from all bundles or standalone message.
     try:
       packet = osc_packet.OscPacket(data)
-      for msg_time, msg in packet.messages:
-        handlers = self.server.dispatcher.handlers_for_address(msg.address)
+      for timed_msg in packet.messages:
+        now = calendar.timegm(time.gmtime())
+        handlers = self.server.dispatcher.handlers_for_address(
+            timed_msg.message.address)
         if not handlers: continue
-        # TODO: Use namedtuples.
-        # TODO: Actually handle time of messages.
+        # If the message is to be handled later, then so be it.
+        if timed_msg.time > now:
+          time.sleep(timed_msg.time - now)
         for handler in handlers:
+          # TODO: Use namedtuples.
           if handler[1]:
-            handler[0](handler[1], *msg)
+            handler[0](handler[1], *timed_msg.message)
           else:
-            handler[0](*msg)
+            handler[0](*timed_msg.message)
     except osc_packet.ParseError as pe:
       pass
 
@@ -76,7 +81,7 @@ def _is_valid_request(request):
 
 class BlockingOSCUDPServer(socketserver.UDPServer):
   """Blocking version of the UDP server.
-  
+
   Each message will be handled sequentially on the same thread.
   Use this is you don't care about latency in your message handling or don't
   have a multiprocess/multithread environment (really?).

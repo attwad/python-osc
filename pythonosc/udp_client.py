@@ -7,7 +7,7 @@ class UDPClient(object):
 
   def __init__(self, address, port):
     """Initialize the client.
-    
+
     As this is UDP it will not actually make any attempt to connect to the
     given server at ip:port until the send() method is called.
     """
