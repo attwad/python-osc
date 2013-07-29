@@ -1,6 +1,5 @@
 import unittest
 
-import pythonosc
 from pythonosc.parsing import ntp
 
 

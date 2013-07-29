@@ -1,4 +1,4 @@
-"""Use OSC packets to parse incoming UDP packets into usable messages or bundles.
+"""Use OSC packets to parse incoming UDP packets into messages or bundles.
 
 It lets you access easily to OscMessage and OscBundle instances in the packet.
 """
@@ -10,7 +10,6 @@ import time
 from pythonosc.parsing import osc_types
 from pythonosc import osc_bundle
 from pythonosc import osc_message
-
 
 
 # A namedtuple as returned my the _timed_msg_of_bundle function.
@@ -68,7 +67,8 @@ class OscPacket(object):
       else:
         # Empty packet, should not happen as per the spec but heh, UDP...
         raise ParseError(
-            'OSC Packet should at least contain an OscMessage or an OscBundle.')
+            'OSC Packet should at least contain an OscMessage or an '
+            'OscBundle.')
     except (osc_bundle.ParseError, osc_message.ParseError) as pe:
       raise ParseError('Could not parse packet %s' % pe)
 

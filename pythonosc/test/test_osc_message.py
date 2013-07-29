@@ -1,5 +1,4 @@
 import unittest
-import logging
 
 from pythonosc import osc_message
 
@@ -72,7 +71,8 @@ class TestOscMessage(unittest.TestCase):
     self.assertRaises(osc_message.ParseError, osc_message.OscMessage, b'')
 
   def test_raises_on_incorrect_datargram(self):
-    self.assertRaises(osc_message.ParseError, osc_message.OscMessage, b'foobar')
+    self.assertRaises(
+        osc_message.ParseError, osc_message.OscMessage, b'foobar')
 
 if __name__ == "__main__":
   unittest.main()

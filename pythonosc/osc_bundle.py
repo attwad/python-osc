@@ -1,8 +1,6 @@
 import logging
 
-import pythonosc
 from pythonosc import osc_message
-from pythonosc.parsing import ntp
 from pythonosc.parsing import osc_types
 
 _BUNDLE_PREFIX = b"#bundle\x00"
@@ -14,16 +12,16 @@ class ParseError(Exception):
 
 class OscBundle(object):
   """Bundles elements that should be triggered at the same time.
-  
+
   An element can be another OscBundle or an OscMessage.
   """
 
   def __init__(self, dgram):
     """Initializes the OscBundle with the given datagram.
-    
+
     Args:
       dgram: a UDP datagram representing an OscBundle.
-    
+
     Raises:
       ParseError: if the datagram could not be parsed into an OscBundle.
     """
@@ -77,7 +75,7 @@ class OscBundle(object):
 
   @property
   def num_contents(self):
-    """Shortcut for len(*bundle) returning the number of elements of this bundle."""
+    """Shortcut for len(*bundle) returning the number of elements."""
     return len(self._contents)
 
   @property

@@ -2,7 +2,6 @@
 
 import logging
 
-import pythonosc
 from pythonosc.parsing import osc_types
 
 

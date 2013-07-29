@@ -3,6 +3,7 @@ import unittest
 from pythonosc import osc_bundle_builder
 from pythonosc import osc_message_builder
 
+
 class TestOscBundleBuilder(unittest.TestCase):
 
   def test_empty_bundle(self):
@@ -18,7 +19,7 @@ class TestOscBundleBuilder(unittest.TestCase):
   def test_build_complex_bundle(self):
     bundle = osc_bundle_builder.OscBundleBuilder(
         osc_bundle_builder.IMMEDIATELY)
-    msg = osc_message_builder.OscMessageBuilder(address = "/SYNC")
+    msg = osc_message_builder.OscMessageBuilder(address="/SYNC")
     msg.add_arg(4.0)
     # Add 4 messages in the bundle, each with more arguments.
     bundle.add_content(msg.build())

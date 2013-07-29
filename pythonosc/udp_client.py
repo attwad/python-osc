@@ -2,6 +2,7 @@
 
 import socket
 
+
 class UDPClient(object):
   """OSC client to send OscMessages or OscBundles via UDP."""
 

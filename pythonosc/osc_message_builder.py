@@ -38,7 +38,7 @@ class OscMessageBuilder(object):
   @address.setter
   def address(self, value):
     """Sets the OSC address this message will be sent to."""
-    self._address = address
+    self._address = value
 
   @property
   def args(self):
@@ -105,7 +105,8 @@ class OscMessageBuilder(object):
         elif arg_type == self.ARG_TYPE_BLOB:
           dgram += osc_types.write_blob(value)
         else:
-          raise BuildError('Incorrect parameter type found {}'.format(arg_type))
+          raise BuildError('Incorrect parameter type found {}'.format(
+              arg_type))
 
       return osc_message.OscMessage(dgram)
     except osc_types.BuildError as be:

@@ -1,8 +1,7 @@
-"""Module containing functions to get OSC types from datagrams and vice versa"""
+"""Functions to get OSC types from datagrams and vice versa"""
 
 import decimal
 import struct
-import time
 
 from pythonosc.parsing import ntp
 
@@ -29,7 +28,7 @@ _BLOB_DGRAM_PAD = 4
 
 def write_string(val):
   """Returns the OSC string equivalent of the given python string.
-  
+
   Raises:
     - BuildError if the string could not be encoded.
   """
@@ -89,7 +88,7 @@ def get_string(dgram, start_index):
 
 def write_int(val):
   """Returns the datagram for the given integer parameter value
-  
+
   Raises:
     - BuildError if the int could not be converted.
   """
@@ -116,7 +115,8 @@ def get_int(dgram, start_index):
     if len(dgram[start_index:]) < _INT_DGRAM_LEN:
       raise ParseError('Datagram is too short')
     return (
-        struct.unpack('>i', dgram[start_index:start_index+_INT_DGRAM_LEN])[0],
+        struct.unpack('>i',
+                      dgram[start_index:start_index + _INT_DGRAM_LEN])[0],
         start_index + _INT_DGRAM_LEN)
   except struct.error as se:
     raise ParseError('Cannot parse integer: %s' % se)
@@ -126,7 +126,7 @@ def get_int(dgram, start_index):
 
 def write_float(val):
   """Returns the datagram for the given float parameter value
-  
+
   Raises:
     - BuildError if the float could not be converted.
   """
@@ -156,7 +156,8 @@ def get_float(dgram, start_index):
       # account for that.
       dgram = dgram + b'\x00' * (_FLOAT_DGRAM_LEN - len(dgram[start_index:]))
     return (
-        struct.unpack('>f', dgram[start_index:start_index+_FLOAT_DGRAM_LEN])[0],
+        struct.unpack('>f',
+                      dgram[start_index:start_index + _FLOAT_DGRAM_LEN])[0],
         start_index + _FLOAT_DGRAM_LEN)
   except struct.error as se:
     raise ParseError('Cannot parse float: %s' % se)
@@ -166,7 +167,7 @@ def get_float(dgram, start_index):
 
 def get_blob(dgram, start_index):
   """ Get a blob from the datagram.
-  
+
   According to the specifications, a blob is made of
   "an int32 size count, followed by that many 8-bit bytes of arbitrary
   binary data, followed by 0-3 additional zero bytes to make the total
@@ -196,7 +197,7 @@ def get_blob(dgram, start_index):
 
 def write_blob(val):
   """Returns the datagram for the given blob parameter value.
-  
+
   Raises:
     - BuildError if the value was empty or if its size didn't fit an OSC int.
   """
@@ -207,7 +208,7 @@ def write_blob(val):
   while len(dgram) % _BLOB_DGRAM_PAD != 0:
     dgram += b'\x00'
   return dgram
-  
+
 
 def get_date(dgram, start_index):
   """Get a 64-bit big-endian fixed-point time tag as a date from the datagram.
@@ -240,6 +241,7 @@ def get_date(dgram, start_index):
   # And convert it to float simply.
   system_time = float(dec)
   return ntp.ntp_to_system_time(system_time), start_index
+
 
 def write_date(system_time):
   if system_time == IMMEDIATELY:

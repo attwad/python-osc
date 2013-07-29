@@ -1,7 +1,6 @@
 import unittest
 
 from pythonosc import osc_packet
-from pythonosc.parsing import osc_types
 
 
 _DGRAM_TWO_MESSAGES_IN_BUNDLE = (
@@ -53,6 +52,7 @@ _DGRAM_NESTED_MESS = (
     b"/4444\x00\x00\x00"
     b",f\x00\x00"
     b"?\x00\x00\x00")
+
 
 class TestOscPacket(unittest.TestCase):
 

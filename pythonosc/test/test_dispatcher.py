@@ -2,6 +2,7 @@ import unittest
 
 from pythonosc import dispatcher
 
+
 class TestDispatcher(unittest.TestCase):
 
   def setUp(self):
@@ -40,11 +41,11 @@ class TestDispatcher(unittest.TestCase):
           [(index, [])], self.dispatcher.handlers_for_address(address))
 
     self.sortAndAssertSequenceEqual(
-      [(1, []), (2, [])], self.dispatcher.handlers_for_address("/second/?"))
+        [(1, []), (2, [])], self.dispatcher.handlers_for_address("/second/?"))
 
     self.sortAndAssertSequenceEqual(
-      [(3, []), (4, []), (5, [])],
-      self.dispatcher.handlers_for_address("/third/*"))
+        [(3, []), (4, []), (5, [])],
+        self.dispatcher.handlers_for_address("/third/*"))
 
   def test_do_not_match_over_slash(self):
     self.dispatcher.map('/foo/bar/1', 1)

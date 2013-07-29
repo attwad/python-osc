@@ -1,6 +1,5 @@
 """Build OSC bundles for client applications."""
 
-import pythonosc
 from pythonosc import osc_bundle
 from pythonosc import osc_message
 from pythonosc.parsing import osc_types
@@ -8,6 +7,7 @@ from pythonosc.parsing import osc_types
 
 # Shortcut to specify an immediate execution of messages in the bundle.
 IMMEDIATELY = osc_types.IMMEDIATELY
+
 
 class BuildError(Exception):
   """Error raised when an error occurs building the bundle."""
@@ -51,8 +51,8 @@ class OscBundleBuilder(object):
           dgram += content.dgram
         else:
           raise BuildError(
-              "Content must be either OscBundle or OscMessage, found {}".format(
-                  type(content)))
+              "Content must be either OscBundle or OscMessage"
+              "found {}".format(type(content)))
       return osc_bundle.OscBundle(dgram)
     except osc_types.BuildError as be:
       raise BuildError('Could not build the bundle {}'.format(be))
