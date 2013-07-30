@@ -17,11 +17,9 @@ Features
 * UDP blocking/threading/forking server implementations
 * UDP client
 * int, float, string, blob OSC arguments
+* simple OSC address<->callback matching system
 * extensive unit test coverage
 * basic client and server examples
-
-To come:
-* more argument types
 
 Installation
 ============
