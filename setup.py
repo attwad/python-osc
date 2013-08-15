@@ -33,4 +33,3 @@ setup(
     ],
     **test_extras
 )
-
