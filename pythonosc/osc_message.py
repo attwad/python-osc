@@ -2,7 +2,7 @@
 
 import logging
 
-from parsing import osc_types
+from pythonosc.parsing import osc_types
 
 
 class ParseError(Exception):
@@ -18,39 +18,39 @@ class OscMessage(object):
 
   def __init__(self, dgram):
     self._dgram = dgram
-    self._parameters = {}
+    self._parameters = []
     self._parse_datagram()
 
   def _parse_datagram(self):
     try:
-      self._address_regexp, index = osc_types.GetString(self._dgram, 0)
-      logging.debug('Found address {0}, index now {1}', self._address_regexp, index)
+      self._address_regexp, index = osc_types.get_string(self._dgram, 0)
       if not self._dgram[index:]:
         # No params is legit, just return now.
         return
 
       # Get the parameters types.
-      type_tag, index = osc_types.GetString(self._dgram, index)
-      logging.debug('Found type tag {0}, index now {1}', type_tag, index)
+      type_tag, index = osc_types.get_string(self._dgram, index)
       if type_tag.startswith(','):
         type_tag = type_tag[1:]
 
       # Parse each parameter given its type.
-      for i, param in enumerate(type_tag):
+      for param in type_tag:
         if param == "i":  # Integer.
-          self._parameters[i], index = osc_types.GetInteger(self._dgram, index)
+          val, index = osc_types.get_int(self._dgram, index)
         elif param == "f":  # Float.
-          self._parameters[i], index = osc_types.GetFloat(self._dgram, index)
+          val, index = osc_types.get_float(self._dgram, index)
         elif param == "s":  # String.
-          self._parameters[i], index = osc_types.GetString(self._dgram, index)
+          val, index = osc_types.get_string(self._dgram, index)
         elif param == "b":  # Blob.
-          self._parameters[i], index = osc_types.GetBlob(self._dgram, index)
+          val, index = osc_types.get_blob(self._dgram, index)
         # TODO: Support more exotic types as described in the specification.
         elif param == 0:
           # We've reached the end of the param string, finish now.
           return
         else:
           logging.warning('Unhandled parameter type: {0}'.format(param))
+          continue
+        self._parameters.append(val)
     except osc_types.ParseError as pe:
       raise ParseError('Found incorrect datagram, ignoring it', pe)
 
@@ -59,16 +59,26 @@ class OscMessage(object):
     """Returns the OSC address regular expression."""
     return self._address_regexp
 
-  @property
-  def param_count(self):
-    """Returns the number of parameters."""
-    return len(self._parameters)
+  @staticmethod
+  def dgram_is_message(dgram):
+    """Returns whether this datagram starts as an OSC message."""
+    return dgram.startswith(b'/')
 
   @property
   def size(self):
     """Returns the length of the datagram for this message."""
     return len(self._dgram)
 
-  def param(self, i):
-    """Access parameters by 0-based index."""
-    return self._parameters[i]
+  @property
+  def dgram(self):
+    """Returns the datagram from which this message was built."""
+    return self._dgram
+
+  @property
+  def params(self):
+    """Convenience method for list(self) to get the list of parameters."""
+    return list(self)
+
+  def __iter__(self):
+    """Returns an iterator over the parameters of this message."""
+    return iter(self._parameters)

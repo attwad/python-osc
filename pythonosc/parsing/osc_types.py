@@ -1,26 +1,50 @@
-"""Module containing parsing functions to get OSC types from datagrams."""
+"""Functions to get OSC types from datagrams and vice versa"""
 
 import decimal
 import struct
-import time
 
-from parsing import ntp
+from pythonosc.parsing import ntp
 
 
 class ParseError(Exception):
   """Base exception for when a datagram parsing error occurs."""
 
 
-# Constant for special ntp datagram sequences that represent an immediate time.
-IMMEDIATELY = "IMMEDIATELY"
+class BuildError(Exception):
+  """Base exception for when a datagram building error occurs."""
 
-# Datagram length for types that have a fixed size.
+
+# Constant for special ntp datagram sequences that represent an immediate time.
+IMMEDIATELY = 0
+
+# Datagram length in bytes for types that have a fixed size.
 _INT_DGRAM_LEN = 4
 _FLOAT_DGRAM_LEN = 4
 _DATE_DGRAM_LEN = _INT_DGRAM_LEN * 2
+# Strings and blob dgram length is always a multiple of 4 bytes.
+_STRING_DGRAM_PAD = 4
+_BLOB_DGRAM_PAD = 4
 
 
-def GetString(dgram, start_index):
+def write_string(val):
+  """Returns the OSC string equivalent of the given python string.
+
+  Raises:
+    - BuildError if the string could not be encoded.
+  """
+  try:
+    dgram = val.encode('utf-8')  # Default, but better be explicit.
+  except (UnicodeEncodeError, AttributeError) as e:
+    raise BuildError('Incorrect string, could not encode {}'.format(e))
+  diff = _STRING_DGRAM_PAD - (len(dgram) % _STRING_DGRAM_PAD)
+  if diff:
+    dgram += (b'\x00' * diff)
+  else:
+    dgram += (b'\x00' * 4)
+  return dgram
+
+
+def get_string(dgram, start_index):
   """Get a python string from the datagram, starting at pos start_index.
 
   According to the specifications, a string is:
@@ -43,12 +67,13 @@ def GetString(dgram, start_index):
     while dgram[start_index + offset] != 0:
       offset += 1
     if offset == 0:
-      raise ParseError('OSC string cannot begin with a null byte')
+      raise ParseError(
+          'OSC string cannot begin with a null byte: %s' % dgram[start_index:])
     # Align to a byte word.
-    if (offset) % 4 == 0:
-      offset += 4
+    if (offset) % _STRING_DGRAM_PAD == 0:
+      offset += _STRING_DGRAM_PAD
     else:
-      offset += (-offset % 4)
+      offset += (-offset % _STRING_DGRAM_PAD)
     # Python slices do not raise an IndexError past the last index,
     # do it ourselves.
     if offset > len(dgram[start_index:]):
@@ -61,7 +86,19 @@ def GetString(dgram, start_index):
     raise ParseError('Could not parse datagram %s' % te)
 
 
-def GetInteger(dgram, start_index):
+def write_int(val):
+  """Returns the datagram for the given integer parameter value
+
+  Raises:
+    - BuildError if the int could not be converted.
+  """
+  try:
+    return struct.pack('>i', val)
+  except struct.error as e:
+    raise BuildError('Wrong argument value passed: {}'.format(e))
+
+
+def get_int(dgram, start_index):
   """Get a 32-bit big-endian two's complement integer from the datagram.
 
   Args:
@@ -78,7 +115,8 @@ def GetInteger(dgram, start_index):
     if len(dgram[start_index:]) < _INT_DGRAM_LEN:
       raise ParseError('Datagram is too short')
     return (
-        struct.unpack('>i', dgram[start_index:start_index+_INT_DGRAM_LEN])[0],
+        struct.unpack('>i',
+                      dgram[start_index:start_index + _INT_DGRAM_LEN])[0],
         start_index + _INT_DGRAM_LEN)
   except struct.error as se:
     raise ParseError('Cannot parse integer: %s' % se)
@@ -86,7 +124,19 @@ def GetInteger(dgram, start_index):
     raise ParseError('Could not parse datagram %s' % te)
 
 
-def GetFloat(dgram, start_index):
+def write_float(val):
+  """Returns the datagram for the given float parameter value
+
+  Raises:
+    - BuildError if the float could not be converted.
+  """
+  try:
+    return struct.pack('>f', val)
+  except struct.error as e:
+    raise BuildError('Wrong argument value passed: {}'.format(e))
+
+
+def get_float(dgram, start_index):
   """Get a 32-bit big-endian IEEE 754 floating point number from the datagram.
 
   Args:
@@ -101,9 +151,13 @@ def GetFloat(dgram, start_index):
   """
   try:
     if len(dgram[start_index:]) < _FLOAT_DGRAM_LEN:
-      raise ParseError('Datagram is too short')
+      # Noticed that Reaktor doesn't send the last bunch of \x00 needed to make
+      # the float representation complete in some cases, thus we pad here to
+      # account for that.
+      dgram = dgram + b'\x00' * (_FLOAT_DGRAM_LEN - len(dgram[start_index:]))
     return (
-        struct.unpack('>f', dgram[start_index:start_index+_FLOAT_DGRAM_LEN])[0],
+        struct.unpack('>f',
+                      dgram[start_index:start_index + _FLOAT_DGRAM_LEN])[0],
         start_index + _FLOAT_DGRAM_LEN)
   except struct.error as se:
     raise ParseError('Cannot parse float: %s' % se)
@@ -111,9 +165,9 @@ def GetFloat(dgram, start_index):
     raise ParseError('Could not parse datagram %s' % te)
 
 
-def GetBlob(dgram, start_index):
+def get_blob(dgram, start_index):
   """ Get a blob from the datagram.
-  
+
   According to the specifications, a blob is made of
   "an int32 size count, followed by that many 8-bit bytes of arbitrary
   binary data, followed by 0-3 additional zero bytes to make the total
@@ -129,19 +183,34 @@ def GetBlob(dgram, start_index):
   Raises:
     ParseError if the datagram could not be parsed.
   """
-  size, int_offset = GetInteger(dgram, start_index)
+  size, int_offset = get_int(dgram, start_index)
   # Make the size a multiple of 32 bits.
-  size += (-size % 4)
+  total_size = size + (-size % _BLOB_DGRAM_PAD)
   end_index = int_offset + size
   if end_index - start_index > len(dgram[start_index:]):
     raise ParseError('Datagram is too short.')
   try:
-    return dgram[int_offset:end_index], end_index
+    return dgram[int_offset:int_offset + size], int_offset + total_size
   except TypeError as te:
     raise ParseError('Could not parse datagram %s' % te)
 
 
-def GetDate(dgram, start_index):
+def write_blob(val):
+  """Returns the datagram for the given blob parameter value.
+
+  Raises:
+    - BuildError if the value was empty or if its size didn't fit an OSC int.
+  """
+  if not val:
+    raise BuildError('Blob value cannot be empty')
+  dgram = write_int(len(val))
+  dgram += val
+  while len(dgram) % _BLOB_DGRAM_PAD != 0:
+    dgram += b'\x00'
+  return dgram
+
+
+def get_date(dgram, start_index):
   """Get a 64-bit big-endian fixed-point time tag as a date from the datagram.
 
   According to the specifications, a date is represented as is:
@@ -155,19 +224,27 @@ def GetDate(dgram, start_index):
 
   Returns:
     A tuple containing the system date and the new end index.
+    returns osc_immediately (0) if the corresponding OSC sequence was found.
 
   Raises:
     ParseError if the datagram could not be parsed.
   """
   # Check for the special case first.
-  if dgram == ntp.IMMEDIATELY:
-    return IMMEDIATELY
+  if dgram[start_index:start_index + _DATE_DGRAM_LEN] == ntp.IMMEDIATELY:
+    return IMMEDIATELY, start_index + _DATE_DGRAM_LEN
   if len(dgram[start_index:]) < _DATE_DGRAM_LEN:
     raise ParseError('Datagram is too short')
-  num_secs, start_index = GetInteger(dgram, start_index)
-  fraction, start_index = GetInteger(dgram, start_index)
+  num_secs, start_index = get_int(dgram, start_index)
+  fraction, start_index = get_int(dgram, start_index)
   # Get a decimal representation from those two values.
   dec = decimal.Decimal(str(num_secs) + '.' + str(fraction))
   # And convert it to float simply.
   system_time = float(dec)
-  return ntp.NtpToSystemTime(system_time)
+  return ntp.ntp_to_system_time(system_time), start_index
+
+
+def write_date(system_time):
+  if system_time == IMMEDIATELY:
+    return ntp.IMMEDIATELY
+
+  return ntp.system_time_to_ntp(system_time)
