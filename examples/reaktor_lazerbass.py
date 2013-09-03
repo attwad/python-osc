@@ -27,30 +27,49 @@ class ReaktorDisplay(multiprocessing.Process):
 
   def run(self):
     pygame.init()
-    self._screen = pygame.display.set_mode((640, 480))  # FULLSCREEN
+    font = pygame.font.SysFont("monospace", 15)
+    screen = pygame.display.set_mode((640, 480))  # FULLSCREEN
     running = True
     dirty = True
     # OSC controlled parameters.
-    self._beating = 2.0
+    self._parameters = {
+        'beating': 0.0,
+        'blocks': 0.0,
+        'basic_Model': 0.0,
+        'Do!': 0.0,
+    }
     while running:
       for event in pygame.event.get():
         if event.type == QUIT:
           running = False
-      try:
-        beating = self._bq.get(False)
-        self._beating = beating
-        dirty = True
-      except queue.Empty:
-        pass
       if dirty:
-        self._screen.fill(_BLACK)
-        # left, top, width, height
+        screen.fill(_BLACK)
+        # Draw a gauge using rectangles.
+        # Left, top, width, height.
         pygame.draw.rect(
-            self._screen, _WHITE, [10, 10, 50, 16 * 10], 2)
+            screen, _WHITE, [10, 10, 50, 100], 2)
         pygame.draw.rect(
-            self._screen, _WHITE, [10, 170, 50, -int(self._beating * 100)])
+            screen, _WHITE, [10, 110, 50, -int(self._parameters['beating'] * 100)])
+
+        # Draw a button-like square for on/off display.
+        pygame.draw.rect(
+            screen, _WHITE, [10, 200, 50, 50], 2)
+        pygame.draw.rect(
+            screen, _WHITE, [10, 200, 50, 50 if self._parameters['blocks'] >= 0.5 else 0])
+
+        # Show actual values.
+        for index, [key, val] in enumerate(self._parameters.items()):
+          label = font.render("{0}: {1}".format(key, val), 1, _WHITE)
+          screen.blit(label, (200, index * 15))
         pygame.display.flip()
         dirty = False
+      try:
+        what, value = self._bq.get(True)
+        self._parameters[what] = value
+        dirty = True
+        logging.debug('Received new value {0} = {1}'.format(what, value))
+      except queue.Empty:
+        running = False
     pygame.quit()
 
 
@@ -72,9 +91,16 @@ if __name__ == "__main__":
   bq = multiprocessing.Queue()
   reaktor = ReaktorDisplay(bq)
 
+  def put_in_queue(args, value):
+    """Put a named argument in the queue to be able to use a single queue."""
+    bq.put([args[0], value])
+
   dispatcher = dispatcher.Dispatcher()
   dispatcher.map("/debug", logging.debug)
-  dispatcher.map("/beating", bq.put)
+  dispatcher.map("/beating", put_in_queue, "beating")
+  dispatcher.map("/blocks", put_in_queue, "blocks")
+  dispatcher.map("/basic_Model", put_in_queue, "basic_Model")
+  dispatcher.map("/Do!", put_in_queue, "Do!")
 
   server = osc_server.ThreadingOSCUDPServer(
       (args.server_ip, args.server_port), dispatcher)
