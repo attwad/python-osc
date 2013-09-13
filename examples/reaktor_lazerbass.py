@@ -76,10 +76,11 @@ class ReaktorDisplay(multiprocessing.Process):
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()
   parser.add_argument(
-      "--server_ip", default="127.0.0.1", help="The ip of the OSC server")
+      "--server_ip", default="0.0.0.0",
+      help="The ip to listen to for reaktor OSC messages")
   parser.add_argument(
       "--server_port", type=int, default=8000,
-      help="The port the OSC server is listening on")
+      help="The port to listen on for reaktor OSC messages")
   #parser.add_argument("--client_ip",
   #    default="127.0.0.1", help="The ip to listen on")
   #parser.add_argument("--client_port",
