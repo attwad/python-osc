@@ -44,9 +44,6 @@ class OscMessage(object):
         elif param == "b":  # Blob.
           val, index = osc_types.get_blob(self._dgram, index)
         # TODO: Support more exotic types as described in the specification.
-        elif param == 0:
-          # We've reached the end of the param string, finish now.
-          return
         else:
           logging.warning('Unhandled parameter type: {0}'.format(param))
           continue

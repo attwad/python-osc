@@ -29,6 +29,11 @@ _DGRAM_ALL_STANDARD_TYPES_OF_PARAMS = (
     b"ABC\x00"  # "ABC"
     b"\x00\x00\x00\x08stuff\x00\x00\x00")  # b"stuff\x00\x00\x00"
 
+_DGRAM_UNKNOWN_PARAM_TYPE = (
+    b"/SYNC\x00\x00\x00"
+    b",fx\x00"  # x is an unknown param type.
+    b"?\x00\x00\x00")
+
 
 class TestOscMessage(unittest.TestCase):
 
@@ -69,6 +74,13 @@ class TestOscMessage(unittest.TestCase):
 
   def test_raises_on_empty_datargram(self):
     self.assertRaises(osc_message.ParseError, osc_message.OscMessage, b'')
+
+  def test_ignores_unknown_param(self):
+    msg = osc_message.OscMessage(_DGRAM_UNKNOWN_PARAM_TYPE)
+    self.assertEqual("/SYNC", msg.address)
+    self.assertEqual(1, len(msg.params))
+    self.assertTrue(type(msg.params[0]) == float)
+    self.assertAlmostEqual(0.5, msg.params[0])
 
   def test_raises_on_incorrect_datargram(self):
     self.assertRaises(
