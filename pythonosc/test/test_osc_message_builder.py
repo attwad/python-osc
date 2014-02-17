@@ -11,28 +11,36 @@ class TestOscMessageBuilder(unittest.TestCase):
     self.assertEqual([], msg.params)
 
   def test_no_address_raises(self):
-    msg = osc_message_builder.OscMessageBuilder("")
-    self.assertRaises(osc_message_builder.BuildError, msg.build)
+    builder = osc_message_builder.OscMessageBuilder("")
+    self.assertRaises(osc_message_builder.BuildError, builder.build)
 
   def test_wrong_param_raise(self):
-    msg = osc_message_builder.OscMessageBuilder("")
-    self.assertRaises(ValueError, msg.add_arg, "what?", 1)
+    builder = osc_message_builder.OscMessageBuilder("")
+    self.assertRaises(ValueError, builder.add_arg, "what?", 1)
 
   def test_all_param_types(self):
-    msg = osc_message_builder.OscMessageBuilder(address="/SYNC")
-    msg.add_arg(4.0)
-    msg.add_arg(2)
-    msg.add_arg("value")
-    msg.add_arg(b"\x01\x02\x03")
+    builder = osc_message_builder.OscMessageBuilder(address="/SYNC")
+    builder.add_arg(4.0)
+    builder.add_arg(2)
+    builder.add_arg("value")
+    builder.add_arg(b"\x01\x02\x03")
     # The same args but with explicit types.
-    msg.add_arg(4.0, msg.ARG_TYPE_FLOAT)
-    msg.add_arg(2, msg.ARG_TYPE_INT)
-    msg.add_arg("value", msg.ARG_TYPE_STRING)
-    msg.add_arg(b"\x01\x02\x03", msg.ARG_TYPE_BLOB)
-    msg = msg.build()
-    self.assertEqual("/SYNC", msg.address)
+    builder.add_arg(4.0, builder.ARG_TYPE_FLOAT)
+    builder.add_arg(2, builder.ARG_TYPE_INT)
+    builder.add_arg("value", builder.ARG_TYPE_STRING)
+    builder.add_arg(b"\x01\x02\x03", builder.ARG_TYPE_BLOB)
+    self.assertEqual(8, len(builder.args))
+    self.assertEqual("/SYNC", builder.address)
+    builder.address = '/SEEK'
+    msg = builder.build()
+    self.assertEqual("/SEEK", msg.address)
     self.assertSequenceEqual(
         [4.0, 2, "value", b"\x01\x02\x03"] * 2, msg.params)
+
+  def test_build_wrong_type_raises(self):
+    builder = osc_message_builder.OscMessageBuilder(address="/SYNC")
+    builder.add_arg('this is not a float', builder.ARG_TYPE_FLOAT)
+    self.assertRaises(osc_message_builder.BuildError, builder.build)
 
 
 if __name__ == "__main__":

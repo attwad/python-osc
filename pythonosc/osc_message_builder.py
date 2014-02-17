@@ -68,9 +68,6 @@ class OscMessageBuilder(object):
         arg_type = self.ARG_TYPE_INT
       elif builtin_type == builtins.float:
         arg_type = self.ARG_TYPE_FLOAT
-      else:
-        raise ValueError(
-            'Could not determine the type of argument {}'.format(arg_value))
     self._args.append((arg_type, arg_value))
 
   def build(self):
