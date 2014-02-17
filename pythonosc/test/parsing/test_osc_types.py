@@ -62,7 +62,7 @@ class TestInteger(unittest.TestCase):
         self.assertEqual(
             expected, osc_types.get_int(dgram, 0))
 
-  def test_get_integer_raises_on_wrong_dgram(self):
+  def test_get_integer_raises_on_type_error(self):
     cases = [b'', True]
 
     for case in cases:
@@ -97,6 +97,12 @@ class TestFloat(unittest.TestCase):
 
   def test_get_float_raises_on_wrong_dgram(self):
     cases = [True]
+
+    for case in cases:
+      self.assertRaises(osc_types.ParseError, osc_types.get_float, case, 0)
+
+  def test_get_float_raises_on_type_error(self):
+    cases = [None]
 
     for case in cases:
       self.assertRaises(osc_types.ParseError, osc_types.get_float, case, 0)
@@ -157,10 +163,14 @@ class TestNTPTimestamp(unittest.TestCase):
     dgram = b'\x00' * 8
     self.assertRaises(osc_types.ParseError, osc_types.get_date, dgram, 2)
 
+  def test_write_date(self):
+    self.assertEqual(b'\x83\xaa~\x83\x00\x00\x059', osc_types.write_date(3.1337))
+
 
 class TestBuildMethods(unittest.TestCase):
 
   def test_string(self):
+    self.assertEqual(b'\x00\x00\x00\x00', osc_types.write_string(''))
     self.assertEqual(b'A\x00\x00\x00', osc_types.write_string('A'))
     self.assertEqual(b'AB\x00\x00', osc_types.write_string('AB'))
     self.assertEqual(b'ABC\x00', osc_types.write_string('ABC'))
@@ -195,6 +205,7 @@ class TestBuildMethods(unittest.TestCase):
 
   def test_blob_raises(self):
     self.assertRaises(osc_types.BuildError, osc_types.write_blob, b'')
+
 
 if __name__ == "__main__":
   unittest.main()

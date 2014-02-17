@@ -37,10 +37,7 @@ def write_string(val):
   except (UnicodeEncodeError, AttributeError) as e:
     raise BuildError('Incorrect string, could not encode {}'.format(e))
   diff = _STRING_DGRAM_PAD - (len(dgram) % _STRING_DGRAM_PAD)
-  if diff:
-    dgram += (b'\x00' * diff)
-  else:
-    dgram += (b'\x00' * 4)
+  dgram += (b'\x00' * diff)
   return dgram
 
 
@@ -118,10 +115,8 @@ def get_int(dgram, start_index):
         struct.unpack('>i',
                       dgram[start_index:start_index + _INT_DGRAM_LEN])[0],
         start_index + _INT_DGRAM_LEN)
-  except struct.error as se:
-    raise ParseError('Cannot parse integer: %s' % se)
-  except TypeError as te:
-    raise ParseError('Could not parse datagram %s' % te)
+  except (struct.error, TypeError) as e:
+    raise ParseError('Could not parse datagram %s' % e)
 
 
 def write_float(val):
@@ -159,10 +154,8 @@ def get_float(dgram, start_index):
         struct.unpack('>f',
                       dgram[start_index:start_index + _FLOAT_DGRAM_LEN])[0],
         start_index + _FLOAT_DGRAM_LEN)
-  except struct.error as se:
-    raise ParseError('Cannot parse float: %s' % se)
-  except TypeError as te:
-    raise ParseError('Could not parse datagram %s' % te)
+  except (struct.error, TypeError) as e:
+    raise ParseError('Could not parse datagram %s' % e)
 
 
 def get_blob(dgram, start_index):
@@ -189,10 +182,7 @@ def get_blob(dgram, start_index):
   end_index = int_offset + size
   if end_index - start_index > len(dgram[start_index:]):
     raise ParseError('Datagram is too short.')
-  try:
-    return dgram[int_offset:int_offset + size], int_offset + total_size
-  except TypeError as te:
-    raise ParseError('Could not parse datagram %s' % te)
+  return dgram[int_offset:int_offset + size], int_offset + total_size
 
 
 def write_blob(val):
