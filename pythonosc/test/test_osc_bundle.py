@@ -57,6 +57,16 @@ _DGRAM_BUNDLE_IN_BUNDLE = (
     b",f\x00\x00"
     b"?\x00\x00\x00")
 
+_DGRAM_INVALID = (
+    b"#bundle\x00"
+    b"\x00\x00\x00")
+
+_DGRAM_INVALID_INDEX = (
+    b"#bundle\x00"
+    b"\x00\x00\x00\x00\x00\x00\x00\x01"
+    b"\x00\x00\x00\x20"
+    b"/SYNC\x00\x00\x00\x00")
+
 
 class TestOscBundle(unittest.TestCase):
 
@@ -100,6 +110,12 @@ class TestOscBundle(unittest.TestCase):
     self.assertTrue(osc_bundle.OscBundle.dgram_is_bundle(
         _DGRAM_SWITCH_GOES_ON))
     self.assertFalse(osc_bundle.OscBundle.dgram_is_bundle(b'junk'))
+
+  def test_raises_on_invalid_datagram(self):
+    self.assertRaises(
+        osc_bundle.ParseError, osc_bundle.OscBundle, _DGRAM_INVALID)
+    self.assertRaises(
+        osc_bundle.ParseError, osc_bundle.OscBundle, _DGRAM_INVALID_INDEX)
 
 if __name__ == "__main__":
   unittest.main()
