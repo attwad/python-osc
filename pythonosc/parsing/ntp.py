@@ -15,6 +15,10 @@ _NTP_EPOCH = datetime.date(1900, 1, 1)
 _NTP_DELTA = (_SYSTEM_EPOCH - _NTP_EPOCH).days * 24 * 3600
 
 
+class NtpError(Exception):
+  """Base class for ntp module errors."""
+
+
 def ntp_to_system_time(date):
     """Convert a NTP time to system time.
 
@@ -28,6 +32,9 @@ def system_time_to_ntp(date):
 
     System time is reprensented by seconds since the epoch in UTC.
     """
-    ntp = date + _NTP_DELTA
+    try:
+      ntp = date + _NTP_DELTA
+    except TypeError as ve:
+      raise NtpError('Invalud date: {}'.format(ve))
     num_secs, fraction = str(ntp).split('.')
     return struct.pack('>I', int(num_secs)) + struct.pack('>I', int(fraction))

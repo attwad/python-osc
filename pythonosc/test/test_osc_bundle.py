@@ -67,6 +67,12 @@ _DGRAM_INVALID_INDEX = (
     b"\x00\x00\x00\x20"
     b"/SYNC\x00\x00\x00\x00")
 
+_DGRAM_UNKNOWN_TYPE = (
+    b"#bundle\x00"
+    b"\x00\x00\x00\x00\x00\x00\x00\x01"
+    b"\x00\x00\x00\x10"
+    b"iamnotaslash")
+
 
 class TestOscBundle(unittest.TestCase):
 
@@ -116,6 +122,9 @@ class TestOscBundle(unittest.TestCase):
         osc_bundle.ParseError, osc_bundle.OscBundle, _DGRAM_INVALID)
     self.assertRaises(
         osc_bundle.ParseError, osc_bundle.OscBundle, _DGRAM_INVALID_INDEX)
+
+  def test_unknown_type(self):
+    bundle = osc_bundle.OscBundle(_DGRAM_UNKNOWN_TYPE)
 
 if __name__ == "__main__":
   unittest.main()

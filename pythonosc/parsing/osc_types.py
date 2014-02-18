@@ -237,4 +237,7 @@ def write_date(system_time):
   if system_time == IMMEDIATELY:
     return ntp.IMMEDIATELY
 
-  return ntp.system_time_to_ntp(system_time)
+  try:
+    return ntp.system_time_to_ntp(system_time)
+  except ntp.NtpError as ntpe:
+    raise BuildError(ntpe)

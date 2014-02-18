@@ -16,6 +16,10 @@ class TestOscBundleBuilder(unittest.TestCase):
     bundle.add_content(None)
     self.assertRaises(osc_bundle_builder.BuildError, bundle.build)
 
+  def test_raises_on_invalid_timestamp(self):
+    bundle = osc_bundle_builder.OscBundleBuilder("I am not a timestamp")
+    self.assertRaises(osc_bundle_builder.BuildError, bundle.build)
+
   def test_build_complex_bundle(self):
     bundle = osc_bundle_builder.OscBundleBuilder(
         osc_bundle_builder.IMMEDIATELY)
