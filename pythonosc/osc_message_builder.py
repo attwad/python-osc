@@ -17,9 +17,11 @@ class OscMessageBuilder(object):
   ARG_TYPE_INT = "i"
   ARG_TYPE_STRING = "s"
   ARG_TYPE_BLOB = "b"
+  ARG_TYPE_TRUE = "T"
+  ARG_TYPE_FALSE = "F"
 
   _SUPPORTED_ARG_TYPES = (
-      ARG_TYPE_FLOAT, ARG_TYPE_INT, ARG_TYPE_BLOB, ARG_TYPE_STRING)
+      ARG_TYPE_FLOAT, ARG_TYPE_INT, ARG_TYPE_BLOB, ARG_TYPE_STRING, ARG_TYPE_TRUE, ARG_TYPE_FALSE)
 
   def __init__(self, address=None):
     """Initialize a new builder for a message.
@@ -68,6 +70,10 @@ class OscMessageBuilder(object):
         arg_type = self.ARG_TYPE_INT
       elif builtin_type == builtins.float:
         arg_type = self.ARG_TYPE_FLOAT
+      elif builtin_type == builtins.bool and arg_value:
+        arg_type = self.ARG_TYPE_TRUE
+      elif builtin_type == builtins.bool and not arg_value:
+        arg_type = self.ARG_TYPE_FALSE
     self._args.append((arg_type, arg_value))
 
   def build(self):
@@ -101,6 +107,8 @@ class OscMessageBuilder(object):
           dgram += osc_types.write_float(value)
         elif arg_type == self.ARG_TYPE_BLOB:
           dgram += osc_types.write_blob(value)
+        elif arg_type == self.ARG_TYPE_TRUE or arg_type == self.ARG_TYPE_FALSE:
+          dgram += b'\x00'
         else:
           raise BuildError('Incorrect parameter type found {}'.format(
               arg_type))
