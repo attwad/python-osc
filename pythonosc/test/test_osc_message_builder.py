@@ -23,19 +23,23 @@ class TestOscMessageBuilder(unittest.TestCase):
     builder.add_arg(4.0)
     builder.add_arg(2)
     builder.add_arg("value")
+    builder.add_arg(True)
+    builder.add_arg(False)
     builder.add_arg(b"\x01\x02\x03")
     # The same args but with explicit types.
     builder.add_arg(4.0, builder.ARG_TYPE_FLOAT)
     builder.add_arg(2, builder.ARG_TYPE_INT)
     builder.add_arg("value", builder.ARG_TYPE_STRING)
+    builder.add_arg(True)
+    builder.add_arg(False)
     builder.add_arg(b"\x01\x02\x03", builder.ARG_TYPE_BLOB)
-    self.assertEqual(8, len(builder.args))
+    self.assertEqual(12, len(builder.args))
     self.assertEqual("/SYNC", builder.address)
     builder.address = '/SEEK'
     msg = builder.build()
     self.assertEqual("/SEEK", msg.address)
     self.assertSequenceEqual(
-        [4.0, 2, "value", b"\x01\x02\x03"] * 2, msg.params)
+        [4.0, 2, "value", True, False, b"\x01\x02\x03"] * 2, msg.params)
 
   def test_build_wrong_type_raises(self):
     builder = osc_message_builder.OscMessageBuilder(address="/SYNC")
