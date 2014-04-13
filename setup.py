@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 try:
     from setuptools import setup
     test_extras = {
