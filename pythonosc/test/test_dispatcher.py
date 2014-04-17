@@ -73,6 +73,8 @@ class TestDispatcher(unittest.TestCase):
 
     self.sortAndAssertSequenceEqual(
         [(1, [])], self.dispatcher.handlers_for_address("/foo*/bar+*/*"))
+    self.sortAndAssertSequenceEqual(
+        [(1, [])], self.dispatcher.handlers_for_address("/foo*/bar*/*"))
 
 if __name__ == "__main__":
   unittest.main()
