@@ -36,7 +36,7 @@ class Dispatcher(object):
     pattern = address_pattern.replace('?', '\\w?')
     # '*' in the OSC Address Pattern matches any sequence of zero or more
     # characters.
-    pattern = pattern.replace('*', '\\w*')
+    pattern = pattern.replace('*', '[\\w|\\\\+]*')
     # The rest of the syntax in the specification is like the re module so
     # we're fine.
     pattern = pattern + '$'

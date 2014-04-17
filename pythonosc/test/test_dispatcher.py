@@ -68,5 +68,11 @@ class TestDispatcher(unittest.TestCase):
     self.sortAndAssertSequenceEqual(
         [(1, []), (2, [])], self.dispatcher.handlers_for_address("/*/*/*"))
 
+  def test_match_address_contains_plus_as_character(self):
+    self.dispatcher.map('/footest/bar+tender/1', 1)
+
+    self.sortAndAssertSequenceEqual(
+        [(1, [])], self.dispatcher.handlers_for_address("/foo*/bar+*/*"))
+
 if __name__ == "__main__":
   unittest.main()
