@@ -81,18 +81,13 @@ class TestDispatcher(unittest.TestCase):
     self.sortAndAssertSequenceEqual(
         [(1, [])], self.dispatcher.handlers_for_address("/foo*/bar*/*"))
 
-  def aatest_meh(self):
-    ok = object()
-    not_ok = object()
-    self.dispatcher.map('/a+b', ok)
-    self.dispatcher.map('/aaab', not_ok)
+  def test_call_correct_dispatcher_on_star(self):
+    self.dispatcher.map('/a+b', 1)
+    self.dispatcher.map('/aaab', 2)
     self.sortAndAssertSequenceEqual(
-        [(1, not_ok)], self.dispatcher.handlers_for_address('/aaab'))
-    #self.sortAndAssertSequenceEqual(
-    #    [ok], self.dispatcher.handlers_for_address('/a+b'))
-
-    # in the client
-    client.send('/a+b') # should trigger only_correct_dispatcher only!
+        [(2, [])], self.dispatcher.handlers_for_address('/aaab'))
+    self.sortAndAssertSequenceEqual(
+        [(1, [])], self.dispatcher.handlers_for_address('/a+b'))
 
 if __name__ == "__main__":
   unittest.main()
