@@ -15,6 +15,11 @@ class TestDispatcher(unittest.TestCase):
   def test_empty_by_default(self):
     self.assertEqual([], self.dispatcher.handlers_for_address('/test'))
 
+  def test_use_default_handler_when_set_and_no_match(self):
+    handler = object()
+    self.dispatcher.set_default_handler(handler)
+    self.assertEqual([handler], self.dispatcher.handlers_for_address('/test'))
+
   def test_simple_map_and_match(self):
     handler = object()
     self.dispatcher.map('/test', handler, 1, 2, 3)

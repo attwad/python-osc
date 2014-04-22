@@ -1,5 +1,6 @@
 """Class that maps OSC addresses to handlers."""
 import collections
+import logging
 import re
 
 Handler = collections.namedtuple(
@@ -12,6 +13,7 @@ class Dispatcher(object):
 
   def __init__(self):
     self._map = {}
+    self._default_handler = None
 
   def map(self, address, handler, *args):
     """Map a given address to a handler.
@@ -43,4 +45,15 @@ class Dispatcher(object):
     pattern = re.compile(pattern)
     matched = [
         handler for addr, handler in self._map.items() if pattern.match(addr)]
+    if not matched and self._default_handler:
+      matched.append(self._default_handler)
+      logging.debug('No handler matched but default handler present, added it.')
     return matched
+
+  def set_default_handler(self, handler):
+    """Sets the default handler.
+
+    Must be a function with the same constaints as with the self.map method
+    or None to unset the default handler.
+    """
+    self._default_handler = handler
