@@ -18,7 +18,7 @@ class TestDispatcher(unittest.TestCase):
   def test_use_default_handler_when_set_and_no_match(self):
     handler = object()
     self.dispatcher.set_default_handler(handler)
-    self.assertEqual([handler], self.dispatcher.handlers_for_address('/test'))
+    self.assertEqual([(handler, [])], self.dispatcher.handlers_for_address('/test'))
 
   def test_simple_map_and_match(self):
     handler = object()
@@ -80,6 +80,19 @@ class TestDispatcher(unittest.TestCase):
         [(1, [])], self.dispatcher.handlers_for_address("/foo*/bar+*/*"))
     self.sortAndAssertSequenceEqual(
         [(1, [])], self.dispatcher.handlers_for_address("/foo*/bar*/*"))
+
+  def aatest_meh(self):
+    ok = object()
+    not_ok = object()
+    self.dispatcher.map('/a+b', ok)
+    self.dispatcher.map('/aaab', not_ok)
+    self.sortAndAssertSequenceEqual(
+        [(1, not_ok)], self.dispatcher.handlers_for_address('/aaab'))
+    #self.sortAndAssertSequenceEqual(
+    #    [ok], self.dispatcher.handlers_for_address('/a+b'))
+
+    # in the client
+    client.send('/a+b') # should trigger only_correct_dispatcher only!
 
 if __name__ == "__main__":
   unittest.main()

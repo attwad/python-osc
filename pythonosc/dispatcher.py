@@ -46,7 +46,7 @@ class Dispatcher(object):
     matched = [
         handler for addr, handler in self._map.items() if pattern.match(addr)]
     if not matched and self._default_handler:
-      matched.append(self._default_handler)
+      matched.append(Handler(self._default_handler, []))
       logging.debug('No handler matched but default handler present, added it.')
     return matched
 
