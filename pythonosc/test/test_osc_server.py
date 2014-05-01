@@ -48,14 +48,21 @@ class TestUDPHandler(unittest.TestCase):
     self.dispatcher.map("/SYNC", mock_meth, 1, 2, 3)
     osc_server._UDPHandler(
         [_SIMPLE_PARAM_INT_MSG, None], self.client_address, self.server)
-    mock_meth.assert_called_with([1, 2, 3], 4)
+    mock_meth.assert_called_with("/SYNC", [1, 2, 3], 4)
 
   def test_match_without_args(self):
     mock_meth = unittest.mock.MagicMock()
     self.dispatcher.map("/SYNC", mock_meth)
     osc_server._UDPHandler(
         [_SIMPLE_MSG_NO_PARAMS, None], self.client_address, self.server)
-    mock_meth.assert_called_with()
+    mock_meth.assert_called_with("/SYNC")
+
+  def test_match_default_handler(self):
+    mock_meth = unittest.mock.MagicMock()
+    self.dispatcher.set_default_handler(mock_meth)
+    osc_server._UDPHandler(
+        [_SIMPLE_MSG_NO_PARAMS, None], self.client_address, self.server)
+    mock_meth.assert_called_with("/SYNC")
 
 
 if __name__ == "__main__":

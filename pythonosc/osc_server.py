@@ -46,9 +46,11 @@ class _UDPHandler(socketserver.BaseRequestHandler):
 
   If parameters were registered with the dispatcher, then the handlers are
   called this way:
-    handler(registered_param_list, osc_msg_arg1, osc_msg_arg2, ...)
+    handler('/address that triggered the message',
+            registered_param_list, osc_msg_arg1, osc_msg_arg2, ...)
   if no parameters were registered, then it is just called like this:
-    handler(osc_msg_arg1, osc_msg_arg2, osc_msg_param3, ...)
+    handler('/address that triggered the message',
+            osc_msg_arg1, osc_msg_arg2, osc_msg_param3, ...)
   """
   def handle(self):
     data = self.request[0].strip()
@@ -66,9 +68,10 @@ class _UDPHandler(socketserver.BaseRequestHandler):
           time.sleep(timed_msg.time - now)
         for handler in handlers:
           if handler.args:
-            handler.callback(handler.args, *timed_msg.message)
+            handler.callback(
+                timed_msg.message.address, handler.args, *timed_msg.message)
           else:
-            handler.callback(*timed_msg.message)
+            handler.callback(timed_msg.message.address, *timed_msg.message)
     except osc_packet.ParseError:
       pass
 
