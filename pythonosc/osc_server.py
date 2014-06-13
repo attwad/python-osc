@@ -11,7 +11,7 @@ server.serve_forever()
 or run the server on its own thread:
 server = ForkingOSCUDPServer((ip, port), dispatcher)
 server_thread = threading.Thread(target=server.serve_forever)
-server_thread.Start()
+server_thread.start()
 ...
 server.shutdown()
 
