@@ -10,6 +10,9 @@ _SIMPLE_PARAM_INT_MSG = (
     b",i\x00\x00"
     b"\x00\x00\x00\x04")
 
+# Regressiont test for a datagram that should NOT be stripped, ever...
+_SIMPLE_PARAM_INT_9 = b'/debug\x00\x00,i\x00\x00\x00\x00\x00\t'
+
 _SIMPLE_MSG_NO_PARAMS = b"/SYNC\x00\x00\x00"
 
 
@@ -49,6 +52,14 @@ class TestUDPHandler(unittest.TestCase):
     osc_server._UDPHandler(
         [_SIMPLE_PARAM_INT_MSG, None], self.client_address, self.server)
     mock_meth.assert_called_with("/SYNC", [1, 2, 3], 4)
+
+  def test_match_int9(self):
+    mock_meth = unittest.mock.MagicMock()
+    self.dispatcher.map("/debug", mock_meth)
+    osc_server._UDPHandler(
+        [_SIMPLE_PARAM_INT_9, None], self.client_address, self.server)
+    self.assertTrue(mock_meth.called)
+    mock_meth.assert_called_with("/debug", 9)
 
   def test_match_without_args(self):
     mock_meth = unittest.mock.MagicMock()

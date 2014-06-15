@@ -29,6 +29,7 @@ from pythonosc import osc_message
 from pythonosc import osc_packet
 
 
+
 class _UDPHandler(socketserver.BaseRequestHandler):
   """Handles correct UDP messages for all types of server.
 
@@ -53,7 +54,7 @@ class _UDPHandler(socketserver.BaseRequestHandler):
             osc_msg_arg1, osc_msg_arg2, osc_msg_param3, ...)
   """
   def handle(self):
-    data = self.request[0].strip()
+    data = self.request[0]
     # Get OSC messages from all bundles or standalone message.
     try:
       packet = osc_packet.OscPacket(data)
