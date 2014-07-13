@@ -112,3 +112,7 @@ Simple server
         (args.ip, args.port), dispatcher)
     print("Serving on {}".format(server.server_address))
     server.serve_forever()
+
+License?
+========
+WTFPL (http://www.wtfpl.net)
