@@ -30,6 +30,9 @@ Installation
 python-osc is a pure python library that has no external dependencies,
 to install it just use pip (prefered):
 
+.. image:: https://img.shields.io/pypi/v/python-osc.svg
+    :target: https://pypi.python.org/pypi/python-osc
+
 .. code-block:: bash
 
     $ pip install python-osc
