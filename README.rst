@@ -121,4 +121,4 @@ Simple server
 
 License?
 ========
-WTFPL (http://www.wtfpl.net)
+Unlicensed, do what you want with it. (http://unlicense.org)
