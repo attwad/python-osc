@@ -35,8 +35,8 @@ class Dispatcher(object):
     # '?' in the OSC Address Pattern matches any single character.
     # Let's consider numbers and _ "characters" too here, it's not said
     # explicitly in the specification but it sounds good.
-    address_pattern = re.escape(address_pattern)
-    pattern = address_pattern.replace('\\?', '\\w?')
+    escaped_address_pattern = re.escape(address_pattern)
+    pattern = escaped_address_pattern.replace('\\?', '\\w?')
     # '*' in the OSC Address Pattern matches any sequence of zero or more
     # characters.
     pattern = pattern.replace('\\*', '[\w|\+]*')
@@ -45,7 +45,12 @@ class Dispatcher(object):
     pattern = pattern + '$'
     pattern = re.compile(pattern)
     matched = [
-        handler for addr, handler in self._map.items() if pattern.match(addr)]
+        handler for addr, handler in self._map.items()
+        if ( pattern.match(addr) # wildcards could be in the incoming pattern
+             # .. or the mapped pattern
+             or (('*' in addr) and re.match(addr.replace('*','[^/]*?/*'), address_pattern))
+           )
+        ]
     if not matched and self._default_handler:
       matched.append(Handler(self._default_handler, []))
       logging.debug('No handler matched but default handler present, added it.')

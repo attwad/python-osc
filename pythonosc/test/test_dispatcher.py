@@ -18,7 +18,7 @@ class TestDispatcher(unittest.TestCase):
   def test_use_default_handler_when_set_and_no_match(self):
     handler = object()
     self.dispatcher.set_default_handler(handler)
-    self.assertEqual([(handler, [])], self.dispatcher.handlers_for_address('/test'))
+    self.assertEqual([dispatcher.Handler(handler, [])], self.dispatcher.handlers_for_address('/test'))
 
   def test_simple_map_and_match(self):
     handler = object()
@@ -27,7 +27,7 @@ class TestDispatcher(unittest.TestCase):
     self.assertEqual(
         [(handler, [1, 2, 3])], self.dispatcher.handlers_for_address('/test'))
     self.assertEqual(
-        [(handler, [])], self.dispatcher.handlers_for_address('/test2'))
+        [dispatcher.Handler(handler, [])], self.dispatcher.handlers_for_address('/test2'))
 
   def test_example_from_spec(self):
     addresses = [
@@ -88,6 +88,23 @@ class TestDispatcher(unittest.TestCase):
         [(2, [])], self.dispatcher.handlers_for_address('/aaab'))
     self.sortAndAssertSequenceEqual(
         [(1, [])], self.dispatcher.handlers_for_address('/a+b'))
+
+  def test_map_star(self):
+    self.dispatcher.map('/starbase/*', 1)
+    self.sortAndAssertSequenceEqual(
+        [(1, [])], self.dispatcher.handlers_for_address("/starbase/bar"))
+
+  def test_map_root_star(self):
+    self.dispatcher.map('/*', 1)
+    self.sortAndAssertSequenceEqual(
+        [(1, [])], self.dispatcher.handlers_for_address("/anything/matches"))
+
+  def test_map_double_stars(self):
+    self.dispatcher.map('/foo/*/bar/*', 1)
+    self.sortAndAssertSequenceEqual(
+        [(1, [])], self.dispatcher.handlers_for_address("/foo/wild/bar/wild"))
+    self.sortAndAssertSequenceEqual(
+        [], self.dispatcher.handlers_for_address("/foo/wild/nomatch/wild"))
 
 if __name__ == "__main__":
   unittest.main()
