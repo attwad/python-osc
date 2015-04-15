@@ -13,20 +13,21 @@ class TestDispatcher(unittest.TestCase):
     return self.assertSequenceEqual(sorted(expected), sorted(result))
 
   def test_empty_by_default(self):
-    self.assertEqual([], self.dispatcher.handlers_for_address('/test'))
+    self.sortAndAssertSequenceEqual([], self.dispatcher.handlers_for_address('/test'))
 
   def test_use_default_handler_when_set_and_no_match(self):
     handler = object()
     self.dispatcher.set_default_handler(handler)
-    self.assertEqual([dispatcher.Handler(handler, [])], self.dispatcher.handlers_for_address('/test'))
+
+    self.sortAndAssertSequenceEqual([dispatcher.Handler(handler, [])], self.dispatcher.handlers_for_address('/test'))
 
   def test_simple_map_and_match(self):
     handler = object()
     self.dispatcher.map('/test', handler, 1, 2, 3)
     self.dispatcher.map('/test2', handler)
-    self.assertEqual(
-        [(handler, [1, 2, 3])], self.dispatcher.handlers_for_address('/test'))
-    self.assertEqual(
+    self.sortAndAssertSequenceEqual(
+        [dispatcher.Handler(handler, [1, 2, 3])], self.dispatcher.handlers_for_address('/test'))
+    self.sortAndAssertSequenceEqual(
         [dispatcher.Handler(handler, [])], self.dispatcher.handlers_for_address('/test2'))
 
   def test_example_from_spec(self):
@@ -42,7 +43,7 @@ class TestDispatcher(unittest.TestCase):
       self.dispatcher.map(address, index)
 
     for index, address in enumerate(addresses):
-      self.assertListEqual(
+      self.sortAndAssertSequenceEqual(
           [(index, [])], self.dispatcher.handlers_for_address(address))
 
     self.sortAndAssertSequenceEqual(
@@ -105,6 +106,18 @@ class TestDispatcher(unittest.TestCase):
         [(1, [])], self.dispatcher.handlers_for_address("/foo/wild/bar/wild"))
     self.sortAndAssertSequenceEqual(
         [], self.dispatcher.handlers_for_address("/foo/wild/nomatch/wild"))
+
+  def test_multiple_handlers(self):
+    self.dispatcher.map('/foo/bar', 1)
+    self.dispatcher.map('/foo/bar', 2)
+    self.sortAndAssertSequenceEqual(
+        [dispatcher.Handler(1, []), dispatcher.Handler(2, [])], self.dispatcher.handlers_for_address("/foo/bar"))
+
+  def test_multiple_handlers_with_wildcard_map(self):
+    self.dispatcher.map('/foo/bar', 1)
+    self.dispatcher.map('/*', 2)
+    self.sortAndAssertSequenceEqual(
+        [dispatcher.Handler(1, []), dispatcher.Handler(2, [])], self.dispatcher.handlers_for_address("/foo/bar"))
 
 if __name__ == "__main__":
   unittest.main()
