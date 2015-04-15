@@ -25,6 +25,9 @@ class Dispatcher(object):
       - args: Any additional arguments that will be always passed to the
               handlers after the osc messages arguments if any.
     """
+    # TODO: Check the spec:
+    # http://opensoundcontrol.org/spec-1_0
+    # regarding multiple mappings
     self._map[address].append(Handler(handler, list(args)))
 
   def handlers_for_address(self, address_pattern):
@@ -45,8 +48,8 @@ class Dispatcher(object):
     matched = False
 
     for addr, handlers in self._map.items():
-      if pattern.match(addr) \
-        or (('*' in addr) and re.match(addr.replace('*','[^/]*?/*'), address_pattern)):
+      if (pattern.match(addr)
+        or (('*' in addr) and re.match(addr.replace('*','[^/]*?/*'), address_pattern))):
         yield from handlers
         matched = True
 
