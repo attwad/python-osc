@@ -31,7 +31,7 @@ class Dispatcher(object):
     self._map[address].append(Handler(handler, list(args)))
 
   def handlers_for_address(self, address_pattern):
-    """Return a tuple of Handler namedtuple matching the given OSC pattern."""
+    """yields Handler namedtuples matching the given OSC pattern."""
     # First convert the address_pattern into a matchable regexp.
     # '?' in the OSC Address Pattern matches any single character.
     # Let's consider numbers and _ "characters" too here, it's not said
