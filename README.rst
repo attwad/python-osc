@@ -17,7 +17,7 @@ and is currently in a stable state.
 Features
 ========
 
-* UDP blocking/threading/forking server implementations
+* UDP blocking/threading/forking/asyncio server implementations
 * UDP client
 * int, float, string, blob OSC arguments
 * simple OSC address<->callback matching system
