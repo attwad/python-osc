@@ -20,7 +20,8 @@ Those servers are using the standard socketserver from the standard library:
 http://docs.python.org/library/socketserver.html
 
 
-Alternatively, the AsyncIOOSCUDPServer server can be integrated with an asyncio event loop:
+Alternatively, the AsyncIOOSCUDPServer server can be integrated with an
+asyncio event loop:
 
 loop = asyncio.get_event_loop()
 server = AsyncIOOSCUDPServer(server_address, dispatcher, loop)
@@ -39,7 +40,7 @@ from pythonosc import osc_message
 from pythonosc import osc_packet
 
 
-def _handle(data, dispatcher):
+def _call_handlers_for_packet(data, dispatcher):
   """
   This function calls the handlers registered to the dispatcher for
   every message it found in the packet.
@@ -88,7 +89,7 @@ class _UDPHandler(socketserver.BaseRequestHandler):
   threads/processes will be spawned.
   """
   def handle(self):
-    _handle(self.request[0], self.server.dispatcher)
+    _call_handlers_for_packet(self.request[0], self.server.dispatcher)
 
 
 def _is_valid_request(request):
@@ -125,8 +126,7 @@ class BlockingOSCUDPServer(OSCUDPServer):
   """
 
 
-class ThreadingOSCUDPServer(
-    socketserver.ThreadingMixIn, OSCUDPServer):
+class ThreadingOSCUDPServer(socketserver.ThreadingMixIn, OSCUDPServer):
   """Threading version of the OSC UDP server.
 
   Each message will be handled in its own new thread.
@@ -134,8 +134,7 @@ class ThreadingOSCUDPServer(
   """
 
 
-class ForkingOSCUDPServer(
-    socketserver.ForkingMixIn, OSCUDPServer):
+class ForkingOSCUDPServer(socketserver.ForkingMixIn, OSCUDPServer):
   """Forking version of the OSC UDP server.
 
   Each message will be handled in its own new process.
@@ -146,32 +145,36 @@ class ForkingOSCUDPServer(
 
 class AsyncIOOSCUDPServer():
   """Asyncio version of the OSC UDP Server.
-
-  :param server_address: tuple of (IP address to bind to, port)
-  :param dispatcher: a pythonosc.dispatcher.Dispatcher
-  :param loop: an asyncio event loop
-
-  Each UDP message is handled by _handle, the same method as in the OSCUDPServer family of blocking, threading, and forking servers
+  Each UDP message is handled by _call_handlers_for_packet, the same method as in the
+  OSCUDPServer family of blocking, threading, and forking servers
   """
 
   def __init__(self, server_address, dispatcher, loop):
+    """
+    :param server_address: tuple of (IP address to bind to, port)
+    :param dispatcher: a pythonosc.dispatcher.Dispatcher
+    :param loop: an asyncio event loop
+    """
+
     self._server_address = server_address
     self._dispatcher = dispatcher
     self._loop = loop
 
-  class OSCProtocolFactory(asyncio.DatagramProtocol):
-    """OSC protocol factory which passes datagrams to _handle"""
+  class _OSCProtocolFactory(asyncio.DatagramProtocol):
+    """OSC protocol factory which passes datagrams to _call_handlers_for_packet"""
 
     def __init__(self, dispatcher):
       self.dispatcher = dispatcher
 
-    def datagram_received(self, data, addr):
-      _handle(data, self.dispatcher)
+    def datagram_received(self, data, unused_addr):
+      _call_handlers_for_packet(data, self.dispatcher)
 
   def serve(self):
     """creates a datagram endpoint and registers it with our event loop"""
-    listen = self._loop.create_datagram_endpoint(lambda: self.OSCProtocolFactory(self.dispatcher), local_addr=self._server_address)
-    transport, protocol = self._loop.run_until_complete(listen)
+    listen = self._loop.create_datagram_endpoint(
+      lambda: self._OSCProtocolFactory(self.dispatcher),
+      local_addr=self._server_address)
+    self._loop.run_until_complete(listen)
 
   @property
   def dispatcher(self):
