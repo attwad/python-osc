@@ -97,6 +97,7 @@ class OscMessageBuilder(object):
       # Write the address.
       dgram += osc_types.write_string(self._address)
       if not self._args:
+        dgram += osc_types.write_string(',')
         return osc_message.OscMessage(dgram)
 
       # Write the parameters.
