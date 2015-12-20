@@ -46,6 +46,13 @@ class TestOscMessageBuilder(unittest.TestCase):
     builder.add_arg('this is not a float', builder.ARG_TYPE_FLOAT)
     self.assertRaises(osc_message_builder.BuildError, builder.build)
 
+  def test_build_noarg_message(self):
+    msg = osc_message_builder.OscMessageBuilder(address='/SYNC').build()
+    # This reference message was generated with Cycling 74's Max software
+    # and then was intercepted with Wireshark
+    reference = bytearray.fromhex('2f53594e430000002c000000')
+    self.assertSequenceEqual(msg._dgram, reference)
+
 
 if __name__ == "__main__":
   unittest.main()
