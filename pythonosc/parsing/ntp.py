@@ -5,6 +5,9 @@ import struct
 import time
 
 
+JAN_1970 = 2208988800
+SECS_TO_PICOS = 4294967296
+
 # 63 zero bits followed by a one in the least signifigant bit is a special
 # case meaning "immediately."
 IMMEDIATELY = struct.pack('>q', 1)
@@ -26,15 +29,12 @@ def ntp_to_system_time(date):
     """
     return date - _NTP_DELTA
 
-
 def system_time_to_ntp(date):
-    """Convert a system time to a NTP time datagram.
-
-    System time is reprensented by seconds since the epoch in UTC.
-    """
-    try:
-      ntp = date + _NTP_DELTA
-    except TypeError as ve:
-      raise NtpError('Invalud date: {}'.format(ve))
-    num_secs, fraction = str(ntp).split('.')
-    return struct.pack('>I', int(num_secs)) + struct.pack('>I', int(fraction))
+    """ since 1970 => since 1900 64b OSC """
+    sec_1970 = int(date)
+    sec_1900 = sec_1970 + JAN_1970
+    
+    sec_frac = float(date - sec_1970)
+    picos = int(sec_frac * SECS_TO_PICOS)
+    
+    return struct.pack('>I', int(sec_1900)) + struct.pack('>I', picos)
