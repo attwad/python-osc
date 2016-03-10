@@ -164,7 +164,7 @@ class TestNTPTimestamp(unittest.TestCase):
     self.assertRaises(osc_types.ParseError, osc_types.get_date, dgram, 2)
 
   def test_write_date(self):
-    self.assertEqual(b'\x83\xaa~\x83\x00\x00\x059', osc_types.write_date(3.1337))
+    self.assertEqual(b'\x83\xaa~\x83\":)\xc7', osc_types.write_date(3.1337))
 
 
 class TestBuildMethods(unittest.TestCase):
