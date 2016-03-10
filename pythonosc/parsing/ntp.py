@@ -4,9 +4,8 @@ import datetime
 import struct
 import time
 
-
-JAN_1970 = 2208988800
-SECS_TO_PICOS = 4294967296
+# conversion factor for fractional seconds ... some bitwise magic, i suppose ?
+_FRACTIONAL_CONVERSION = 4294967296
 
 # 63 zero bits followed by a one in the least signifigant bit is a special
 # case meaning "immediately."
@@ -15,6 +14,7 @@ IMMEDIATELY = struct.pack('>q', 1)
 # From NTP lib.
 _SYSTEM_EPOCH = datetime.date(*time.gmtime(0)[0:3])
 _NTP_EPOCH = datetime.date(1900, 1, 1)
+# _NTP_DELTA is 2208988800
 _NTP_DELTA = (_SYSTEM_EPOCH - _NTP_EPOCH).days * 24 * 3600
 
 
@@ -30,11 +30,19 @@ def ntp_to_system_time(date):
     return date - _NTP_DELTA
 
 def system_time_to_ntp(date):
-    """ since 1970 => since 1900 64b OSC """
-    sec_1970 = int(date)
-    sec_1900 = sec_1970 + JAN_1970
+    """Convert a system time to NTP time.
+
+    System time is reprensented by seconds since the epoch in UTC.
+    """
+    try:
+      num_secs = int(date)
+    except ValueError as e:
+      raise NtpError(e)
     
-    sec_frac = float(date - sec_1970)
-    picos = int(sec_frac * SECS_TO_PICOS)
+    num_secs_ntp = num_secs + _NTP_DELTA
     
-    return struct.pack('>I', int(sec_1900)) + struct.pack('>I', picos)
+    sec_frac = float(date - num_secs)
+
+    picos = int(sec_frac * _FRACTIONAL_CONVERSION)
+  
+    return struct.pack('>I', int(num_secs_ntp)) + struct.pack('>I', picos)
