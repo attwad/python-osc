@@ -4,6 +4,8 @@ import datetime
 import struct
 import time
 
+# conversion factor for fractional seconds ... some bitwise magic, i suppose ?
+_FRACTIONAL_CONVERSION = 4294967296
 
 # 63 zero bits followed by a one in the least signifigant bit is a special
 # case meaning "immediately."
@@ -12,6 +14,7 @@ IMMEDIATELY = struct.pack('>q', 1)
 # From NTP lib.
 _SYSTEM_EPOCH = datetime.date(*time.gmtime(0)[0:3])
 _NTP_EPOCH = datetime.date(1900, 1, 1)
+# _NTP_DELTA is 2208988800
 _NTP_DELTA = (_SYSTEM_EPOCH - _NTP_EPOCH).days * 24 * 3600
 
 
@@ -26,15 +29,20 @@ def ntp_to_system_time(date):
     """
     return date - _NTP_DELTA
 
-
 def system_time_to_ntp(date):
-    """Convert a system time to a NTP time datagram.
+    """Convert a system time to NTP time.
 
     System time is reprensented by seconds since the epoch in UTC.
     """
     try:
-      ntp = date + _NTP_DELTA
-    except TypeError as ve:
-      raise NtpError('Invalud date: {}'.format(ve))
-    num_secs, fraction = str(ntp).split('.')
-    return struct.pack('>I', int(num_secs)) + struct.pack('>I', int(fraction))
+      num_secs = int(date)
+    except ValueError as e:
+      raise NtpError(e)
+    
+    num_secs_ntp = num_secs + _NTP_DELTA
+    
+    sec_frac = float(date - num_secs)
+
+    picos = int(sec_frac * _FRACTIONAL_CONVERSION)
+  
+    return struct.pack('>I', int(num_secs_ntp)) + struct.pack('>I', picos)
