@@ -4,8 +4,8 @@ import datetime
 import struct
 import time
 
-# conversion factor for fractional seconds ... some bitwise magic, i suppose ?
-_FRACTIONAL_CONVERSION = 4294967296
+# conversion factor for fractional seconds (maximum value of fractional part)
+FRACTIONAL_CONVERSION = 2 ** 32
 
 # 63 zero bits followed by a one in the least signifigant bit is a special
 # case meaning "immediately."
@@ -43,6 +43,6 @@ def system_time_to_ntp(date):
     
     sec_frac = float(date - num_secs)
 
-    picos = int(sec_frac * _FRACTIONAL_CONVERSION)
+    picos = int(sec_frac * FRACTIONAL_CONVERSION)
   
     return struct.pack('>I', int(num_secs_ntp)) + struct.pack('>I', picos)
