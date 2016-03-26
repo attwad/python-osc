@@ -31,7 +31,6 @@ loop.run_forever()
 """
 
 import asyncio
-import calendar
 import socketserver
 import time
 
@@ -59,7 +58,7 @@ def _call_handlers_for_packet(data, dispatcher):
   try:
     packet = osc_packet.OscPacket(data)
     for timed_msg in packet.messages:
-      now = calendar.timegm(time.gmtime())
+      now = time.time()
       handlers = dispatcher.handlers_for_address(
           timed_msg.message.address)
       if not handlers:
