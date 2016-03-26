@@ -226,10 +226,8 @@ def get_date(dgram, start_index):
     raise ParseError('Datagram is too short')
   num_secs, start_index = get_int(dgram, start_index)
   fraction, start_index = get_int(dgram, start_index)
-  # Get a decimal representation from those two values.
-  dec = decimal.Decimal(str(num_secs) + '.' + str(fraction))
-  # And convert it to float simply.
-  system_time = float(dec)
+  # Sum seconds and fraction of second:
+  system_time = num_secs + (fraction / ntp.FRACTIONAL_CONVERSION)
   return ntp.ntp_to_system_time(system_time), start_index
 
 
