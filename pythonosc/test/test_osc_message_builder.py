@@ -9,6 +9,8 @@ class TestOscMessageBuilder(unittest.TestCase):
     msg = osc_message_builder.OscMessageBuilder("/a/b/c").build()
     self.assertEqual("/a/b/c", msg.address)
     self.assertEqual([], msg.params)
+    # Messages with just an address should still contain the ",".
+    self.assertEqual(b'/a/b/c\x00\x00,\x00\x00\x00', msg.dgram)
 
   def test_no_address_raises(self):
     builder = osc_message_builder.OscMessageBuilder("")
