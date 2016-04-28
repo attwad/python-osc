@@ -1,3 +1,8 @@
+"""Small example OSC server
+
+This program listens to several addresses, and prints some information about
+received packets.
+"""
 import argparse
 import math
 
@@ -15,13 +20,13 @@ def print_compute_handler(unused_addr, args, volume):
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()
   parser.add_argument("--ip",
-      default="0.0.0.0", help="The ip to listen on")
+      default="127.0.0.1", help="The ip to listen on")
   parser.add_argument("--port",
       type=int, default=5005, help="The port to listen on")
   args = parser.parse_args()
 
   dispatcher = dispatcher.Dispatcher()
-  dispatcher.map("/debug", print)
+  dispatcher.map("/filter", print)
   dispatcher.map("/volume", print_volume_handler, "Volume")
   dispatcher.map("/logvolume", print_compute_handler, "Log volume", math.log)
 
