@@ -19,12 +19,8 @@ if __name__ == "__main__":
       help="The port the OSC server is listening on")
   args = parser.parse_args()
 
-  client = udp_client.UDPClient(args.ip, args.port)
+  client = udp_client.SimpleUDPClient(args.ip, args.port)
 
   for x in range(10):
-    msg = osc_message_builder.OscMessageBuilder(address="/filter")
-    msg.add_arg(random.random())
-    msg = msg.build()
-    print("Sending", msg.dgram)
-    client.send(msg)
+    client.send_message("/filter", random.random())
     time.sleep(1)
