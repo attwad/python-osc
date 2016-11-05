@@ -1,6 +1,9 @@
 """Client to send OSC datagrams to an OSC server via UDP."""
 
+from collections import Iterable
 import socket
+
+from .osc_message_builder import OscMessageBuilder
 
 
 class UDPClient(object):
@@ -20,3 +23,19 @@ class UDPClient(object):
   def send(self, content):
     """Sends an OscBundle or OscMessage to the server."""
     self._sock.sendto(content.dgram, (self._address, self._port))
+
+
+class SimpleUDPClient(UDPClient):
+    """Simple OSC client with a `send_message` method."""
+
+    def send_message(self, address, value):
+        """Compose an OSC message and send it."""
+        builder = OscMessageBuilder(address=address)
+        if not isinstance(value, Iterable) or isinstance(value, (str, bytes)):
+            values = [value]
+        else:
+            values = value
+        for val in values:
+            builder.add_arg(val)
+        msg = builder.build()
+        self.send(msg)

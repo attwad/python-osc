@@ -20,5 +20,35 @@ class TestUdpClient(unittest.TestCase):
     mock_socket.sendto.assert_called_once_with(msg.dgram, ('::1', 31337))
 
 
+class TestSimpleUdpClient(unittest.TestCase):
+
+  def setUp(self):
+    self.patcher = mock.patch('pythonosc.udp_client.OscMessageBuilder')
+    self.patcher.start()
+    self.builder = udp_client.OscMessageBuilder.return_value
+    self.msg = self.builder.build.return_value
+    self.client = mock.Mock()
+
+  def tearDown(self):
+    self.patcher.stop()
+
+  def test_send_message_calls_send_with_msg(self):
+    udp_client.SimpleUDPClient.send_message(self.client, '/address', 1)
+    self.client.send.assert_called_once_with(self.msg)
+
+  def test_send_message_calls_add_arg_with_value(self):
+    udp_client.SimpleUDPClient.send_message(self.client, '/address', 1)
+    self.builder.add_arg.assert_called_once_with(1)
+
+  def test_send_message_calls_add_arg_once_with_string(self):
+    udp_client.SimpleUDPClient.send_message(self.client, '/address', 'hello')
+    self.builder.add_arg.assert_called_once_with('hello')
+
+  def test_send_message_calls_add_arg_multiple_times_with_list(self):
+    udp_client.SimpleUDPClient.send_message(self.client, '/address',
+                                            [1, 'john', True])
+    self.assertEqual(self.builder.add_arg.call_count, 3)
+
+
 if __name__ == "__main__":
   unittest.main()
