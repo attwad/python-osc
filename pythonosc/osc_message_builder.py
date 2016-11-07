@@ -78,6 +78,8 @@ class OscMessageBuilder(object):
         arg_type = self.ARG_TYPE_TRUE
       elif builtin_type == builtins.bool and not arg_value:
         arg_type = self.ARG_TYPE_FALSE
+      else:
+        raise ValueError('Infered arg_value type is not supported')
     self._args.append((arg_type, arg_value))
 
   def build(self):
