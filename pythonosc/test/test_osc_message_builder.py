@@ -20,6 +20,10 @@ class TestOscMessageBuilder(unittest.TestCase):
     builder = osc_message_builder.OscMessageBuilder("")
     self.assertRaises(ValueError, builder.add_arg, "what?", 1)
 
+  def test_add_arg_invalid_infered_type(self):
+    builder = osc_message_builder.OscMessageBuilder('')
+    self.assertRaises(ValueError, builder.add_arg, {'name': 'John'})
+
   def test_all_param_types(self):
     builder = osc_message_builder.OscMessageBuilder(address="/SYNC")
     builder.add_arg(4.0)
