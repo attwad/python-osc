@@ -112,7 +112,7 @@ def get_int(dgram, start_index):
     if len(dgram[start_index:]) < _INT_DGRAM_LEN:
       raise ParseError('Datagram is too short')
     return (
-        struct.unpack('>I',
+        struct.unpack('>i',
                       dgram[start_index:start_index + _INT_DGRAM_LEN])[0],
         start_index + _INT_DGRAM_LEN)
   except (struct.error, TypeError) as e:
