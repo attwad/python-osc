@@ -39,7 +39,8 @@ class TestOscMessageBuilder(unittest.TestCase):
     builder.add_arg(True)
     builder.add_arg(False)
     builder.add_arg(b"\x01\x02\x03", builder.ARG_TYPE_BLOB)
-    self.assertEqual(12, len(builder.args))
+    builder.add_arg(4278255360, builder.ARG_TYPE_RGBA)
+    self.assertEqual(13, len(builder.args))
     self.assertEqual("/SYNC", builder.address)
     builder.address = '/SEEK'
     msg = builder.build()
