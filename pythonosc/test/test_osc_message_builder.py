@@ -46,7 +46,7 @@ class TestOscMessageBuilder(unittest.TestCase):
     msg = builder.build()
     self.assertEqual("/SEEK", msg.address)
     self.assertSequenceEqual(
-        [4.0, 2, "value", True, False, b"\x01\x02\x03"] * 2, msg.params)
+        [4.0, 2, "value", True, False, b"\x01\x02\x03"] * 2 + [4278255360], msg.params)
 
   def test_build_wrong_type_raises(self):
     builder = osc_message_builder.OscMessageBuilder(address="/SYNC")
