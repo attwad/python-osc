@@ -43,7 +43,7 @@ class OscMessage(object):
           val, index = osc_types.get_string(self._dgram, index)
         elif param == "b":  # Blob.
           val, index = osc_types.get_blob(self._dgram, index)
-        elif param == "r":  # Blob.
+        elif param == "r":  # RGBA.
           val, index = osc_types.get_rgba(self._dgram, index)
         elif param == "T": # True.
           val = True
