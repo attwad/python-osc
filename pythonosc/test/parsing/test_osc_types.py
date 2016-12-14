@@ -81,6 +81,46 @@ class TestInteger(unittest.TestCase):
     self.assertRaises(osc_types.ParseError, osc_types.get_int, dgram, 2)
 
 
+class TestRGBA(unittest.TestCase):
+
+  def test_get_rgba(self):
+    cases = {
+        b"\x00\x00\x00\x00": (0, 4),
+        b"\x00\x00\x00\x01": (1, 4),
+        b"\x00\x00\x00\x02": (2, 4),
+        b"\x00\x00\x00\x03": (3, 4),
+
+        b"\xFF\x00\x00\x00": (4278190080, 4),
+        b"\x00\xFF\x00\x00": (16711680, 4),
+        b"\x00\x00\xFF\x00": (65280, 4),
+        b"\x00\x00\x00\xFF": (255, 4),
+
+        b"\x00\x00\x00\x01GARBAGE": (1, 4),
+    }
+
+    for dgram, expected in cases.items():
+        self.assertEqual(
+            expected, osc_types.get_rgba(dgram, 0))
+
+  def test_get_rgba_raises_on_type_error(self):
+    cases = [b'', True]
+
+    for case in cases:
+      self.assertRaises(osc_types.ParseError, osc_types.get_rgba, case, 0)
+
+  def test_get_rgba_raises_on_wrong_start_index(self):
+    self.assertRaises(
+        osc_types.ParseError, osc_types.get_rgba, b'\x00\x00\x00\x11', 1)
+
+  def test_get_rgba_raises_on_wrong_start_index_negative(self):
+    self.assertRaises(
+        osc_types.ParseError, osc_types.get_rgba, b'\x00\x00\x00\x00', -1)
+
+  def test_datagram_too_short(self):
+    dgram = b'\x00' * 3
+    self.assertRaises(osc_types.ParseError, osc_types.get_rgba, dgram, 2)
+
+
 class TestFloat(unittest.TestCase):
 
   def test_get_float(self):
