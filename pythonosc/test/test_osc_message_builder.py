@@ -48,6 +48,12 @@ class TestOscMessageBuilder(unittest.TestCase):
     self.assertSequenceEqual(
         [4.0, 2, "value", True, False, b"\x01\x02\x03"] * 2 + [4278255360], msg.params)
 
+  def test_empty_param_types(self):
+    builder = osc_message_builder.OscMessageBuilder(address="/SYNC")
+    builder.add_arg(None)
+    msg = builder.build()
+    self.assertEqual([None], msg.params)
+
   def test_build_wrong_type_raises(self):
     builder = osc_message_builder.OscMessageBuilder(address="/SYNC")
     builder.add_arg('this is not a float', builder.ARG_TYPE_FLOAT)

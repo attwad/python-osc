@@ -18,9 +18,12 @@ class OscMessageBuilder(object):
   ARG_TYPE_RGBA = "r"
   ARG_TYPE_TRUE = "T"
   ARG_TYPE_FALSE = "F"
+  ARG_TYPE_NIL = "N"
+  ARG_TYPE_INFINITUM = "I"
 
   _SUPPORTED_ARG_TYPES = (
-      ARG_TYPE_FLOAT, ARG_TYPE_INT, ARG_TYPE_BLOB, ARG_TYPE_STRING, ARG_TYPE_RGBA, ARG_TYPE_TRUE, ARG_TYPE_FALSE)
+      ARG_TYPE_FLOAT, ARG_TYPE_INT, ARG_TYPE_BLOB, ARG_TYPE_STRING, ARG_TYPE_RGBA, ARG_TYPE_TRUE, ARG_TYPE_FALSE,
+      ARG_TYPE_NIL, ARG_TYPE_INFINITUM)
 
   def __init__(self, address=None):
     """Initialize a new builder for a message.
@@ -72,6 +75,8 @@ class OscMessageBuilder(object):
         arg_type = self.ARG_TYPE_TRUE
       elif arg_value == False:
         arg_type = self.ARG_TYPE_FALSE
+      elif arg_value is None:
+        arg_type = self.ARG_TYPE_NIL
       else:
         raise ValueError('Infered arg_value type is not supported')
     self._args.append((arg_type, arg_value))
@@ -110,7 +115,8 @@ class OscMessageBuilder(object):
           dgram += osc_types.write_blob(value)
         elif arg_type == self.ARG_TYPE_RGBA:
           dgram += osc_types.write_rgba(value)
-        elif arg_type == self.ARG_TYPE_TRUE or arg_type == self.ARG_TYPE_FALSE:
+        elif arg_type in [self.ARG_TYPE_TRUE, self.ARG_TYPE_FALSE,
+                          self.ARG_TYPE_NIL, self.ARG_TYPE_INFINITUM]:
           continue
         else:
           raise BuildError('Incorrect parameter type found {}'.format(

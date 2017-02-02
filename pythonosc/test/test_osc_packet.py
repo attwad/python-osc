@@ -53,6 +53,7 @@ _DGRAM_NESTED_MESS = (
     b",f\x00\x00"
     b"?\x00\x00\x00")
 
+_DGRAM_INFINITUM_MESSAGE = b'/SYNC\x00\x00\x00,I\x00\x00'
 
 class TestOscPacket(unittest.TestCase):
 
@@ -74,6 +75,10 @@ class TestOscPacket(unittest.TestCase):
     self.assertTrue(packet.messages[1][0], packet.messages[2][0])
     self.assertTrue(packet.messages[2][0], packet.messages[3][0])
 
+  def test_infinitum_message(self):
+    packet = osc_packet.OscPacket(_DGRAM_INFINITUM_MESSAGE)
+    self.assertEqual(1, len(packet.messages))
+    self.assertEqual(0, len(packet.messages[0][1].params))
 
 if __name__ == "__main__":
   unittest.main()

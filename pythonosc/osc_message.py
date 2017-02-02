@@ -49,11 +49,16 @@ class OscMessage(object):
           val = True
         elif param == "F": # False.
           val = False
+        elif param == "N": # Nil (None)
+          val = None
+        elif param == 'I': # Infinitum (no data)
+          val = None
         # TODO: Support more exotic types as described in the specification.
         else:
           logging.warning('Unhandled parameter type: {0}'.format(param))
           continue
-        self._parameters.append(val)
+        if param != 'I':
+          self._parameters.append(val)
     except osc_types.ParseError as pe:
       raise ParseError('Found incorrect datagram, ignoring it', pe)
 
