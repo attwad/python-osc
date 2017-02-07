@@ -31,6 +31,7 @@ class TestOscMessageBuilder(unittest.TestCase):
     builder.add_arg("value")
     builder.add_arg(True)
     builder.add_arg(False)
+    builder.add_arg(None)
     builder.add_arg(b"\x01\x02\x03")
     # The same args but with explicit types.
     builder.add_arg(4.0, builder.ARG_TYPE_FLOAT)
@@ -38,15 +39,16 @@ class TestOscMessageBuilder(unittest.TestCase):
     builder.add_arg("value", builder.ARG_TYPE_STRING)
     builder.add_arg(True)
     builder.add_arg(False)
+    builder.add_arg(None)
     builder.add_arg(b"\x01\x02\x03", builder.ARG_TYPE_BLOB)
     builder.add_arg(4278255360, builder.ARG_TYPE_RGBA)
-    self.assertEqual(13, len(builder.args))
+    self.assertEqual(15, len(builder.args))
     self.assertEqual("/SYNC", builder.address)
     builder.address = '/SEEK'
     msg = builder.build()
     self.assertEqual("/SEEK", msg.address)
     self.assertSequenceEqual(
-        [4.0, 2, "value", True, False, b"\x01\x02\x03"] * 2 + [4278255360], msg.params)
+        [4.0, 2, "value", True, False, None, b"\x01\x02\x03"] * 2 + [4278255360], msg.params)
 
   def test_empty_param_types(self):
     builder = osc_message_builder.OscMessageBuilder(address="/SYNC")
