@@ -115,8 +115,8 @@ class OscMessageBuilder(object):
           dgram += osc_types.write_blob(value)
         elif arg_type == self.ARG_TYPE_RGBA:
           dgram += osc_types.write_rgba(value)
-        elif arg_type in [self.ARG_TYPE_TRUE, self.ARG_TYPE_FALSE,
-                          self.ARG_TYPE_NIL, self.ARG_TYPE_INFINITUM]:
+        elif arg_type in (self.ARG_TYPE_TRUE, self.ARG_TYPE_FALSE,
+                          self.ARG_TYPE_NIL, self.ARG_TYPE_INFINITUM):
           continue
         else:
           raise BuildError('Incorrect parameter type found {}'.format(
