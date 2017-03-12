@@ -49,12 +49,12 @@ class OscMessageBuilder(object):
     """Returns the (type, value) arguments list of this message."""
     return self._args
 
-  def valid_type(self, arg_type):
+  def _valid_type(self, arg_type):
     if arg_type in self._SUPPORTED_ARG_TYPES:
       return True
     elif isinstance(arg_type, list):
-      for a in arg_type:
-        if not self.valid_type(a):
+      for sub_type in arg_type:
+        if not self._valid_type(sub_type):
           return False
       return True
     return False
@@ -69,11 +69,12 @@ class OscMessageBuilder(object):
     Raises:
       - ValueError: if the type is not supported.
     """
-    if arg_type and not self.valid_type(arg_type):
+    if arg_type and not self._valid_type(arg_type):
       raise ValueError(
-          'arg_type must be one of {}'.format(self._SUPPORTED_ARG_TYPES))
+          'arg_type must be one of {}, or an array of valid types'
+          .format(self._SUPPORTED_ARG_TYPES))
     if not arg_type:
-      arg_type = self.get_arg_type(arg_value)
+      arg_type = self._get_arg_type(arg_value)
     if isinstance(arg_type, list):
       self._args.append((self.ARG_TYPE_ARRAY_START, None))
       for v, t in zip(arg_value, arg_type):
@@ -82,7 +83,7 @@ class OscMessageBuilder(object):
     else:
       self._args.append((arg_type, arg_value))
 
-  def get_arg_type(self, arg_value):
+  def _get_arg_type(self, arg_value):
     """Guess the type of a value.
 
     Args:
@@ -103,7 +104,7 @@ class OscMessageBuilder(object):
     elif arg_value == False:
       arg_type = self.ARG_TYPE_FALSE
     elif isinstance(arg_value, list):
-      arg_type = [self.get_arg_type(v) for v in arg_value]
+      arg_type = [self._get_arg_type(v) for v in arg_value]
     else:
       raise ValueError('Infered arg_value type is not supported')
     return arg_type

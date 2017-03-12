@@ -37,7 +37,6 @@ class OscMessage(object):
       param_stack = [params]
       # Parse each parameter given its type.
       for param in type_tag:
-        have_val = True
         if param == "i":  # Integer.
           val, index = osc_types.get_int(self._dgram, index)
         elif param == "f":  # Float.
@@ -53,20 +52,18 @@ class OscMessage(object):
         elif param == "F": # False.
           val = False
         elif param == "[": # Array start.
-          a = []
-          param_stack[-1].append(a)
-          param_stack.append(a)
-          have_val = False
+          array = []
+          param_stack[-1].append(array)
+          param_stack.append(array)
         elif param == "]": # Array stop.
           if len(param_stack) < 2:
             raise ParseError('Unexpected closing bracket in type tag: {0}'.format(type_tag))
           param_stack.pop()
-          have_val = False
         # TODO: Support more exotic types as described in the specification.
         else:
           logging.warning('Unhandled parameter type: {0}'.format(param))
           continue
-        if have_val:
+        if param not in "[]":
           param_stack[-1].append(val)
       if len(param_stack) != 1:
         raise ParseError('Missing closing bracket in type tag: {0}'.format(type_tag))

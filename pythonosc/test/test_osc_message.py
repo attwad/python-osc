@@ -31,8 +31,19 @@ _DGRAM_ALL_STANDARD_TYPES_OF_PARAMS = (
 
 _DGRAM_ALL_NON_STANDARD_TYPES_OF_PARAMS = (
     b"/SYNC\x00\x00\x00"
-    b",T" # True
-    b"F\x00") # False 
+    b",T"  # True
+    b"F"  # False
+    b"[]\x00\x00\x00")  # Empty array
+
+_DGRAM_COMPLEX_ARRAY_PARAMS = (
+    b"/SYNC\x00\x00\x00"
+    b",[i][[ss]][[i][i[s]]]\x00\x00\x00"
+    b"\x00\x00\x00\x01"  # 1
+    b"ABC\x00"  # "ABC"
+    b"DEF\x00"  # "DEF"
+    b"\x00\x00\x00\x02"  # 2
+    b"\x00\x00\x00\x03"  # 3
+    b"GHI\x00")  # "GHI"
 
 _DGRAM_UNKNOWN_PARAM_TYPE = (
     b"/SYNC\x00\x00\x00"
@@ -80,10 +91,20 @@ class TestOscMessage(unittest.TestCase):
   def test_all_non_standard_params(self):
     msg = osc_message.OscMessage(_DGRAM_ALL_NON_STANDARD_TYPES_OF_PARAMS)
     self.assertEqual("/SYNC", msg.address)
-    self.assertEqual(2, len(msg.params))
+    self.assertEqual(3, len(msg.params))
     self.assertEqual(True, msg.params[0])
     self.assertEqual(False, msg.params[1])
-    self.assertEqual(2, len(list(msg)))
+    self.assertEqual([], msg.params[2])
+    self.assertEqual(3, len(list(msg)))
+
+  def test_complex_array_params(self):
+    msg = osc_message.OscMessage(_DGRAM_COMPLEX_ARRAY_PARAMS)
+    self.assertEqual("/SYNC", msg.address)
+    self.assertEqual(3, len(msg.params))
+    self.assertEqual([1], msg.params[0])
+    self.assertEqual([["ABC", "DEF"]], msg.params[1])
+    self.assertEqual([[2],[3, ["GHI"]]], msg.params[2])
+    self.assertEqual(3, len(list(msg)))
 
   def test_raises_on_empty_datargram(self):
     self.assertRaises(osc_message.ParseError, osc_message.OscMessage, b'')
@@ -94,6 +115,14 @@ class TestOscMessage(unittest.TestCase):
     self.assertEqual(1, len(msg.params))
     self.assertTrue(type(msg.params[0]) == float)
     self.assertAlmostEqual(0.5, msg.params[0])
+
+  def test_raises_on_invalid_array(self):
+    self.assertRaises(osc_message.ParseError,
+                      osc_message.OscMessage,
+                      b"/SYNC\x00\x00\x00[]]\x00")
+    self.assertRaises(osc_message.ParseError,
+                      osc_message.OscMessage,
+                      b"/SYNC\x00\x00\x00[[]\x00")
 
   def test_raises_on_incorrect_datargram(self):
     self.assertRaises(
