@@ -19,6 +19,9 @@ class OscMessageBuilder(object):
   ARG_TYPE_TRUE = "T"
   ARG_TYPE_FALSE = "F"
 
+  ARG_TYPE_ARRAY_START = "["
+  ARG_TYPE_ARRAY_STOP = "]"
+
   _SUPPORTED_ARG_TYPES = (
       ARG_TYPE_FLOAT, ARG_TYPE_INT, ARG_TYPE_BLOB, ARG_TYPE_STRING, ARG_TYPE_RGBA, ARG_TYPE_TRUE, ARG_TYPE_FALSE)
 
@@ -46,6 +49,16 @@ class OscMessageBuilder(object):
     """Returns the (type, value) arguments list of this message."""
     return self._args
 
+  def _valid_type(self, arg_type):
+    if arg_type in self._SUPPORTED_ARG_TYPES:
+      return True
+    elif isinstance(arg_type, list):
+      for sub_type in arg_type:
+        if not self._valid_type(sub_type):
+          return False
+      return True
+    return False
+
   def add_arg(self, arg_value, arg_type=None):
     """Add a typed argument to this message.
 
@@ -56,25 +69,45 @@ class OscMessageBuilder(object):
     Raises:
       - ValueError: if the type is not supported.
     """
-    if arg_type and arg_type not in self._SUPPORTED_ARG_TYPES:
+    if arg_type and not self._valid_type(arg_type):
       raise ValueError(
-          'arg_type must be one of {}'.format(self._SUPPORTED_ARG_TYPES))
+          'arg_type must be one of {}, or an array of valid types'
+          .format(self._SUPPORTED_ARG_TYPES))
     if not arg_type:
-      if isinstance(arg_value, str):
-        arg_type = self.ARG_TYPE_STRING
-      elif isinstance(arg_value, bytes):
-        arg_type = self.ARG_TYPE_BLOB
-      elif isinstance(arg_value, int):
-        arg_type = self.ARG_TYPE_INT
-      elif isinstance(arg_value, float):
-        arg_type = self.ARG_TYPE_FLOAT
-      elif arg_value == True:
-        arg_type = self.ARG_TYPE_TRUE
-      elif arg_value == False:
-        arg_type = self.ARG_TYPE_FALSE
-      else:
-        raise ValueError('Infered arg_value type is not supported')
-    self._args.append((arg_type, arg_value))
+      arg_type = self._get_arg_type(arg_value)
+    if isinstance(arg_type, list):
+      self._args.append((self.ARG_TYPE_ARRAY_START, None))
+      for v, t in zip(arg_value, arg_type):
+        self.add_arg(v, t)
+      self._args.append((self.ARG_TYPE_ARRAY_STOP, None))
+    else:
+      self._args.append((arg_type, arg_value))
+
+  def _get_arg_type(self, arg_value):
+    """Guess the type of a value.
+
+    Args:
+      - arg_value: The value to guess the type of.
+    Raises:
+      - ValueError: if the type is not supported.
+    """
+    if isinstance(arg_value, str):
+      arg_type = self.ARG_TYPE_STRING
+    elif isinstance(arg_value, bytes):
+      arg_type = self.ARG_TYPE_BLOB
+    elif isinstance(arg_value, int):
+      arg_type = self.ARG_TYPE_INT
+    elif isinstance(arg_value, float):
+      arg_type = self.ARG_TYPE_FLOAT
+    elif arg_value == True:
+      arg_type = self.ARG_TYPE_TRUE
+    elif arg_value == False:
+      arg_type = self.ARG_TYPE_FALSE
+    elif isinstance(arg_value, list):
+      arg_type = [self._get_arg_type(v) for v in arg_value]
+    else:
+      raise ValueError('Infered arg_value type is not supported')
+    return arg_type
 
   def build(self):
     """Builds an OscMessage from the current state of this builder.
@@ -110,7 +143,10 @@ class OscMessageBuilder(object):
           dgram += osc_types.write_blob(value)
         elif arg_type == self.ARG_TYPE_RGBA:
           dgram += osc_types.write_rgba(value)
-        elif arg_type == self.ARG_TYPE_TRUE or arg_type == self.ARG_TYPE_FALSE:
+        elif arg_type in (self.ARG_TYPE_TRUE,
+                          self.ARG_TYPE_FALSE,
+                          self.ARG_TYPE_ARRAY_START,
+                          self.ARG_TYPE_ARRAY_STOP):
           continue
         else:
           raise BuildError('Incorrect parameter type found {}'.format(

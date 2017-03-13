@@ -33,6 +33,8 @@ class OscMessage(object):
       if type_tag.startswith(','):
         type_tag = type_tag[1:]
 
+      params = []
+      param_stack = [params]
       # Parse each parameter given its type.
       for param in type_tag:
         if param == "i":  # Integer.
@@ -49,11 +51,23 @@ class OscMessage(object):
           val = True
         elif param == "F": # False.
           val = False
+        elif param == "[": # Array start.
+          array = []
+          param_stack[-1].append(array)
+          param_stack.append(array)
+        elif param == "]": # Array stop.
+          if len(param_stack) < 2:
+            raise ParseError('Unexpected closing bracket in type tag: {0}'.format(type_tag))
+          param_stack.pop()
         # TODO: Support more exotic types as described in the specification.
         else:
           logging.warning('Unhandled parameter type: {0}'.format(param))
           continue
-        self._parameters.append(val)
+        if param not in "[]":
+          param_stack[-1].append(val)
+      if len(param_stack) != 1:
+        raise ParseError('Missing closing bracket in type tag: {0}'.format(type_tag))
+      self._parameters = params
     except osc_types.ParseError as pe:
       raise ParseError('Found incorrect datagram, ignoring it', pe)
 
