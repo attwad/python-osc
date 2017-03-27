@@ -12,7 +12,7 @@ except ImportError:
 
 setup(
     name='python-osc',
-    version='1.6.2',
+    version='1.6.3',
     author='attwad',
     author_email='tmusoft@gmail.com',
     description=(
