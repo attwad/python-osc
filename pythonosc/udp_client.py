@@ -9,7 +9,7 @@ from .osc_message_builder import OscMessageBuilder
 class UDPClient(object):
   """OSC client to send OscMessages or OscBundles via UDP."""
 
-  def __init__(self, address, port):
+  def __init__(self, address, port, allow_broadcast=False):
     """Initialize the client.
 
     As this is UDP it will not actually make any attempt to connect to the
@@ -17,6 +17,8 @@ class UDPClient(object):
     """
     self._sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     self._sock.setblocking(0)
+    if allow_broadcast:
+      self._sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
     self._address = address
     self._port = port
 
