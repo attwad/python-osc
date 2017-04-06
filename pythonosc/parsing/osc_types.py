@@ -59,9 +59,10 @@ def get_string(dgram, start_index):
   Raises:
     ParseError if the datagram could not be parsed.
   """
+  nul = b'\0'[0]
   offset = 0
   try:
-    while dgram[start_index + offset] != 0:
+    while dgram[start_index + offset] != nul:
       offset += 1
     if offset == 0:
       raise ParseError(
