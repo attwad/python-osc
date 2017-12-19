@@ -10,7 +10,7 @@ _SIMPLE_PARAM_INT_MSG = (
     b",i\x00\x00"
     b"\x00\x00\x00\x04")
 
-# Regressiont test for a datagram that should NOT be stripped, ever...
+# Regression test for a datagram that should NOT be stripped, ever...
 _SIMPLE_PARAM_INT_9 = b'/debug\x00\x00,i\x00\x00\x00\x00\x00\t'
 
 _SIMPLE_MSG_NO_PARAMS = b"/SYNC\x00\x00\x00"

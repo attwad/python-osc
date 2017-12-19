@@ -50,6 +50,14 @@ class TestOscMessageBuilder(unittest.TestCase):
     self.assertSequenceEqual(
         [4.0, 2, "value", True, False, b"\x01\x02\x03", [1, ["abc"]]] * 2 + [4278255360], msg.params)
 
+  def test_long_list(self):
+    huge_list = list(range(512))
+    builder = osc_message_builder.OscMessageBuilder(address="/SYNC")
+    builder.add_arg(huge_list)
+    msg = builder.build()
+    print(msg._dgram)
+    self.assertSequenceEqual([huge_list], msg.params)
+
   def test_build_wrong_type_raises(self):
     builder = osc_message_builder.OscMessageBuilder(address="/SYNC")
     builder.add_arg('this is not a float', builder.ARG_TYPE_FLOAT)
