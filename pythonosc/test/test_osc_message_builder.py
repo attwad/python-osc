@@ -70,6 +70,14 @@ class TestOscMessageBuilder(unittest.TestCase):
     reference = bytearray.fromhex('2f53594e430000002c000000')
     self.assertSequenceEqual(msg._dgram, reference)
 
+  def test_bool_encoding(self):
+    builder = osc_message_builder.OscMessageBuilder('')
+    builder.add_arg(0)
+    builder.add_arg(1)
+    builder.add_arg(False)
+    builder.add_arg(True)
+    self.assertEqual(builder.args, [("i", 0), ("i", 1), ("F", False), ("T", True)])
+
 
 if __name__ == "__main__":
   unittest.main()

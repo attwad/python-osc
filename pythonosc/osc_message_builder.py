@@ -95,14 +95,14 @@ class OscMessageBuilder(object):
       arg_type = self.ARG_TYPE_STRING
     elif isinstance(arg_value, bytes):
       arg_type = self.ARG_TYPE_BLOB
+    elif arg_value is True:
+      arg_type = self.ARG_TYPE_TRUE
+    elif arg_value is False:
+      arg_type = self.ARG_TYPE_FALSE
     elif isinstance(arg_value, int):
       arg_type = self.ARG_TYPE_INT
     elif isinstance(arg_value, float):
       arg_type = self.ARG_TYPE_FLOAT
-    elif arg_value == True:
-      arg_type = self.ARG_TYPE_TRUE
-    elif arg_value == False:
-      arg_type = self.ARG_TYPE_FALSE
     elif isinstance(arg_value, list):
       arg_type = [self._get_arg_type(v) for v in arg_value]
     else:
