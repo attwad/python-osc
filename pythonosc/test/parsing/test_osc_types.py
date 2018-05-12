@@ -4,6 +4,8 @@ import unittest
 from pythonosc.parsing import ntp
 from pythonosc.parsing import osc_types
 
+from datetime import datetime
+
 
 class TestString(unittest.TestCase):
 
@@ -119,6 +121,45 @@ class TestRGBA(unittest.TestCase):
   def test_datagram_too_short(self):
     dgram = b'\x00' * 3
     self.assertRaises(osc_types.ParseError, osc_types.get_rgba, dgram, 2)
+
+
+class TestDate(unittest.TestCase):
+    def test_get_ttag(self):
+        cases = {
+            b"\xde\x9c\x91\xbf\x00\x01\x00\x00": ((datetime(2018, 5, 8, 21, 14, 39), 65536), 8),
+            b"\x00\x00\x00\x00\x00\x00\x00\x00": ((datetime(1900, 1, 1, 0, 0, 0), 0), 8),
+            b"\x83\xaa\x7E\x80\x0A\x00\xB0\x0C": ((datetime(1970, 1, 1, 0, 0, 0), 167817228), 8)
+        }
+
+        for dgram, expected in cases.items():
+            self.assertEqual(expected, osc_types.get_ttag(dgram, 0))
+
+    def test_get_ttag_raises_on_wrong_start_index_negative(self):
+        self.assertRaises(
+            osc_types.ParseError, osc_types.get_ttag, b'\x00\x00\x00\x00\x00\x00\x00\x00', -1)
+
+    def test_get_ttag_raises_on_type_error(self):
+        cases = [b'', True]
+
+        for case in cases:
+            self.assertRaises(osc_types.ParseError, osc_types.get_ttag, case, 0)
+
+    def test_get_ttag_raises_on_wrong_start_index(self):
+        self.assertRaises(
+            osc_types.ParseError, osc_types.get_date, b'\x00\x00\x00\x11\x00\x00\x00\x11', 1)
+
+    def test_ttag_datagram_too_short(self):
+        dgram = b'\x00' * 7
+        self.assertRaises(osc_types.ParseError, osc_types.get_ttag, dgram, 6)
+
+        dgram = b'\x00' * 2
+        self.assertRaises(osc_types.ParseError, osc_types.get_ttag, dgram, 1)
+
+        dgram = b'\x00' * 5
+        self.assertRaises(osc_types.ParseError, osc_types.get_ttag, dgram, 4)
+
+        dgram = b'\x00' * 1
+        self.assertRaises(osc_types.ParseError, osc_types.get_ttag, dgram, 0)
 
 
 class TestFloat(unittest.TestCase):
