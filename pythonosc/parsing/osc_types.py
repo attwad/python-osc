@@ -145,17 +145,15 @@ def get_ttag(dgram, start_index):
     second_decimals, _ = get_int(dgram, idx)
 
     if seconds < 0:
-      seconds += 1 << 32
+      seconds += ntp.FRACTIONAL_CONVERSION
 
     if second_decimals < 0:
-      second_decimals += 1 << 32
+      second_decimals += ntp.FRACTIONAL_CONVERSION
 
     hours, seconds = seconds // 3600, seconds % 3600
     minutes, seconds = seconds // 60, seconds % 60
 
     utc = datetime.combine(ntp._NTP_EPOCH, datetime.min.time()) + timedelta(hours=hours, minutes=minutes, seconds=seconds)
-
-    print(utc, second_decimals)
 
     return (utc, second_decimals), start_index + _TTAG_DGRAM_LEN
   except (struct.error, TypeError) as e:
