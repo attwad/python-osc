@@ -2,6 +2,8 @@ import unittest
 
 from pythonosc import osc_message
 
+from datetime import datetime
+
 
 # Datagrams sent by Reaktor 5.8 by Native Instruments (c).
 _DGRAM_KNOB_ROTATES = (
@@ -31,9 +33,11 @@ _DGRAM_ALL_STANDARD_TYPES_OF_PARAMS = (
 
 _DGRAM_ALL_NON_STANDARD_TYPES_OF_PARAMS = (
     b"/SYNC\x00\x00\x00"
-    b",T"  # True
+    b"T"  # True
     b"F"  # False
-    b"[]\x00\x00\x00")  # Empty array
+    b"[]\x00\x00\x00" # Empty array
+    b"t\x00\x00\x00\x00\x00\x00\x00\x00"
+    )
 
 _DGRAM_COMPLEX_ARRAY_PARAMS = (
     b"/SYNC\x00\x00\x00"
@@ -95,12 +99,14 @@ class TestOscMessage(unittest.TestCase):
 
   def test_all_non_standard_params(self):
     msg = osc_message.OscMessage(_DGRAM_ALL_NON_STANDARD_TYPES_OF_PARAMS)
+
     self.assertEqual("/SYNC", msg.address)
-    self.assertEqual(3, len(msg.params))
+    self.assertEqual(4, len(msg.params))
     self.assertEqual(True, msg.params[0])
     self.assertEqual(False, msg.params[1])
     self.assertEqual([], msg.params[2])
-    self.assertEqual(3, len(list(msg)))
+    self.assertEqual((datetime(1900, 1, 1, 0, 0, 0), 0), msg.params[3])
+    self.assertEqual(4, len(list(msg)))
 
   def test_complex_array_params(self):
     msg = osc_message.OscMessage(_DGRAM_COMPLEX_ARRAY_PARAMS)
@@ -108,7 +114,7 @@ class TestOscMessage(unittest.TestCase):
     self.assertEqual(3, len(msg.params))
     self.assertEqual([1], msg.params[0])
     self.assertEqual([["ABC", "DEF"]], msg.params[1])
-    self.assertEqual([[2],[3, ["GHI"]]], msg.params[2])
+    self.assertEqual([[2], [3, ["GHI"]]], msg.params[2])
     self.assertEqual(3, len(list(msg)))
 
   def test_raises_on_empty_datargram(self):

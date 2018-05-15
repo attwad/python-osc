@@ -4,6 +4,7 @@ import decimal
 import struct
 
 from pythonosc.parsing import ntp
+from datetime import datetime, timedelta, date
 
 
 class ParseError(Exception):
@@ -119,6 +120,46 @@ def get_int(dgram, start_index):
     raise ParseError('Could not parse datagram %s' % e)
 
 
+def get_ttag(dgram, start_index):
+  """Get a 64-bit OSC time tag from the datagram.
+
+  Args:
+    dgram: A datagram packet.
+    start_index: An index where the osc time tag starts in the datagram.
+
+  Returns:
+    A tuple containing the tuple of time of sending in utc as datetime and the
+    fraction of the current second and the new end index.
+
+  Raises:
+    ParseError if the datagram could not be parsed.
+  """
+
+  _TTAG_DGRAM_LEN = 8
+
+  try:
+    if len(dgram[start_index:]) < _TTAG_DGRAM_LEN:
+      raise ParseError('Datagram is too short')
+
+    seconds, idx = get_int(dgram, start_index)
+    second_decimals, _ = get_int(dgram, idx)
+
+    if seconds < 0:
+      seconds += ntp.FRACTIONAL_CONVERSION
+
+    if second_decimals < 0:
+      second_decimals += ntp.FRACTIONAL_CONVERSION
+
+    hours, seconds = seconds // 3600, seconds % 3600
+    minutes, seconds = seconds // 60, seconds % 60
+
+    utc = datetime.combine(ntp._NTP_EPOCH, datetime.min.time()) + timedelta(hours=hours, minutes=minutes, seconds=seconds)
+
+    return (utc, second_decimals), start_index + _TTAG_DGRAM_LEN
+  except (struct.error, TypeError) as e:
+    raise ParseError('Could not parse datagram %s' % e)
+
+
 def write_float(val):
   """Returns the datagram for the given float parameter value
 
@@ -228,6 +269,9 @@ def get_date(dgram, start_index):
   fraction, start_index = get_int(dgram, start_index)
   # Sum seconds and fraction of second:
   system_time = num_secs + (fraction / ntp.FRACTIONAL_CONVERSION)
+
+  print(ntp.ntp_to_system_time(system_time))
+
   return ntp.ntp_to_system_time(system_time), start_index
 
 

@@ -47,11 +47,13 @@ class OscMessage(object):
           val, index = osc_types.get_blob(self._dgram, index)
         elif param == "r":  # RGBA.
           val, index = osc_types.get_rgba(self._dgram, index)
-        elif param == "T": # True.
+        elif param == "t":  # osc time tag:
+            val, index = osc_types.get_ttag(self._dgram, index)
+        elif param == "T":  # True.
           val = True
-        elif param == "F": # False.
+        elif param == "F":  # False.
           val = False
-        elif param == "[": # Array start.
+        elif param == "[":  # Array start.
           array = []
           param_stack[-1].append(array)
           param_stack.append(array)
