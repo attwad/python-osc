@@ -319,3 +319,44 @@ def get_rgba(dgram, start_index):
         start_index + _INT_DGRAM_LEN)
   except (struct.error, TypeError) as e:
     raise ParseError('Could not parse datagram %s' % e)
+
+
+def write_midi(val):
+  """Returns the datagram for the given MIDI message parameter value
+
+     A valid MIDI message: (port id, status byte, data1, data2).
+
+  Raises:
+    - BuildError if the MIDI message could not be converted.
+
+  """
+  try:
+    assert 4 == len(val)
+    value = sum((value & 0xFF) << 8 * (3-pos) for pos, value in enumerate(val))
+    return struct.pack('>I', value)
+  except (struct.error, AssertionError) as e:
+    raise BuildError('Wrong argument value passed: {}'.format(e))
+
+
+def get_midi(dgram, start_index):
+  """Get a MIDI message (port id, status byte, data1, data2) from the datagram.
+
+  Args:
+    dgram: A datagram packet.
+    start_index: An index where the MIDI message starts in the datagram.
+
+  Returns:
+    A tuple containing the MIDI message and the new end index.
+
+  Raises:
+    ParseError if the datagram could not be parsed.
+  """
+  try:
+    if len(dgram[start_index:]) < _INT_DGRAM_LEN:
+      raise ParseError('Datagram is too short')
+    val = struct.unpack('>I',
+                        dgram[start_index:start_index + _INT_DGRAM_LEN])[0]
+    midi_msg = tuple((val & 0xFF << 8 * i) >> 8 * i for i in range(3,-1, -1))
+    return (midi_msg, start_index + _INT_DGRAM_LEN)
+  except (struct.error, TypeError) as e:
+    raise ParseError('Could not parse datagram %s' % e)

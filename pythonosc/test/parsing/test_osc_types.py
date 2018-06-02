@@ -123,6 +123,45 @@ class TestRGBA(unittest.TestCase):
     self.assertRaises(osc_types.ParseError, osc_types.get_rgba, dgram, 2)
 
 
+class TestMidi(unittest.TestCase):  # TODO
+
+  def test_get_midi(self):
+    cases = {
+        b"\x00\x00\x00\x00": ((0,0,0,0), 4),
+        b"\x00\x00\x00\x02": ((0,0,0,1), 4),
+        b"\x00\x00\x00\x02": ((0,0,0,2), 4),
+        b"\x00\x00\x00\x03": ((0,0,0,3), 4),
+
+        b"\x00\x00\x01\x00": ((0,0,1,0), 4),
+        b"\x00\x01\x00\x00": ((0,1,0,0), 4),
+        b"\x01\x00\x00\x00": ((1,0,0,0), 4),
+
+        b"\x00\x00\x00\x01GARBAGE": ((0,0,0,1), 4),
+    }
+
+    for dgram, expected in cases.items():
+        self.assertEqual(
+            expected, osc_types.get_midi(dgram, 0))
+
+  def test_get_midi_raises_on_type_error(self):
+    cases = [b'', True]
+
+    for case in cases:
+      self.assertRaises(osc_types.ParseError, osc_types.get_midi, case, 0)
+
+  def test_get_midi_raises_on_wrong_start_index(self):
+    self.assertRaises(
+        osc_types.ParseError, osc_types.get_midi, b'\x00\x00\x00\x11', 1)
+
+  def test_get_midi_raises_on_wrong_start_index_negative(self):
+    self.assertRaises(
+        osc_types.ParseError, osc_types.get_midi, b'\x00\x00\x00\x00', -1)
+
+  def test_datagram_too_short(self):
+    dgram = b'\x00' * 3
+    self.assertRaises(osc_types.ParseError, osc_types.get_midi, dgram, 2)
+
+
 class TestDate(unittest.TestCase):
     def test_get_ttag(self):
         cases = {

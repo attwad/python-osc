@@ -16,6 +16,7 @@ class OscMessageBuilder(object):
   ARG_TYPE_STRING = "s"
   ARG_TYPE_BLOB = "b"
   ARG_TYPE_RGBA = "r"
+  ARG_TYPE_MIDI = "m"
   ARG_TYPE_TRUE = "T"
   ARG_TYPE_FALSE = "F"
 
@@ -23,7 +24,8 @@ class OscMessageBuilder(object):
   ARG_TYPE_ARRAY_STOP = "]"
 
   _SUPPORTED_ARG_TYPES = (
-      ARG_TYPE_FLOAT, ARG_TYPE_INT, ARG_TYPE_BLOB, ARG_TYPE_STRING, ARG_TYPE_RGBA, ARG_TYPE_TRUE, ARG_TYPE_FALSE)
+      ARG_TYPE_FLOAT, ARG_TYPE_INT, ARG_TYPE_BLOB, ARG_TYPE_STRING, ARG_TYPE_RGBA,
+      ARG_TYPE_MIDI, ARG_TYPE_TRUE, ARG_TYPE_FALSE)
 
   def __init__(self, address=None):
     """Initialize a new builder for a message.
@@ -103,6 +105,8 @@ class OscMessageBuilder(object):
       arg_type = self.ARG_TYPE_INT
     elif isinstance(arg_value, float):
       arg_type = self.ARG_TYPE_FLOAT
+    elif isinstance(arg_value, tuple) and len(arg_value) == 4:
+      arg_type = self.ARG_TYPE_MIDI
     elif isinstance(arg_value, list):
       arg_type = [self._get_arg_type(v) for v in arg_value]
     else:
@@ -143,6 +147,8 @@ class OscMessageBuilder(object):
           dgram += osc_types.write_blob(value)
         elif arg_type == self.ARG_TYPE_RGBA:
           dgram += osc_types.write_rgba(value)
+        elif arg_type == self.ARG_TYPE_MIDI:
+          dgram += osc_types.write_midi(value)
         elif arg_type in (self.ARG_TYPE_TRUE,
                           self.ARG_TYPE_FALSE,
                           self.ARG_TYPE_ARRAY_START,
