@@ -123,7 +123,7 @@ class TestRGBA(unittest.TestCase):
     self.assertRaises(osc_types.ParseError, osc_types.get_rgba, dgram, 2)
 
 
-class TestMidi(unittest.TestCase):  # TODO
+class TestMidi(unittest.TestCase):
 
   def test_get_midi(self):
     cases = {

@@ -42,7 +42,7 @@ class TestOscMessageBuilder(unittest.TestCase):
     builder.add_arg(b"\x01\x02\x03", builder.ARG_TYPE_BLOB)
     builder.add_arg([1, ["abc"]], [builder.ARG_TYPE_INT, [builder.ARG_TYPE_STRING]])
     builder.add_arg(4278255360, builder.ARG_TYPE_RGBA)
-    builder.add_arg((1,145, 36, 125), builder.ARG_TYPE_MIDI)
+    builder.add_arg((1, 145, 36, 125), builder.ARG_TYPE_MIDI)
     self.assertEqual(len("fisTFb[i[s]]")*2+2, len(builder.args))
     self.assertEqual("/SYNC", builder.address)
     builder.address = '/SEEK'
@@ -50,7 +50,7 @@ class TestOscMessageBuilder(unittest.TestCase):
     self.assertEqual("/SEEK", msg.address)
     self.assertSequenceEqual(
         [4.0, 2, "value", True, False, b"\x01\x02\x03", [1, ["abc"]]] * 2 +
-        [4278255360, (1,145, 36, 125)],
+        [4278255360, (1, 145, 36, 125)],
         msg.params)
 
   def test_long_list(self):
