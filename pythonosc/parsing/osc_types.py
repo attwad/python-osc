@@ -330,11 +330,12 @@ def write_midi(val):
     - BuildError if the MIDI message could not be converted.
 
   """
+  if len(val) != 4:
+      raise BuildError('MIDI message length is invalid')
   try:
-    assert 4 == len(val)
     value = sum((value & 0xFF) << 8 * (3-pos) for pos, value in enumerate(val))
     return struct.pack('>I', value)
-  except (struct.error, AssertionError) as e:
+  except struct.error as e:
     raise BuildError('Wrong argument value passed: {}'.format(e))
 
 
