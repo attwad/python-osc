@@ -41,6 +41,8 @@ class OscMessage(object):
           val, index = osc_types.get_int(self._dgram, index)
         elif param == "f":  # Float.
           val, index = osc_types.get_float(self._dgram, index)
+        elif param == "d":  # Double.
+          val, index = osc_types.get_double(self._dgram, index)
         elif param == "s":  # String.
           val, index = osc_types.get_string(self._dgram, index)
         elif param == "b":  # Blob.

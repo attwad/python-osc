@@ -43,14 +43,15 @@ class TestOscMessageBuilder(unittest.TestCase):
     builder.add_arg([1, ["abc"]], [builder.ARG_TYPE_INT, [builder.ARG_TYPE_STRING]])
     builder.add_arg(4278255360, builder.ARG_TYPE_RGBA)
     builder.add_arg((1, 145, 36, 125), builder.ARG_TYPE_MIDI)
-    self.assertEqual(len("fisTFb[i[s]]")*2+2, len(builder.args))
+    builder.add_arg(1e-9, builder.ARG_TYPE_DOUBLE)
+    self.assertEqual(len("fisTFb[i[s]]")*2+3, len(builder.args))
     self.assertEqual("/SYNC", builder.address)
     builder.address = '/SEEK'
     msg = builder.build()
     self.assertEqual("/SEEK", msg.address)
     self.assertSequenceEqual(
         [4.0, 2, "value", True, False, b"\x01\x02\x03", [1, ["abc"]]] * 2 +
-        [4278255360, (1, 145, 36, 125)],
+        [4278255360, (1, 145, 36, 125), 1e-9],
         msg.params)
 
   def test_long_list(self):
