@@ -19,7 +19,7 @@ Features
 
 * UDP blocking/threading/forking/asyncio server implementations
 * UDP client
-* int, float, string, blob OSC arguments
+* int, float, string, double, MIDI, timestamps, blob OSC arguments
 * simple OSC address<->callback matching system
 * extensive unit test coverage
 * basic client and server examples
