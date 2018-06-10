@@ -233,7 +233,7 @@ def get_double(dgram, start_index):
                       dgram[start_index:start_index + _DOUBLE_DGRAM_LEN])[0],
         start_index + _DOUBLE_DGRAM_LEN)
   except (struct.error, TypeError) as e:
-    raise ParseError('Could not parse datagram %s' % e)
+    raise ParseError('Could not parse datagram {}'.format(e))
 
 
 def get_blob(dgram, start_index):
