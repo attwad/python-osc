@@ -232,6 +232,39 @@ class TestFloat(unittest.TestCase):
     self.assertEqual((0, 4), osc_types.get_float(dgram, 0))
 
 
+class TestDouble(unittest.TestCase):
+
+  def test_get_double(self):
+    cases = {
+        b'\x00\x00\x00\x00\x00\x00\x00\x00': (0.0, 8),
+        b'?\xf0\x00\x00\x00\x00\x00\x00': (1.0, 8),
+        b'@\x00\x00\x00\x00\x00\x00\x00': (2.0, 8),
+        b'\xbf\xf0\x00\x00\x00\x00\x00\x00': (-1.0, 8),
+        b'\xc0\x00\x00\x00\x00\x00\x00\x00': (-2.0, 8),
+
+        b"\x00\x00\x00\x00\x00\x00\x00\x00GARBAGE": (0.0, 8),
+    }
+
+    for dgram, expected in cases.items():
+      self.assertAlmostEqual(expected, osc_types.get_double(dgram, 0))
+
+  def test_get_double_raises_on_wrong_dgram(self):
+    cases = [True]
+
+    for case in cases:
+      self.assertRaises(osc_types.ParseError, osc_types.get_double, case, 0)
+
+  def test_get_double_raises_on_type_error(self):
+    cases = [None]
+
+    for case in cases:
+      self.assertRaises(osc_types.ParseError, osc_types.get_double, case, 0)
+
+  def test_datagram_too_short_pads(self):
+    dgram = b'\x00' * 2
+    self.assertRaises(osc_types.ParseError, osc_types.get_double, dgram, 0)
+
+
 class TestBlob(unittest.TestCase):
 
   def test_get_blob(self):

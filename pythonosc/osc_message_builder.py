@@ -12,6 +12,7 @@ class OscMessageBuilder(object):
   """Builds arbitrary OscMessage instances."""
 
   ARG_TYPE_FLOAT = "f"
+  ARG_TYPE_DOUBLE = "d"
   ARG_TYPE_INT = "i"
   ARG_TYPE_STRING = "s"
   ARG_TYPE_BLOB = "b"
@@ -24,8 +25,8 @@ class OscMessageBuilder(object):
   ARG_TYPE_ARRAY_STOP = "]"
 
   _SUPPORTED_ARG_TYPES = (
-      ARG_TYPE_FLOAT, ARG_TYPE_INT, ARG_TYPE_BLOB, ARG_TYPE_STRING, ARG_TYPE_RGBA,
-      ARG_TYPE_MIDI, ARG_TYPE_TRUE, ARG_TYPE_FALSE)
+      ARG_TYPE_FLOAT, ARG_TYPE_DOUBLE, ARG_TYPE_INT, ARG_TYPE_BLOB, ARG_TYPE_STRING,
+      ARG_TYPE_RGBA, ARG_TYPE_MIDI, ARG_TYPE_TRUE, ARG_TYPE_FALSE)
 
   def __init__(self, address=None):
     """Initialize a new builder for a message.
@@ -143,6 +144,8 @@ class OscMessageBuilder(object):
           dgram += osc_types.write_int(value)
         elif arg_type == self.ARG_TYPE_FLOAT:
           dgram += osc_types.write_float(value)
+        elif arg_type == self.ARG_TYPE_DOUBLE:
+          dgram += osc_types.write_double(value)
         elif arg_type == self.ARG_TYPE_BLOB:
           dgram += osc_types.write_blob(value)
         elif arg_type == self.ARG_TYPE_RGBA:
