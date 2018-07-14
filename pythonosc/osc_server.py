@@ -171,11 +171,18 @@ class AsyncIOOSCUDPServer():
       _call_handlers_for_packet(data, self.dispatcher)
 
   def serve(self):
-    """creates a datagram endpoint and registers it with our event loop"""
-    listen = self._loop.create_datagram_endpoint(
+    """Creates a datagram endpoint and registers it with our event loop.
+
+    Use this only if you are not currently running your asyncio loop.
+    (i.e. not from within a coroutine).
+    """
+    self._loop.run_until_complete(self.create_serve_endpoint())
+
+  def create_serve_endpoint(self):
+    """Creates a datagram endpoint and registers it with our event loop as coroutine."""
+    return self._loop.create_datagram_endpoint(
       lambda: self._OSCProtocolFactory(self.dispatcher),
       local_addr=self._server_address)
-    self._loop.run_until_complete(listen)
 
   @property
   def dispatcher(self):
