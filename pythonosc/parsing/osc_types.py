@@ -307,8 +307,6 @@ def get_date(dgram, start_index):
   # Sum seconds and fraction of second:
   system_time = num_secs + (fraction / ntp.FRACTIONAL_CONVERSION)
 
-  print(ntp.ntp_to_system_time(system_time))
-
   return ntp.ntp_to_system_time(system_time), start_index
 
 
