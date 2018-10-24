@@ -33,48 +33,11 @@ loop.run_forever()
 import asyncio
 import os
 import socketserver
-import time
 
 from pythonosc import osc_bundle
 from pythonosc import osc_message
-from pythonosc import osc_packet
 
 
-def _call_handlers_for_packet(data, dispatcher):
-  """
-  This function calls the handlers registered to the dispatcher for
-  every message it found in the packet.
-  The process/thread granularity is thus the OSC packet, not the handler.
-
-  If parameters were registered with the dispatcher, then the handlers are
-  called this way:
-    handler('/address that triggered the message',
-            registered_param_list, osc_msg_arg1, osc_msg_arg2, ...)
-  if no parameters were registered, then it is just called like this:
-    handler('/address that triggered the message',
-            osc_msg_arg1, osc_msg_arg2, osc_msg_param3, ...)
-  """
-
-  # Get OSC messages from all bundles or standalone message.
-  try:
-    packet = osc_packet.OscPacket(data)
-    for timed_msg in packet.messages:
-      now = time.time()
-      handlers = dispatcher.handlers_for_address(
-          timed_msg.message.address)
-      if not handlers:
-        continue
-      # If the message is to be handled later, then so be it.
-      if timed_msg.time > now:
-        time.sleep(timed_msg.time - now)
-      for handler in handlers:
-        if handler.args:
-          handler.callback(
-              timed_msg.message.address, handler.args, *timed_msg.message)
-        else:
-          handler.callback(timed_msg.message.address, *timed_msg.message)
-  except osc_packet.ParseError:
-    pass
 
 
 class _UDPHandler(socketserver.BaseRequestHandler):
@@ -89,7 +52,7 @@ class _UDPHandler(socketserver.BaseRequestHandler):
   threads/processes will be spawned.
   """
   def handle(self):
-    _call_handlers_for_packet(self.request[0], self.server.dispatcher)
+    self.server.dispatcher.call_handlers_for_packet(self.request[0], self.client_address)
 
 
 def _is_valid_request(request):
@@ -146,7 +109,7 @@ if hasattr(os, "fork"):
 
 class AsyncIOOSCUDPServer():
   """Asyncio version of the OSC UDP Server.
-  Each UDP message is handled by _call_handlers_for_packet, the same method as in the
+  Each UDP message is handled by call_handlers_for_packet, the same method as in the
   OSCUDPServer family of blocking, threading, and forking servers
   """
 
@@ -162,13 +125,13 @@ class AsyncIOOSCUDPServer():
     self._loop = loop
 
   class _OSCProtocolFactory(asyncio.DatagramProtocol):
-    """OSC protocol factory which passes datagrams to _call_handlers_for_packet"""
+    """OSC protocol factory which passes datagrams to dispatcher"""
 
     def __init__(self, dispatcher):
       self.dispatcher = dispatcher
 
-    def datagram_received(self, data, unused_addr):
-      _call_handlers_for_packet(data, self.dispatcher)
+    def datagram_received(self, data, client_address):
+      self.dispatcher.call_handlers_for_packet(data, client_address)
 
   def serve(self):
     """Creates a datagram endpoint and registers it with our event loop.
