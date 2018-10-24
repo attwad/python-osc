@@ -25,7 +25,7 @@ class Handler(object):
       else:
         self.callback(client_address, message.address, *message)
     else:
-      if self._args:
+      if self.args:
         self.callback(message.address, self.args, *message)
       else:
         self.callback(message.address, *message)
