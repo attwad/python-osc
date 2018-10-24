@@ -2,11 +2,32 @@
 import collections
 import logging
 import re
+import time
+from pythonosc import osc_packet
 
-Handler = collections.namedtuple(
-    typename='Handler',
-    field_names=('callback', 'args'))
+class Handler(object):
+  def __init__(self, callback, args, needs_reply_address=False):
+    self._callback = callback
+    self._args = args
+    self._needs_reply_address = needs_reply_address
 
+  # needed for test module
+  def __eq__(self, other):
+    return (self._callback==other._callback and
+      self._args==other._args and
+      self._needs_reply_address==other._needs_reply_address)
+
+  def invoke(self, client_address, message):
+    if self._needs_reply_address:
+      if self._args:
+        self._callback(client_address, message.address, self._args, *message)
+      else:
+        self._callback(client_address, message.address, *message)
+    else:
+      if self._args:
+        self._callback(message.address, self._args, *message)
+      else:
+        self._callback(message.address, *message)
 
 class Dispatcher(object):
   """Register addresses to handlers and can match vice-versa."""
@@ -15,7 +36,7 @@ class Dispatcher(object):
     self._map = collections.defaultdict(list)
     self._default_handler = None
 
-  def map(self, address, handler, *args):
+  def map(self, address, handler, *args, needs_reply_address=False):
     """Map a given address to a handler.
 
     Args:
@@ -24,11 +45,13 @@ class Dispatcher(object):
                  the OscMessage passed as parameter.
       - args: Any additional arguments that will be always passed to the
               handlers after the osc messages arguments if any.
+      - needs_reply_address: True if the handler function needs the
+              originating client address passed (as the first argument).
     """
     # TODO: Check the spec:
     # http://opensoundcontrol.org/spec-1_0
     # regarding multiple mappings
-    self._map[address].append(Handler(handler, list(args)))
+    self._map[address].append(Handler(handler, list(args), needs_reply_address))
 
   def handlers_for_address(self, address_pattern):
     """yields Handler namedtuples matching the given OSC pattern."""
@@ -55,12 +78,44 @@ class Dispatcher(object):
 
     if not matched and self._default_handler:
       logging.debug('No handler matched but default handler present, added it.')
-      yield Handler(self._default_handler, [])
+      yield self._default_handler
 
-  def set_default_handler(self, handler):
+  def call_handlers_for_packet(self, data, client_address):
+    """
+    This function calls the handlers registered to the dispatcher for
+    every message it found in the packet.
+    The process/thread granularity is thus the OSC packet, not the handler.
+
+    If parameters were registered with the dispatcher, then the handlers are
+    called this way:
+      handler('/address that triggered the message',
+              registered_param_list, osc_msg_arg1, osc_msg_arg2, ...)
+    if no parameters were registered, then it is just called like this:
+      handler('/address that triggered the message',
+              osc_msg_arg1, osc_msg_arg2, osc_msg_param3, ...)
+    """
+
+    # Get OSC messages from all bundles or standalone message.
+    try:
+      packet = osc_packet.OscPacket(data)
+      for timed_msg in packet.messages:
+        now = time.time()
+        handlers = self.handlers_for_address(
+            timed_msg.message.address)
+        if not handlers:
+          continue
+        # If the message is to be handled later, then so be it.
+        if timed_msg.time > now:
+          time.sleep(timed_msg.time - now)
+        for handler in handlers:
+          handler.invoke(client_address, timed_msg.message)
+    except osc_packet.ParseError:
+      pass
+
+  def set_default_handler(self, handler, needs_reply_address=False):
     """Sets the default handler.
 
     Must be a function with the same constaints as with the self.map method
     or None to unset the default handler.
     """
-    self._default_handler = handler
+    self._default_handler = None if (handler is None) else Handler(handler, [], needs_reply_address)
