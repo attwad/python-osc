@@ -6,28 +6,29 @@ import time
 from pythonosc import osc_packet
 
 class Handler(object):
-  def __init__(self, callback, args, needs_reply_address=False):
-    self._callback = callback
-    self._args = args
-    self._needs_reply_address = needs_reply_address
+  def __init__(self, _callback, _args, _needs_reply_address=False):
+    self.callback = _callback
+    self.args = _args
+    self.needs_reply_address = _needs_reply_address
 
   # needed for test module
   def __eq__(self, other):
-    return (self._callback==other._callback and
-      self._args==other._args and
-      self._needs_reply_address==other._needs_reply_address)
+    return (type(self)==type(other) and
+      self.callback==other.callback and
+      self.args==other.args and
+      self.needs_reply_address==other.needs_reply_address)
 
   def invoke(self, client_address, message):
-    if self._needs_reply_address:
-      if self._args:
-        self._callback(client_address, message.address, self._args, *message)
+    if self.needs_reply_address:
+      if self.args:
+        self.callback(client_address, message.address, self.args, *message)
       else:
-        self._callback(client_address, message.address, *message)
+        self.callback(client_address, message.address, *message)
     else:
       if self._args:
-        self._callback(message.address, self._args, *message)
+        self.callback(message.address, self.args, *message)
       else:
-        self._callback(message.address, *message)
+        self.callback(message.address, *message)
 
 class Dispatcher(object):
   """Register addresses to handlers and can match vice-versa."""
