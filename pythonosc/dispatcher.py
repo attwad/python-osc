@@ -54,6 +54,19 @@ class Dispatcher(object):
     # regarding multiple mappings
     self._map[address].append(Handler(handler, list(args), needs_reply_address))
 
+  def unmap(self, address, handler, *args, needs_reply_address=False):
+    """Remove an already mapped handler from an address
+
+    Args:
+      - address: An explicit endpoint.
+      - handler: A function that will be run when the address matches with
+                 the OscMessage passed as parameter.
+      - args: Any additional arguments that will be always passed to the
+              handlers after the osc messages arguments if any.
+      - needs_reply_address: True if the handler function needs the
+              originating client address passed (as the first argument)."""
+    self._map[address].remove(Handler(handler, list(args), needs_reply_address))
+
   def handlers_for_address(self, address_pattern):
     """yields Handler namedtuples matching the given OSC pattern."""
     # First convert the address_pattern into a matchable regexp.

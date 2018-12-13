@@ -121,5 +121,14 @@ class TestDispatcher(unittest.TestCase):
     self.sortAndAssertSequenceEqual(
         [Handler(1, []), Handler(2, [])], self.dispatcher.handlers_for_address("/foo/bar"))
 
+  def test_unmap(self):
+    def dummyhandler():
+        pass
+
+    self.dispatcher.map("/map/me", dummyhandler)
+    self.sortAndAssertSequenceEqual([Handler(dummyhandler, [])], self.dispatcher.handlers_for_address("/map/me"))
+    self.dispatcher.unmap("/map/me", dummyhandler)
+    self.sortAndAssertSequenceEqual([], self.dispatcher.handlers_for_address("/map/me"))
+
 if __name__ == "__main__":
   unittest.main()
