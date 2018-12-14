@@ -2,7 +2,7 @@
 python-osc
 ==========
 
-Open Sound Control server and client implementations in **pure python** (3.4+).
+Open Sound Control server and client implementations in **pure python** (3.5+).
 
 .. image:: https://travis-ci.org/attwad/python-osc.svg?branch=master
     :target: https://travis-ci.org/attwad/python-osc
