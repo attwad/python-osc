@@ -137,5 +137,16 @@ class TestDispatcher(unittest.TestCase):
     self.dispatcher.unmap("/map/me/too", dummyhandler)
     self.sortAndAssertSequenceEqual([], self.dispatcher.handlers_for_address("/map/me/too"))
 
+  def test_unmap_exception(self):
+    def dummyhandler():
+        pass
+
+    with self.assertRaises(ValueError) as context:
+      self.dispatcher.unmap("/unmap/exception", dummyhandler)
+
+    handlerobj = self.dispatcher.map("/unmap/somethingelse", dummyhandler())
+    with self.assertRaises(ValueError) as context:
+      self.dispatcher.unmap("/unmap/exception", handlerobj)
+
 if __name__ == "__main__":
   unittest.main()

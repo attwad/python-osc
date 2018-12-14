@@ -86,10 +86,14 @@ class Dispatcher(object):
     pass
 
   def unmap(self, address, handler, *args, needs_reply_address=False):
-    if isinstance(handler, Handler):
-      self._map[address].remove(handler)
-    else:
-      self._map[address].remove(Handler(handler, list(args), needs_reply_address))
+    try:
+      if isinstance(handler, Handler):
+        self._map[address].remove(handler)
+      else:
+        self._map[address].remove(Handler(handler, list(args), needs_reply_address))
+    except ValueError as e:
+      if str(e) == "list.remove(x): x not in list":
+        raise ValueError("Address '%s' doesn't have handler '%s' mapped to it" % (address, handler)) from e
 
   def handlers_for_address(self, address_pattern):
     """yields Handler namedtuples matching the given OSC pattern."""
