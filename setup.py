@@ -2,13 +2,14 @@
 
 try:
     from setuptools import setup
+
     test_extras = {
         'test_suite': 'pythonosc.test',
     }
 except ImportError:
     from distutils.core import setup
-    test_extras = {}
 
+    test_extras = {}
 
 setup(
     name='python-osc',

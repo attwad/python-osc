@@ -2,7 +2,6 @@ import unittest
 
 from pythonosc import osc_packet
 
-
 _DGRAM_TWO_MESSAGES_IN_BUNDLE = (
     b"#bundle\x00"
     b"\x00\x00\x00\x00\x00\x00\x00\x01"
@@ -55,25 +54,24 @@ _DGRAM_NESTED_MESS = (
 
 
 class TestOscPacket(unittest.TestCase):
+    def test_two_messages_in_a_bundle(self):
+        packet = osc_packet.OscPacket(_DGRAM_TWO_MESSAGES_IN_BUNDLE)
+        self.assertEqual(2, len(packet.messages))
 
-  def test_two_messages_in_a_bundle(self):
-    packet = osc_packet.OscPacket(_DGRAM_TWO_MESSAGES_IN_BUNDLE)
-    self.assertEqual(2, len(packet.messages))
+    def test_empty_dgram_raises_exception(self):
+        self.assertRaises(osc_packet.ParseError, osc_packet.OscPacket, b'')
 
-  def test_empty_dgram_raises_exception(self):
-    self.assertRaises(osc_packet.ParseError, osc_packet.OscPacket, b'')
+    def test_empty_bundle(self):
+        packet = osc_packet.OscPacket(_DGRAM_EMPTY_BUNDLE)
+        self.assertEqual(0, len(packet.messages))
 
-  def test_empty_bundle(self):
-    packet = osc_packet.OscPacket(_DGRAM_EMPTY_BUNDLE)
-    self.assertEqual(0, len(packet.messages))
-
-  def test_nested_mess_bundle(self):
-    packet = osc_packet.OscPacket(_DGRAM_NESTED_MESS)
-    self.assertEqual(4, len(packet.messages))
-    self.assertTrue(packet.messages[0][0], packet.messages[1][0])
-    self.assertTrue(packet.messages[1][0], packet.messages[2][0])
-    self.assertTrue(packet.messages[2][0], packet.messages[3][0])
+    def test_nested_mess_bundle(self):
+        packet = osc_packet.OscPacket(_DGRAM_NESTED_MESS)
+        self.assertEqual(4, len(packet.messages))
+        self.assertTrue(packet.messages[0][0], packet.messages[1][0])
+        self.assertTrue(packet.messages[1][0], packet.messages[2][0])
+        self.assertTrue(packet.messages[2][0], packet.messages[3][0])
 
 
 if __name__ == "__main__":
-  unittest.main()
+    unittest.main()
