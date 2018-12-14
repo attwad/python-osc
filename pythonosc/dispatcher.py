@@ -48,11 +48,15 @@ class Dispatcher(object):
               handlers after the osc messages arguments if any.
       - needs_reply_address: True if the handler function needs the
               originating client address passed (as the first argument).
+      Returns:
+      - Handler object
     """
     # TODO: Check the spec:
     # http://opensoundcontrol.org/spec-1_0
     # regarding multiple mappings
-    self._map[address].append(Handler(handler, list(args), needs_reply_address))
+    handlerobj = Handler(handler, list(args), needs_reply_address)
+    self._map[address].append(handlerobj)
+    return handlerobj
 
   def unmap(self, address, handler, *args, needs_reply_address=False):
     """Remove an already mapped handler from an address
