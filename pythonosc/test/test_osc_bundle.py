@@ -75,56 +75,56 @@ _DGRAM_UNKNOWN_TYPE = (
 
 
 class TestOscBundle(unittest.TestCase):
+    def test_switch_goes_off(self):
+        bundle = osc_bundle.OscBundle(_DGRAM_SWITCH_GOES_OFF)
+        self.assertEqual(1, bundle.num_contents)
+        self.assertEqual(len(_DGRAM_SWITCH_GOES_OFF), bundle.size)
+        self.assertEqual(osc_types.IMMEDIATELY, bundle.timestamp)
 
-  def test_switch_goes_off(self):
-    bundle = osc_bundle.OscBundle(_DGRAM_SWITCH_GOES_OFF)
-    self.assertEqual(1, bundle.num_contents)
-    self.assertEqual(len(_DGRAM_SWITCH_GOES_OFF), bundle.size)
-    self.assertEqual(osc_types.IMMEDIATELY, bundle.timestamp)
+    def test_switch_goes_on(self):
+        bundle = osc_bundle.OscBundle(_DGRAM_SWITCH_GOES_ON)
+        self.assertEqual(1, bundle.num_contents)
+        self.assertEqual(len(_DGRAM_SWITCH_GOES_ON), bundle.size)
+        self.assertEqual(osc_types.IMMEDIATELY, bundle.timestamp)
 
-  def test_switch_goes_on(self):
-    bundle = osc_bundle.OscBundle(_DGRAM_SWITCH_GOES_ON)
-    self.assertEqual(1, bundle.num_contents)
-    self.assertEqual(len(_DGRAM_SWITCH_GOES_ON), bundle.size)
-    self.assertEqual(osc_types.IMMEDIATELY, bundle.timestamp)
+    def test_datagram_length(self):
+        bundle = osc_bundle.OscBundle(_DGRAM_KNOB_ROTATES_BUNDLE)
+        self.assertEqual(1, bundle.num_contents)
+        self.assertEqual(len(_DGRAM_KNOB_ROTATES_BUNDLE), bundle.size)
+        self.assertEqual(osc_types.IMMEDIATELY, bundle.timestamp)
 
-  def test_datagram_length(self):
-    bundle = osc_bundle.OscBundle(_DGRAM_KNOB_ROTATES_BUNDLE)
-    self.assertEqual(1, bundle.num_contents)
-    self.assertEqual(len(_DGRAM_KNOB_ROTATES_BUNDLE), bundle.size)
-    self.assertEqual(osc_types.IMMEDIATELY, bundle.timestamp)
+    def test_two_messages_in_bundle(self):
+        bundle = osc_bundle.OscBundle(_DGRAM_TWO_MESSAGES_IN_BUNDLE)
+        self.assertEqual(2, bundle.num_contents)
+        self.assertEqual(osc_types.IMMEDIATELY, bundle.timestamp)
+        for content in bundle:
+            self.assertEqual(osc_message.OscMessage, type(content))
 
-  def test_two_messages_in_bundle(self):
-    bundle = osc_bundle.OscBundle(_DGRAM_TWO_MESSAGES_IN_BUNDLE)
-    self.assertEqual(2, bundle.num_contents)
-    self.assertEqual(osc_types.IMMEDIATELY, bundle.timestamp)
-    for content in bundle:
-      self.assertEqual(osc_message.OscMessage, type(content))
+    def test_empty_bundle(self):
+        bundle = osc_bundle.OscBundle(_DGRAM_EMPTY_BUNDLE)
+        self.assertEqual(0, bundle.num_contents)
+        self.assertEqual(osc_types.IMMEDIATELY, bundle.timestamp)
 
-  def test_empty_bundle(self):
-    bundle = osc_bundle.OscBundle(_DGRAM_EMPTY_BUNDLE)
-    self.assertEqual(0, bundle.num_contents)
-    self.assertEqual(osc_types.IMMEDIATELY, bundle.timestamp)
+    def test_bundle_in_bundle_we_must_go_deeper(self):
+        bundle = osc_bundle.OscBundle(_DGRAM_BUNDLE_IN_BUNDLE)
+        self.assertEqual(1, bundle.num_contents)
+        self.assertEqual(osc_types.IMMEDIATELY, bundle.timestamp)
+        self.assertEqual(osc_bundle.OscBundle, type(bundle.content(0)))
 
-  def test_bundle_in_bundle_we_must_go_deeper(self):
-    bundle = osc_bundle.OscBundle(_DGRAM_BUNDLE_IN_BUNDLE)
-    self.assertEqual(1, bundle.num_contents)
-    self.assertEqual(osc_types.IMMEDIATELY, bundle.timestamp)
-    self.assertEqual(osc_bundle.OscBundle, type(bundle.content(0)))
+    def test_dgram_is_bundle(self):
+        self.assertTrue(osc_bundle.OscBundle.dgram_is_bundle(
+            _DGRAM_SWITCH_GOES_ON))
+        self.assertFalse(osc_bundle.OscBundle.dgram_is_bundle(b'junk'))
 
-  def test_dgram_is_bundle(self):
-    self.assertTrue(osc_bundle.OscBundle.dgram_is_bundle(
-        _DGRAM_SWITCH_GOES_ON))
-    self.assertFalse(osc_bundle.OscBundle.dgram_is_bundle(b'junk'))
+    def test_raises_on_invalid_datagram(self):
+        self.assertRaises(
+            osc_bundle.ParseError, osc_bundle.OscBundle, _DGRAM_INVALID)
+        self.assertRaises(
+            osc_bundle.ParseError, osc_bundle.OscBundle, _DGRAM_INVALID_INDEX)
 
-  def test_raises_on_invalid_datagram(self):
-    self.assertRaises(
-        osc_bundle.ParseError, osc_bundle.OscBundle, _DGRAM_INVALID)
-    self.assertRaises(
-        osc_bundle.ParseError, osc_bundle.OscBundle, _DGRAM_INVALID_INDEX)
+    def test_unknown_type(self):
+        bundle = osc_bundle.OscBundle(_DGRAM_UNKNOWN_TYPE)
 
-  def test_unknown_type(self):
-    bundle = osc_bundle.OscBundle(_DGRAM_UNKNOWN_TYPE)
 
 if __name__ == "__main__":
-  unittest.main()
+    unittest.main()
