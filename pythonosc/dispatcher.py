@@ -101,7 +101,7 @@ class Dispatcher(object):
             if str(e) == "list.remove(x): x not in list":
                 raise ValueError("Address '%s' doesn't have handler '%s' mapped to it" % (address, handler)) from e
 
-    def handlers_for_address(self, address_pattern: str) -> Generator[Handler]:
+    def handlers_for_address(self, address_pattern: str) -> Generator[None, Handler, None]:
         """yields Handler namedtuples matching the given OSC pattern."""
         # First convert the address_pattern into a matchable regexp.
         # '?' in the OSC Address Pattern matches any single character.
