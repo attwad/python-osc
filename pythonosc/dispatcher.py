@@ -4,6 +4,8 @@ import logging
 import re
 import time
 from pythonosc import osc_packet
+from typing import overload
+from types import FunctionType
 
 class Handler(object):
   def __init__(self, _callback, _args, _needs_reply_address=False):
@@ -48,11 +50,50 @@ class Dispatcher(object):
               handlers after the osc messages arguments if any.
       - needs_reply_address: True if the handler function needs the
               originating client address passed (as the first argument).
+      Returns:
+      - Handler object
     """
     # TODO: Check the spec:
     # http://opensoundcontrol.org/spec-1_0
     # regarding multiple mappings
-    self._map[address].append(Handler(handler, list(args), needs_reply_address))
+    handlerobj = Handler(handler, list(args), needs_reply_address)
+    self._map[address].append(handlerobj)
+    return handlerobj
+
+  @overload
+  def unmap(self, address: str, handler: Handler):
+    """Remove an already mapped handler from an address
+
+        Args:
+          - address: An explicit endpoint.
+          - handler: A Handler object as returned from map().
+    """
+    pass
+
+  @overload
+  def unmap(self, address: str, handler: FunctionType, *args, needs_reply_address: bool=False):
+    """Remove an already mapped handler from an address
+
+    Args:
+      - address: An explicit endpoint.
+      - handler: A function that will be run when the address matches with
+                 the OscMessage passed as parameter.
+      - args: Any additional arguments that will be always passed to the
+              handlers after the osc messages arguments if any.
+      - needs_reply_address: True if the handler function needs the
+              originating client address passed (as the first argument).
+    """
+    pass
+
+  def unmap(self, address, handler, *args, needs_reply_address=False):
+    try:
+      if isinstance(handler, Handler):
+        self._map[address].remove(handler)
+      else:
+        self._map[address].remove(Handler(handler, list(args), needs_reply_address))
+    except ValueError as e:
+      if str(e) == "list.remove(x): x not in list":
+        raise ValueError("Address '%s' doesn't have handler '%s' mapped to it" % (address, handler)) from e
 
   def handlers_for_address(self, address_pattern):
     """yields Handler namedtuples matching the given OSC pattern."""
