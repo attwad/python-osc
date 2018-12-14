@@ -125,10 +125,17 @@ class TestDispatcher(unittest.TestCase):
     def dummyhandler():
         pass
 
-    self.dispatcher.map("/map/me", dummyhandler)
+    # Test with handler returned by map
+    returnedhandler = self.dispatcher.map("/map/me", dummyhandler)
     self.sortAndAssertSequenceEqual([Handler(dummyhandler, [])], self.dispatcher.handlers_for_address("/map/me"))
-    self.dispatcher.unmap("/map/me", dummyhandler)
+    self.dispatcher.unmap("/map/me", returnedhandler)
     self.sortAndAssertSequenceEqual([], self.dispatcher.handlers_for_address("/map/me"))
+
+    # Test with reconstructing handler
+    self.dispatcher.map("/map/me/too", dummyhandler)
+    self.sortAndAssertSequenceEqual([Handler(dummyhandler, [])], self.dispatcher.handlers_for_address("/map/me/too"))
+    self.dispatcher.unmap("/map/me/too", dummyhandler)
+    self.sortAndAssertSequenceEqual([], self.dispatcher.handlers_for_address("/map/me/too"))
 
 if __name__ == "__main__":
   unittest.main()
