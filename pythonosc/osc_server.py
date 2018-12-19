@@ -36,6 +36,12 @@ import socketserver
 
 from pythonosc import osc_bundle
 from pythonosc import osc_message
+from pythonosc.dispatcher import Dispatcher
+
+from asyncio import BaseEventLoop
+
+from typing import List, Tuple
+from types import coroutine
 
 
 class _UDPHandler(socketserver.BaseRequestHandler):
@@ -50,11 +56,11 @@ class _UDPHandler(socketserver.BaseRequestHandler):
     threads/processes will be spawned.
     """
 
-    def handle(self):
+    def handle(self) -> None:
         self.server.dispatcher.call_handlers_for_packet(self.request[0], self.client_address)
 
 
-def _is_valid_request(request):
+def _is_valid_request(request: List[bytes]) -> bool:
     """Returns true if the request's data looks like an osc bundle or message."""
     data = request[0]
     return (
@@ -65,16 +71,16 @@ def _is_valid_request(request):
 class OSCUDPServer(socketserver.UDPServer):
     """Superclass for different flavors of OSCUDPServer"""
 
-    def __init__(self, server_address, dispatcher):
+    def __init__(self, server_address: Tuple[str, int], dispatcher: Dispatcher) -> None:
         super().__init__(server_address, _UDPHandler)
         self._dispatcher = dispatcher
 
-    def verify_request(self, request, client_address):
+    def verify_request(self, request: List[bytes], client_address: Tuple[str, int]) -> bool:
         """Returns true if the data looks like a valid OSC UDP datagram."""
         return _is_valid_request(request)
 
     @property
-    def dispatcher(self):
+    def dispatcher(self) -> Dispatcher:
         """Dispatcher accessor for handlers to dispatch osc messages."""
         return self._dispatcher
 
@@ -112,7 +118,7 @@ class AsyncIOOSCUDPServer():
     OSCUDPServer family of blocking, threading, and forking servers
     """
 
-    def __init__(self, server_address, dispatcher, loop):
+    def __init__(self, server_address: Tuple[str, int], dispatcher: Dispatcher, loop: BaseEventLoop) -> None:
         """
         :param server_address: tuple of (IP address to bind to, port)
         :param dispatcher: a pythonosc.dispatcher.Dispatcher
@@ -126,13 +132,13 @@ class AsyncIOOSCUDPServer():
     class _OSCProtocolFactory(asyncio.DatagramProtocol):
         """OSC protocol factory which passes datagrams to dispatcher"""
 
-        def __init__(self, dispatcher):
+        def __init__(self, dispatcher: Dispatcher) -> None:
             self.dispatcher = dispatcher
 
-        def datagram_received(self, data, client_address):
+        def datagram_received(self, data: bytes, client_address: Tuple[str, int]) -> None:
             self.dispatcher.call_handlers_for_packet(data, client_address)
 
-    def serve(self):
+    def serve(self) -> None:
         """Creates a datagram endpoint and registers it with our event loop.
 
         Use this only if you are not currently running your asyncio loop.
@@ -140,12 +146,12 @@ class AsyncIOOSCUDPServer():
         """
         self._loop.run_until_complete(self.create_serve_endpoint())
 
-    def create_serve_endpoint(self):
+    def create_serve_endpoint(self) -> coroutine:
         """Creates a datagram endpoint and registers it with our event loop as coroutine."""
         return self._loop.create_datagram_endpoint(
             lambda: self._OSCProtocolFactory(self.dispatcher),
             local_addr=self._server_address)
 
     @property
-    def dispatcher(self):
+    def dispatcher(self) -> Dispatcher:
         return self._dispatcher
