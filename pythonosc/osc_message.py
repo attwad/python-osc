@@ -3,6 +3,7 @@
 import logging
 
 from pythonosc.parsing import osc_types
+from typing import List, Iterator, Any
 
 
 class ParseError(Exception):
@@ -16,12 +17,12 @@ class OscMessage(object):
     Type Tag String followed by zero or more OSC Arguments.
     """
 
-    def __init__(self, dgram):
+    def __init__(self, dgram: bytes) -> None:
         self._dgram = dgram
         self._parameters = []
         self._parse_datagram()
 
-    def _parse_datagram(self):
+    def _parse_datagram(self) -> None:
         try:
             self._address_regexp, index = osc_types.get_string(self._dgram, 0)
             if not self._dgram[index:]:
@@ -78,30 +79,30 @@ class OscMessage(object):
             raise ParseError('Found incorrect datagram, ignoring it', pe)
 
     @property
-    def address(self):
+    def address(self) -> str:
         """Returns the OSC address regular expression."""
         return self._address_regexp
 
     @staticmethod
-    def dgram_is_message(dgram):
+    def dgram_is_message(dgram: bytes) -> bool:
         """Returns whether this datagram starts as an OSC message."""
         return dgram.startswith(b'/')
 
     @property
-    def size(self):
+    def size(self) -> int:
         """Returns the length of the datagram for this message."""
         return len(self._dgram)
 
     @property
-    def dgram(self):
+    def dgram(self) -> bytes:
         """Returns the datagram from which this message was built."""
         return self._dgram
 
     @property
-    def params(self):
+    def params(self) -> List[Any]:
         """Convenience method for list(self) to get the list of parameters."""
         return list(self)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[float]:
         """Returns an iterator over the parameters of this message."""
         return iter(self._parameters)
