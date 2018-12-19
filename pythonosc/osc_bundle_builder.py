@@ -15,7 +15,7 @@ class BuildError(Exception):
 class OscBundleBuilder(object):
     """Builds arbitrary OscBundle instances."""
 
-    def __init__(self, timestamp):
+    def __init__(self, timestamp: int) -> None:
         """Build a new bundle with the associated timestamp.
 
         Args:
@@ -25,7 +25,7 @@ class OscBundleBuilder(object):
         self._timestamp = timestamp
         self._contents = []
 
-    def add_content(self, content):
+    def add_content(self, content: osc_bundle.OscBundle) -> None:
         """Add a new content to this bundle.
 
         Args:
@@ -33,7 +33,7 @@ class OscBundleBuilder(object):
         """
         self._contents.append(content)
 
-    def build(self):
+    def build(self) -> osc_bundle.OscBundle:
         """Build an OscBundle with the current state of this builder.
 
         Raises:
