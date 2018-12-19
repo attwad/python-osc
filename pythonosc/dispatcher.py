@@ -12,9 +12,9 @@ from pythonosc.osc_message import OscMessage
 class Handler(object):
     def __init__(self, _callback: FunctionType, _args: Union[Any, List[Any]],
                  _needs_reply_address: bool = False) -> None:
-        self.callback: FunctionType = _callback
+        self.callback = _callback
         self.args = _args
-        self.needs_reply_address: bool = _needs_reply_address
+        self.needs_reply_address = _needs_reply_address
 
     # needed for test module
     def __eq__(self, other) -> bool:
@@ -40,8 +40,8 @@ class Dispatcher(object):
     """Register addresses to handlers and can match vice-versa."""
 
     def __init__(self):
-        self._map: collections.defaultdict = collections.defaultdict(list)
-        self._default_handler: Handler = None
+        self._map = collections.defaultdict(list)
+        self._default_handler = None
 
     def map(self, address: str, handler: FunctionType, *args: Union[Any, List[Any]],
             needs_reply_address: bool = False) -> Handler:
@@ -61,7 +61,7 @@ class Dispatcher(object):
         # TODO: Check the spec:
         # http://opensoundcontrol.org/spec-1_0
         # regarding multiple mappings
-        handlerobj: Handler = Handler(handler, list(args), needs_reply_address)
+        handlerobj = Handler(handler, list(args), needs_reply_address)
         self._map[address].append(handlerobj)
         return handlerobj
 
@@ -107,16 +107,16 @@ class Dispatcher(object):
         # '?' in the OSC Address Pattern matches any single character.
         # Let's consider numbers and _ "characters" too here, it's not said
         # explicitly in the specification but it sounds good.
-        escaped_address_pattern: str = re.escape(address_pattern)
-        pattern: str = escaped_address_pattern.replace('\\?', '\\w?')
+        escaped_address_pattern = re.escape(address_pattern)
+        pattern = escaped_address_pattern.replace('\\?', '\\w?')
         # '*' in the OSC Address Pattern matches any sequence of zero or more
         # characters.
         pattern = pattern.replace('\\*', '[\w|\+]*')
         # The rest of the syntax in the specification is like the re module so
         # we're fine.
         pattern = pattern + '$'
-        patterncompiled: re.Pattern = re.compile(pattern)
-        matched: bool = False
+        patterncompiled = re.compile(pattern)
+        matched = False
 
         for addr, handlers in self._map.items():
             if (patterncompiled.match(addr)
@@ -166,4 +166,4 @@ class Dispatcher(object):
         Must be a function with the same constaints as with the self.map method
         or None to unset the default handler.
         """
-        self._default_handler: Handler = None if (handler is None) else Handler(handler, [], needs_reply_address)
+        self._default_handler = None if (handler is None) else Handler(handler, [], needs_reply_address)
