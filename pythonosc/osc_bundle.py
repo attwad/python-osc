@@ -3,6 +3,8 @@ import logging
 from pythonosc import osc_message
 from pythonosc.parsing import osc_types
 
+from typing import Any, Iterator
+
 _BUNDLE_PREFIX = b"#bundle\x00"
 
 
@@ -16,7 +18,7 @@ class OscBundle(object):
     An element can be another OscBundle or an OscMessage.
     """
 
-    def __init__(self, dgram):
+    def __init__(self, dgram: bytes) -> None:
         """Initializes the OscBundle with the given datagram.
 
         Args:
@@ -35,7 +37,9 @@ class OscBundle(object):
         # Get the contents as a list of OscBundle and OscMessage.
         self._contents = self._parse_contents(index)
 
-    def _parse_contents(self, index):
+    # Return type is actually List[OscBundle], but that would require import annotations from __future__, which is
+    # python 3.7+ only.
+    def _parse_contents(self, index: int) -> Any:
         contents = []
 
         try:
@@ -64,34 +68,34 @@ class OscBundle(object):
         return contents
 
     @staticmethod
-    def dgram_is_bundle(dgram):
+    def dgram_is_bundle(dgram: bytes) -> bool:
         """Returns whether this datagram starts like an OSC bundle."""
         return dgram.startswith(_BUNDLE_PREFIX)
 
     @property
-    def timestamp(self):
+    def timestamp(self) -> int:
         """Returns the timestamp associated with this bundle."""
         return self._timestamp
 
     @property
-    def num_contents(self):
+    def num_contents(self) -> int:
         """Shortcut for len(*bundle) returning the number of elements."""
         return len(self._contents)
 
     @property
-    def size(self):
+    def size(self) -> int:
         """Returns the length of the datagram for this bundle."""
         return len(self._dgram)
 
     @property
-    def dgram(self):
+    def dgram(self) -> bytes:
         """Returns the datagram from which this bundle was built."""
         return self._dgram
 
-    def content(self, index):
+    def content(self, index) -> Any:
         """Returns the bundle's content 0-indexed."""
         return self._contents[index]
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Any]:
         """Returns an iterator over the bundle's content."""
         return iter(self._contents)
