@@ -22,7 +22,7 @@ TimedMessage = collections.namedtuple(
     field_names=('time', 'message'))
 
 
-def _timed_msg_of_bundle(bundle: osc_bundle.OscBundle, now: int):
+def _timed_msg_of_bundle(bundle: osc_bundle.OscBundle, now: int) -> List[TimedMessage]:
     """Returns messages contained in nested bundles as a list of TimedMessage."""
     msgs = []
     for content in bundle:
