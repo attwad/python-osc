@@ -11,6 +11,8 @@ from pythonosc.parsing import osc_types
 from pythonosc import osc_bundle
 from pythonosc import osc_message
 
+from typing import Union, List
+
 # A namedtuple as returned my the _timed_msg_of_bundle function.
 # 1) the system time at which the message should be executed
 #    in seconds since the epoch.
@@ -20,13 +22,12 @@ TimedMessage = collections.namedtuple(
     field_names=('time', 'message'))
 
 
-def _timed_msg_of_bundle(bundle, now):
+def _timed_msg_of_bundle(bundle: osc_bundle.OscBundle, now: int):
     """Returns messages contained in nested bundles as a list of TimedMessage."""
     msgs = []
     for content in bundle:
         if type(content) == osc_message.OscMessage:
-            if (bundle.timestamp == osc_types.IMMEDIATELY
-                    or bundle.timestamp < now):
+            if (bundle.timestamp == osc_types.IMMEDIATELY or bundle.timestamp < now):
                 msgs.append(TimedMessage(now, content))
             else:
                 msgs.append(TimedMessage(bundle.timestamp, content))
@@ -46,7 +47,7 @@ class OscPacket(object):
     Any application that receives OSC Packets is an OSC Server.
     """
 
-    def __init__(self, dgram):
+    def __init__(self, dgram: bytes) -> None:
         """Initialize an OdpPacket with the given UDP datagram.
 
         Args:
@@ -72,6 +73,6 @@ class OscPacket(object):
             raise ParseError('Could not parse packet %s' % pe)
 
     @property
-    def messages(self):
+    def messages(self) -> List[TimedMessage]:
         """Returns asc-time-sorted TimedMessages of the messages in this packet."""
         return self._messages
