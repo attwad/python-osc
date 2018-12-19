@@ -23,7 +23,7 @@ class Handler(object):
                 self.args == other.args and
                 self.needs_reply_address == other.needs_reply_address)
 
-    def invoke(self, client_address: str, message: OscMessage):
+    def invoke(self, client_address: str, message: OscMessage) -> None:
         if self.needs_reply_address:
             if self.args:
                 self.callback(client_address, message.address, self.args, *message)
@@ -39,7 +39,7 @@ class Handler(object):
 class Dispatcher(object):
     """Register addresses to handlers and can match vice-versa."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._map = collections.defaultdict(list)
         self._default_handler = None
 
@@ -128,7 +128,7 @@ class Dispatcher(object):
             logging.debug('No handler matched but default handler present, added it.')
             yield self._default_handler
 
-    def call_handlers_for_packet(self, data, client_address):
+    def call_handlers_for_packet(self, data, client_address) -> None:
         """
         This function calls the handlers registered to the dispatcher for
         every message it found in the packet.
@@ -160,7 +160,7 @@ class Dispatcher(object):
         except osc_packet.ParseError:
             pass
 
-    def set_default_handler(self, handler: FunctionType, needs_reply_address: bool = False):
+    def set_default_handler(self, handler: FunctionType, needs_reply_address: bool = False) -> None:
         """Sets the default handler.
 
         Must be a function with the same constaints as with the self.map method
