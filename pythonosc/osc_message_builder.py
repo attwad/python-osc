@@ -3,6 +3,7 @@
 from pythonosc import osc_message
 from pythonosc.parsing import osc_types
 
+from typing import List, Tuple, Union, Any
 
 class BuildError(Exception):
     """Error raised when an incomplete message is trying to be built."""
@@ -28,7 +29,7 @@ class OscMessageBuilder(object):
         ARG_TYPE_FLOAT, ARG_TYPE_DOUBLE, ARG_TYPE_INT, ARG_TYPE_BLOB, ARG_TYPE_STRING,
         ARG_TYPE_RGBA, ARG_TYPE_MIDI, ARG_TYPE_TRUE, ARG_TYPE_FALSE)
 
-    def __init__(self, address=None):
+    def __init__(self, address: str=None) -> None:
         """Initialize a new builder for a message.
 
         Args:
@@ -38,21 +39,21 @@ class OscMessageBuilder(object):
         self._args = []
 
     @property
-    def address(self):
+    def address(self) -> str:
         """Returns the OSC address this message will be sent to."""
         return self._address
 
     @address.setter
-    def address(self, value):
+    def address(self, value: str) -> None:
         """Sets the OSC address this message will be sent to."""
         self._address = value
 
     @property
-    def args(self):
+    def args(self) -> List[Tuple[str, Union[str, bytes, bool, int, float, tuple, list]]]:   # TODO: Make 'tuple' more specific for it is a MIDI packet
         """Returns the (type, value) arguments list of this message."""
         return self._args
 
-    def _valid_type(self, arg_type):
+    def _valid_type(self, arg_type: str) -> bool:
         if arg_type in self._SUPPORTED_ARG_TYPES:
             return True
         elif isinstance(arg_type, list):
@@ -62,7 +63,7 @@ class OscMessageBuilder(object):
             return True
         return False
 
-    def add_arg(self, arg_value, arg_type=None):
+    def add_arg(self, arg_value: Union[str, bytes, bool, int, float, tuple, list], arg_type: str=None) -> None:     # TODO: Make 'tuple' more specific for it is a MIDI packet
         """Add a typed argument to this message.
 
         Args:
@@ -86,7 +87,7 @@ class OscMessageBuilder(object):
         else:
             self._args.append((arg_type, arg_value))
 
-    def _get_arg_type(self, arg_value):
+    def _get_arg_type(self, arg_value: Union[str, bytes, bool, int, float, tuple, list]) -> str:    # TODO: Make 'tuple' more specific for it is a MIDI packet
         """Guess the type of a value.
 
         Args:
@@ -114,7 +115,7 @@ class OscMessageBuilder(object):
             raise ValueError('Infered arg_value type is not supported')
         return arg_type
 
-    def build(self):
+    def build(self) -> osc_message.OscMessage:
         """Builds an OscMessage from the current state of this builder.
 
         Raises:

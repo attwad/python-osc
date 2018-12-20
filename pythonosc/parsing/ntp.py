@@ -4,6 +4,8 @@ import datetime
 import struct
 import time
 
+from typing import Union
+
 # conversion factor for fractional seconds (maximum value of fractional part)
 FRACTIONAL_CONVERSION = 2 ** 32
 
@@ -22,14 +24,14 @@ class NtpError(Exception):
   """Base class for ntp module errors."""
 
 
-def ntp_to_system_time(date):
+def ntp_to_system_time(date: Union[int, float]) -> Union[int, float]:
     """Convert a NTP time to system time.
 
     System time is reprensented by seconds since the epoch in UTC.
     """
     return date - _NTP_DELTA
 
-def system_time_to_ntp(date):
+def system_time_to_ntp(date: Union[int, float]) -> bytes:
     """Convert a system time to NTP time.
 
     System time is reprensented by seconds since the epoch in UTC.
