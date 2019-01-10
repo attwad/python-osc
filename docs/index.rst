@@ -11,6 +11,7 @@ Python-osc - OSC server and client in pure python
    :caption: Contents:
 
    dispatcher
+   client
 
 
 Python-osc implements a server and client for Open Sound Control.
