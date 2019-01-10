@@ -122,4 +122,6 @@ Dispatcher Module Documentation
 ---------------------------------
 
 .. automodule:: pythonosc.dispatcher
+  :special-members:
   :members:
+  :exclude-members: __weakref__
