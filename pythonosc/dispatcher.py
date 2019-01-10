@@ -1,8 +1,4 @@
 """Maps OSC addresses to handler functions
-
-Classes:
-  - Handler: Contains a function that is to be called when an OSC message is sent to the appropriate address
-  - Dispatcher: Contains the mapping of all handlers and addresses and can register new mappings
 """
 
 import collections
