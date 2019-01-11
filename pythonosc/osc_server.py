@@ -1,33 +1,4 @@
 """OSC Servers that receive UDP packets and invoke handlers accordingly.
-
-Use like this:
-
-dispatcher = dispatcher.Dispatcher()
-# This will print all parameters to stdout.
-dispatcher.map("/bpm", print)
-server = ForkingOSCUDPServer((ip, port), dispatcher)
-server.serve_forever()
-
-or run the server on its own thread:
-server = ForkingOSCUDPServer((ip, port), dispatcher)
-server_thread = threading.Thread(target=server.serve_forever)
-server_thread.start()
-...
-server.shutdown()
-
-
-Those servers are using the standard socketserver from the standard library:
-http://docs.python.org/library/socketserver.html
-
-
-Alternatively, the AsyncIOOSCUDPServer server can be integrated with an
-asyncio event loop:
-
-loop = asyncio.get_event_loop()
-server = AsyncIOOSCUDPServer(server_address, dispatcher, loop)
-server.serve()
-loop.run_forever()
-
 """
 
 import asyncio
