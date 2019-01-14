@@ -1,33 +1,4 @@
 """OSC Servers that receive UDP packets and invoke handlers accordingly.
-
-Use like this:
-
-dispatcher = dispatcher.Dispatcher()
-# This will print all parameters to stdout.
-dispatcher.map("/bpm", print)
-server = ForkingOSCUDPServer((ip, port), dispatcher)
-server.serve_forever()
-
-or run the server on its own thread:
-server = ForkingOSCUDPServer((ip, port), dispatcher)
-server_thread = threading.Thread(target=server.serve_forever)
-server_thread.start()
-...
-server.shutdown()
-
-
-Those servers are using the standard socketserver from the standard library:
-http://docs.python.org/library/socketserver.html
-
-
-Alternatively, the AsyncIOOSCUDPServer server can be integrated with an
-asyncio event loop:
-
-loop = asyncio.get_event_loop()
-server = AsyncIOOSCUDPServer(server_address, dispatcher, loop)
-server.serve()
-loop.run_forever()
-
 """
 
 import asyncio
@@ -45,23 +16,25 @@ from types import coroutine
 
 
 class _UDPHandler(socketserver.BaseRequestHandler):
-    """Handles correct UDP messages for all types of server.
-
-    Whether this will be run on its own thread, the server's or a whole new
-    process depends on the server you instanciated, look at their documentation.
-
-    This method is called after a basic sanity check was done on the datagram,
-    basically whether this datagram looks like an osc message or bundle,
-    if not the server won't even bother to call it and so no new
-    threads/processes will be spawned.
-    """
+    """Handles correct UDP messages for all types of server."""
 
     def handle(self) -> None:
+        """Calls the handlers via dispatcher
+
+        This method is called after a basic sanity check was done on the datagram,
+        whether this datagram looks like an osc message or bundle.
+        If not the server won't call it and so no new
+        threads/processes will be spawned.
+        """
         self.server.dispatcher.call_handlers_for_packet(self.request[0], self.client_address)
 
 
 def _is_valid_request(request: List[bytes]) -> bool:
-    """Returns true if the request's data looks like an osc bundle or message."""
+    """Returns true if the request's data looks like an osc bundle or message.
+
+    Returns:
+        True if request is OSC bundle or OSC message
+    """
     data = request[0]
     return (
             osc_bundle.OscBundle.dgram_is_bundle(data)
@@ -69,19 +42,32 @@ def _is_valid_request(request: List[bytes]) -> bool:
 
 
 class OSCUDPServer(socketserver.UDPServer):
-    """Superclass for different flavors of OSCUDPServer"""
+    """Superclass for different flavors of OSC UDP servers"""
 
     def __init__(self, server_address: Tuple[str, int], dispatcher: Dispatcher) -> None:
+        """Initialize
+
+        Args:
+            server_address: IP and port of server
+            dispatcher: Dispatcher this server will use
+        """
         super().__init__(server_address, _UDPHandler)
         self._dispatcher = dispatcher
 
     def verify_request(self, request: List[bytes], client_address: Tuple[str, int]) -> bool:
-        """Returns true if the data looks like a valid OSC UDP datagram."""
+        """Returns true if the data looks like a valid OSC UDP datagram
+
+        Args:
+            request: Incoming data
+            client_address: IP and port of client this message came from
+
+        Returns:
+            True if request is OSC bundle or OSC message
+        """
         return _is_valid_request(request)
 
     @property
     def dispatcher(self) -> Dispatcher:
-        """Dispatcher accessor for handlers to dispatch osc messages."""
         return self._dispatcher
 
 
@@ -90,7 +76,7 @@ class BlockingOSCUDPServer(OSCUDPServer):
 
     Each message will be handled sequentially on the same thread.
     Use this is you don't care about latency in your message handling or don't
-    have a multiprocess/multithread environment (really?).
+    have a multiprocess/multithread environment.
     """
 
 
@@ -113,16 +99,19 @@ if hasattr(os, "fork"):
 
 
 class AsyncIOOSCUDPServer():
-    """Asyncio version of the OSC UDP Server.
-    Each UDP message is handled by call_handlers_for_packet, the same method as in the
-    OSCUDPServer family of blocking, threading, and forking servers
+    """Asynchronous OSC Server
+
+    An asynchronous OSC Server using UDP. It creates a datagram endpoint that runs in an event loop.
     """
 
     def __init__(self, server_address: Tuple[str, int], dispatcher: Dispatcher, loop: BaseEventLoop) -> None:
-        """
-        :param server_address: tuple of (IP address to bind to, port)
-        :param dispatcher: a pythonosc.dispatcher.Dispatcher
-        :param loop: an asyncio event loop
+        """Initialize
+
+        Args:
+            server_address: IP and port of server
+            dispatcher: Dispatcher this server shall use
+            loop: Event loop to add the server task to. Use ``asyncio.get_event_loop()`` unless you know what you're
+                doing.
         """
 
         self._server_address = server_address
@@ -139,15 +128,19 @@ class AsyncIOOSCUDPServer():
             self.dispatcher.call_handlers_for_packet(data, client_address)
 
     def serve(self) -> None:
-        """Creates a datagram endpoint and registers it with our event loop.
+        """Creates a datagram endpoint and registers it with event loop.
 
-        Use this only if you are not currently running your asyncio loop.
-        (i.e. not from within a coroutine).
+        Use this only in synchronous code (i.e. not from within a coroutine). This will start the server and run it
+        forever or until a ``stop()`` is called on the event loop.
         """
         self._loop.run_until_complete(self.create_serve_endpoint())
 
     def create_serve_endpoint(self) -> coroutine:
-        """Creates a datagram endpoint and registers it with our event loop as coroutine."""
+        """Creates a datagram endpoint and registers it with event loop as coroutine.
+
+        Returns:
+            Awaitable coroutine that returns transport and protocol objects
+        """
         return self._loop.create_datagram_endpoint(
             lambda: self._OSCProtocolFactory(self.dispatcher),
             local_addr=self._server_address)
