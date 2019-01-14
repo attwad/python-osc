@@ -24,6 +24,11 @@ Features
 * extensive unit test coverage
 * basic client and server examples
 
+Documentation
+=============
+
+Available at https://python-osc.readthedocs.io/.
+
 Installation
 ============
 
