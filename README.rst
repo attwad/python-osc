@@ -66,7 +66,6 @@ Simple client
   import random
   import time
 
-  from pythonosc import osc_message_builder
   from pythonosc import udp_client
 
 
@@ -130,6 +129,8 @@ Building bundles
 ----------------
 
 .. code-block:: python
+
+    from pythonosc import osc_message_builder
 
     bundle = osc_bundle_builder.OscBundleBuilder(
         osc_bundle_builder.IMMEDIATELY)
