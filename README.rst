@@ -130,6 +130,7 @@ Building bundles
 
 .. code-block:: python
 
+    from pythonosc import osc_bundle_builder
     from pythonosc import osc_message_builder
 
     bundle = osc_bundle_builder.OscBundleBuilder(
