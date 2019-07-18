@@ -28,6 +28,7 @@ _DATE_DGRAM_LEN = _INT_DGRAM_LEN * 2
 # Strings and blob dgram length is always a multiple of 4 bytes.
 _STRING_DGRAM_PAD = 4
 _BLOB_DGRAM_PAD = 4
+_EMPTY_STR_DGRAM = b'\x00\x00\x00\x00'
 
 
 def write_string(val: str) -> bytes:
@@ -63,13 +64,15 @@ def get_string(dgram: bytes, start_index: int) -> Tuple[str, int]:
     Raises:
       ParseError if the datagram could not be parsed.
     """
+    if start_index < 0:
+        raise ParseError('start_index < 0')
     offset = 0
     try:
+        if (len(dgram) > start_index + _STRING_DGRAM_PAD
+                and dgram[start_index + _STRING_DGRAM_PAD] == _EMPTY_STR_DGRAM):
+            return '', start_index + _STRING_DGRAM_PAD
         while dgram[start_index + offset] != 0:
             offset += 1
-        if offset == 0:
-            raise ParseError(
-                'OSC string cannot begin with a null byte: %s' % dgram[start_index:])
         # Align to a byte word.
         if (offset) % _STRING_DGRAM_PAD == 0:
             offset += _STRING_DGRAM_PAD

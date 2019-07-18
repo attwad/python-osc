@@ -16,6 +16,7 @@ class TestString(unittest.TestCase):
             b"ABCD\x00\x00\x00\x00": ("ABCD", 8),
 
             b"ABCD\x00\x00\x00\x00GARBAGE": ("ABCD", 8),
+            b'\x00\x00\x00\x00': ("", 4),
         }
 
         for dgram, expected in cases.items():
@@ -23,10 +24,10 @@ class TestString(unittest.TestCase):
 
     def test_get_string_raises_on_wrong_dgram(self):
         cases = [
-            b"\x00\x00\x00\x00",
             b'blablaba',
             b'',
             b'\x00',
+            b'\x00\x00',
             True,
         ]
 
