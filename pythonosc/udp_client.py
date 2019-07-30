@@ -51,7 +51,9 @@ class SimpleUDPClient(UDPClient):
             value: One or more arguments to be added to the message
         """
         builder = OscMessageBuilder(address=address)
-        if not isinstance(value, Iterable) or isinstance(value, (str, bytes)):
+        if value is None:
+            values = []
+        elif not isinstance(value, Iterable) or isinstance(value, (str, bytes)):
             values = [value]
         else:
             values = value
