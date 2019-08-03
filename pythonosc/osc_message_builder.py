@@ -112,7 +112,7 @@ class OscMessageBuilder(object):
             arg_type = self.ARG_TYPE_MIDI
         elif isinstance(arg_value, list):
             arg_type = [self._get_arg_type(v) for v in arg_value]
-        elif isinstance(arg_value, None):
+        elif arg_value is None:
             arg_type = self.ARG_TYPE_NIL
         else:
             raise ValueError('Infered arg_value type is not supported')
@@ -159,7 +159,8 @@ class OscMessageBuilder(object):
                 elif arg_type in (self.ARG_TYPE_TRUE,
                                   self.ARG_TYPE_FALSE,
                                   self.ARG_TYPE_ARRAY_START,
-                                  self.ARG_TYPE_ARRAY_STOP):
+                                  self.ARG_TYPE_ARRAY_STOP,
+                                  self.ARG_TYPE_NIL):
                     continue
                 else:
                     raise BuildError('Incorrect parameter type found {}'.format(

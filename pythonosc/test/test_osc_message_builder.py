@@ -32,6 +32,7 @@ class TestOscMessageBuilder(unittest.TestCase):
         builder.add_arg(False)
         builder.add_arg(b"\x01\x02\x03")
         builder.add_arg([1, ["abc"]])
+        builder.add_arg(None)
         # The same args but with explicit types.
         builder.add_arg(4.0, builder.ARG_TYPE_FLOAT)
         builder.add_arg(2, builder.ARG_TYPE_INT)
@@ -40,10 +41,11 @@ class TestOscMessageBuilder(unittest.TestCase):
         builder.add_arg(False)
         builder.add_arg(b"\x01\x02\x03", builder.ARG_TYPE_BLOB)
         builder.add_arg([1, ["abc"]], [builder.ARG_TYPE_INT, [builder.ARG_TYPE_STRING]])
+        builder.add_arg(None, builder.ARG_TYPE_NIL)
         builder.add_arg(4278255360, builder.ARG_TYPE_RGBA)
         builder.add_arg((1, 145, 36, 125), builder.ARG_TYPE_MIDI)
         builder.add_arg(1e-9, builder.ARG_TYPE_DOUBLE)
-        self.assertEqual(len("fisTFb[i[s]]") * 2 + 3, len(builder.args))
+        self.assertEqual(len("fisTFb[i[s]]N") * 2 + 3, len(builder.args))
         self.assertEqual("/SYNC", builder.address)
         builder.address = '/SEEK'
         msg = builder.build()
