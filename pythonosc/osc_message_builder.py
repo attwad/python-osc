@@ -21,13 +21,14 @@ class OscMessageBuilder(object):
     ARG_TYPE_MIDI = "m"
     ARG_TYPE_TRUE = "T"
     ARG_TYPE_FALSE = "F"
+    ARG_TYPE_NIL = "N"
 
     ARG_TYPE_ARRAY_START = "["
     ARG_TYPE_ARRAY_STOP = "]"
 
     _SUPPORTED_ARG_TYPES = (
         ARG_TYPE_FLOAT, ARG_TYPE_DOUBLE, ARG_TYPE_INT, ARG_TYPE_BLOB, ARG_TYPE_STRING,
-        ARG_TYPE_RGBA, ARG_TYPE_MIDI, ARG_TYPE_TRUE, ARG_TYPE_FALSE)
+        ARG_TYPE_RGBA, ARG_TYPE_MIDI, ARG_TYPE_TRUE, ARG_TYPE_FALSE, ARG_TYPE_NIL)
 
     def __init__(self, address: str=None) -> None:
         """Initialize a new builder for a message.
@@ -111,6 +112,8 @@ class OscMessageBuilder(object):
             arg_type = self.ARG_TYPE_MIDI
         elif isinstance(arg_value, list):
             arg_type = [self._get_arg_type(v) for v in arg_value]
+        elif arg_value is None:
+            arg_type = self.ARG_TYPE_NIL
         else:
             raise ValueError('Infered arg_value type is not supported')
         return arg_type
@@ -156,7 +159,8 @@ class OscMessageBuilder(object):
                 elif arg_type in (self.ARG_TYPE_TRUE,
                                   self.ARG_TYPE_FALSE,
                                   self.ARG_TYPE_ARRAY_START,
-                                  self.ARG_TYPE_ARRAY_STOP):
+                                  self.ARG_TYPE_ARRAY_STOP,
+                                  self.ARG_TYPE_NIL):
                     continue
                 else:
                     raise BuildError('Incorrect parameter type found {}'.format(
