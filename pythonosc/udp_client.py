@@ -24,7 +24,15 @@ class UDPClient(object):
             port: Port of server
             allow_broadcast: Allow for broadcast transmissions
         """
-        self._sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        for addr in socket.getaddrinfo(address, port, type=socket.SOCK_DGRAM):
+            af, socktype, protocol, canonname, sa = addr
+
+            try:
+                self._sock = socket.socket(af, socktype)
+            except OSError:
+                continue
+            break
+
         self._sock.setblocking(0)
         if allow_broadcast:
             self._sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
