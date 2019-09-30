@@ -1,6 +1,5 @@
 """Functions to get OSC types from datagrams and vice versa"""
 
-import decimal
 import struct
 
 from pythonosc.parsing import ntp
@@ -22,9 +21,10 @@ IMMEDIATELY = 0
 
 # Datagram length in bytes for types that have a fixed size.
 _INT_DGRAM_LEN = 4
+_UINT64_DGRAM_LEN = 8
 _FLOAT_DGRAM_LEN = 4
 _DOUBLE_DGRAM_LEN = 8
-_DATE_DGRAM_LEN = _INT_DGRAM_LEN * 2
+_TIMETAG_DGRAM_LEN = 8
 # Strings and blob dgram length is always a multiple of 4 bytes.
 _STRING_DGRAM_PAD = 4
 _BLOB_DGRAM_PAD = 4
@@ -126,7 +126,31 @@ def get_int(dgram: bytes, start_index: int) -> Tuple[int, int]:
         raise ParseError('Could not parse datagram %s' % e)
 
 
-def get_ttag(dgram: bytes, start_index: int) -> Tuple[datetime, int]:
+def get_uint64(dgram: bytes, start_index: int) -> Tuple[int, int]:
+    """Get a 64-bit big-endian unsigned integer from the datagram.
+
+    Args:
+      dgram: A datagram packet.
+      start_index: An index where the integer starts in the datagram.
+
+    Returns:
+      A tuple containing the integer and the new end index.
+
+    Raises:
+      ParseError if the datagram could not be parsed.
+    """
+    try:
+        if len(dgram[start_index:]) < _UINT64_DGRAM_LEN:
+            raise ParseError('Datagram is too short')
+        return (
+            struct.unpack('>Q',
+                          dgram[start_index:start_index + _UINT64_DGRAM_LEN])[0],
+            start_index + _UINT64_DGRAM_LEN)
+    except (struct.error, TypeError) as e:
+        raise ParseError('Could not parse datagram %s' % e)
+
+
+def get_timetag(dgram: bytes, start_index: int) -> Tuple[datetime, int]:
     """Get a 64-bit OSC time tag from the datagram.
 
     Args:
@@ -140,29 +164,22 @@ def get_ttag(dgram: bytes, start_index: int) -> Tuple[datetime, int]:
     Raises:
       ParseError if the datagram could not be parsed.
     """
-
-    _TTAG_DGRAM_LEN = 8
-
     try:
-        if len(dgram[start_index:]) < _TTAG_DGRAM_LEN:
+        if len(dgram[start_index:]) < _TIMETAG_DGRAM_LEN:
             raise ParseError('Datagram is too short')
 
-        seconds, idx = get_int(dgram, start_index)
-        second_decimals, _ = get_int(dgram, idx)
-
-        if seconds < 0:
-            seconds += ntp.FRACTIONAL_CONVERSION
-
-        if second_decimals < 0:
-            second_decimals += ntp.FRACTIONAL_CONVERSION
+        timetag, _ = get_uint64(dgram, start_index)
+        seconds_float = timetag * ntp._NTP_TIMESTAMP_TO_SECONDS
+        seconds = int(seconds_float)
+        fraction = seconds_float - seconds
 
         hours, seconds = seconds // 3600, seconds % 3600
         minutes, seconds = seconds // 60, seconds % 60
 
-        utc = datetime.combine(ntp._NTP_EPOCH, datetime.min.time()) + timedelta(hours=hours, minutes=minutes,
-                                                                                seconds=seconds)
+        utc = (datetime.combine(ntp._NTP_EPOCH, datetime.min.time()) +
+               timedelta(hours=hours, minutes=minutes, seconds=seconds))
 
-        return (utc, second_decimals), start_index + _TTAG_DGRAM_LEN
+        return (utc, fraction), start_index + _TIMETAG_DGRAM_LEN
     except (struct.error, TypeError) as e:
         raise ParseError('Could not parse datagram %s' % e)
 
@@ -284,7 +301,7 @@ def write_blob(val: bytes) -> bytes:
     return dgram
 
 
-def get_date(dgram: bytes, start_index: int) -> Tuple[Union[int, float], int]:
+def get_date(dgram: bytes, start_index: int) -> Tuple[float, int]:
     """Get a 64-bit big-endian fixed-point time tag as a date from the datagram.
 
     According to the specifications, a date is represented as is:
@@ -304,16 +321,13 @@ def get_date(dgram: bytes, start_index: int) -> Tuple[Union[int, float], int]:
       ParseError if the datagram could not be parsed.
     """
     # Check for the special case first.
-    if dgram[start_index:start_index + _DATE_DGRAM_LEN] == ntp.IMMEDIATELY:
-        return IMMEDIATELY, start_index + _DATE_DGRAM_LEN
-    if len(dgram[start_index:]) < _DATE_DGRAM_LEN:
+    if dgram[start_index:start_index + _TIMETAG_DGRAM_LEN] == ntp.IMMEDIATELY:
+        return IMMEDIATELY, start_index + _TIMETAG_DGRAM_LEN
+    if len(dgram[start_index:]) < _TIMETAG_DGRAM_LEN:
         raise ParseError('Datagram is too short')
-    num_secs, start_index = get_int(dgram, start_index)
-    fraction, start_index = get_int(dgram, start_index)
-    # Sum seconds and fraction of second:
-    system_time = num_secs + (fraction / ntp.FRACTIONAL_CONVERSION)
-
-    return ntp.ntp_to_system_time(system_time), start_index
+    timetag, start_index = get_uint64(dgram, start_index)
+    seconds = timetag * ntp._NTP_TIMESTAMP_TO_SECONDS
+    return ntp.ntp_time_to_system_epoch(seconds), start_index
 
 
 def write_date(system_time: Union[int, float]) -> bytes:

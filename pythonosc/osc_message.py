@@ -53,7 +53,7 @@ class OscMessage(object):
                 elif param == "m":  # MIDI.
                     val, index = osc_types.get_midi(self._dgram, index)
                 elif param == "t":  # osc time tag:
-                    val, index = osc_types.get_ttag(self._dgram, index)
+                    val, index = osc_types.get_timetag(self._dgram, index)
                 elif param == "T":  # True.
                     val = True
                 elif param == "F":  # False.
