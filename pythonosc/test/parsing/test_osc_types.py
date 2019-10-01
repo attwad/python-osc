@@ -160,42 +160,42 @@ class TestMidi(unittest.TestCase):
 
 
 class TestDate(unittest.TestCase):
-    def test_get_ttag(self):
+    def test_get_timetag(self):
         cases = {
-            b"\xde\x9c\x91\xbf\x00\x01\x00\x00": ((datetime(2018, 5, 8, 21, 14, 39), 65536), 8),
+            b"\xde\x9c\x91\xbf\x00\x01\x00\x00": ((datetime(2018, 5, 8, 21, 14, 39), 65536), 8),  # NOTE: fraction is expresed as 32bit OSC.
             b"\x00\x00\x00\x00\x00\x00\x00\x00": ((datetime(1900, 1, 1, 0, 0, 0), 0), 8),
             b"\x83\xaa\x7E\x80\x0A\x00\xB0\x0C": ((datetime(1970, 1, 1, 0, 0, 0), 167817228), 8)
         }
 
         for dgram, expected in cases.items():
-            self.assertEqual(expected, osc_types.get_ttag(dgram, 0))
+            self.assertEqual(expected, osc_types.get_timetag(dgram, 0))
 
-    def test_get_ttag_raises_on_wrong_start_index_negative(self):
+    def test_get_timetag_raises_on_wrong_start_index_negative(self):
         self.assertRaises(
-            osc_types.ParseError, osc_types.get_ttag, b'\x00\x00\x00\x00\x00\x00\x00\x00', -1)
+            osc_types.ParseError, osc_types.get_timetag, b'\x00\x00\x00\x00\x00\x00\x00\x00', -1)
 
-    def test_get_ttag_raises_on_type_error(self):
+    def test_get_timetag_raises_on_type_error(self):
         cases = [b'', True]
 
         for case in cases:
-            self.assertRaises(osc_types.ParseError, osc_types.get_ttag, case, 0)
+            self.assertRaises(osc_types.ParseError, osc_types.get_timetag, case, 0)
 
-    def test_get_ttag_raises_on_wrong_start_index(self):
+    def test_get_timetag_raises_on_wrong_start_index(self):
         self.assertRaises(
             osc_types.ParseError, osc_types.get_date, b'\x00\x00\x00\x11\x00\x00\x00\x11', 1)
 
     def test_ttag_datagram_too_short(self):
         dgram = b'\x00' * 7
-        self.assertRaises(osc_types.ParseError, osc_types.get_ttag, dgram, 6)
+        self.assertRaises(osc_types.ParseError, osc_types.get_timetag, dgram, 6)
 
         dgram = b'\x00' * 2
-        self.assertRaises(osc_types.ParseError, osc_types.get_ttag, dgram, 1)
+        self.assertRaises(osc_types.ParseError, osc_types.get_timetag, dgram, 1)
 
         dgram = b'\x00' * 5
-        self.assertRaises(osc_types.ParseError, osc_types.get_ttag, dgram, 4)
+        self.assertRaises(osc_types.ParseError, osc_types.get_timetag, dgram, 4)
 
         dgram = b'\x00' * 1
-        self.assertRaises(osc_types.ParseError, osc_types.get_ttag, dgram, 0)
+        self.assertRaises(osc_types.ParseError, osc_types.get_timetag, dgram, 0)
 
 
 class TestFloat(unittest.TestCase):
@@ -310,7 +310,9 @@ class TestNTPTimestamp(unittest.TestCase):
         self.assertRaises(osc_types.ParseError, osc_types.get_date, dgram, 2)
 
     def test_write_date(self):
-        self.assertEqual(b'\x83\xaa~\x83\":)\xc7', osc_types.write_date(3.1337))
+        time = 1569899476.167749  # known round(time.time(), 6)
+        timetag = b'\xe1=BT*\xf1\x98\x00'
+        self.assertEqual(timetag, osc_types.write_date(time))
 
 
 class TestBuildMethods(unittest.TestCase):

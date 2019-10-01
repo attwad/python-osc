@@ -3,7 +3,6 @@
 It lets you access easily to OscMessage and OscBundle instances in the packet.
 """
 
-import calendar
 import collections
 import time
 
@@ -22,11 +21,11 @@ TimedMessage = collections.namedtuple(
     field_names=('time', 'message'))
 
 
-def _timed_msg_of_bundle(bundle: osc_bundle.OscBundle, now: int) -> List[TimedMessage]:
+def _timed_msg_of_bundle(bundle: osc_bundle.OscBundle, now: float) -> List[TimedMessage]:
     """Returns messages contained in nested bundles as a list of TimedMessage."""
     msgs = []
     for content in bundle:
-        if type(content) == osc_message.OscMessage:
+        if type(content) is osc_message.OscMessage:
             if (bundle.timestamp == osc_types.IMMEDIATELY or bundle.timestamp < now):
                 msgs.append(TimedMessage(now, content))
             else:
@@ -56,7 +55,7 @@ class OscPacket(object):
         Raises:
           - ParseError if the datagram could not be parsed.
         """
-        now = calendar.timegm(time.gmtime())
+        now = time.time()
         try:
             if osc_bundle.OscBundle.dgram_is_bundle(dgram):
                 self._messages = sorted(
