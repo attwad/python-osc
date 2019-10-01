@@ -1,4 +1,5 @@
 import unittest
+import time
 
 from pythonosc.parsing import ntp
 
@@ -7,10 +8,13 @@ class TestNTP(unittest.TestCase):
     """ TODO: Write real tests for this when I get time..."""
 
     def test_nto_to_system_time(self):
-        self.assertGreater(0, ntp.ntp_to_system_time(0))
-
-    def test_system_time_to_ntp(self):
-        self.assertTrue(ntp.system_time_to_ntp(0.0))
+        unix_time = time.time()
+        timestamp = ntp.system_time_to_ntp(unix_time)
+        unix_time2 = ntp.ntp_to_system_time(timestamp)
+        self.assertTrue(type(unix_time) is float)
+        self.assertTrue(type(timestamp) is bytes)
+        self.assertTrue(type(unix_time2) is float)
+        self.assertEqual(round(unix_time, 6), round(unix_time2, 6))
 
 
 if __name__ == "__main__":
