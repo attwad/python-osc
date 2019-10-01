@@ -169,9 +169,7 @@ def get_timetag(dgram: bytes, start_index: int) -> Tuple[datetime, int]:
             raise ParseError('Datagram is too short')
 
         timetag, _ = get_uint64(dgram, start_index)
-        seconds_float = timetag * ntp._NTP_TIMESTAMP_TO_SECONDS
-        seconds = int(seconds_float)
-        fraction = seconds_float - seconds
+        seconds, fraction = ntp.parse_timestamp(timetag)
 
         hours, seconds = seconds // 3600, seconds % 3600
         minutes, seconds = seconds // 60, seconds % 60
