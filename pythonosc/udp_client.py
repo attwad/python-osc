@@ -2,7 +2,7 @@
 
 try:
     from collections.abc import Iterable
-catch ImportError: # python 3.5
+except ImportError: # python 3.5
     from collections import Iterable
     
 import socket
