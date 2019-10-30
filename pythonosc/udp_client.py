@@ -1,6 +1,6 @@
 """UDP Clients for sending OSC messages to an OSC server"""
 
-from collections import Iterable
+from collections.abc import Iterable
 import socket
 
 from .osc_message_builder import OscMessageBuilder
