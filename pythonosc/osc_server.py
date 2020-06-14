@@ -41,10 +41,10 @@ def _is_valid_request(request: List[bytes]) -> bool:
             or osc_message.OscMessage.dgram_is_message(data))
 
 
-class OSCUDPServer(socketserver.UDPServer):
+class OSCUDPServer(socketserver.UDPServer, is_listen=True):
     """Superclass for different flavors of OSC UDP servers"""
 
-    def __init__(self, server_address: Tuple[str, int], dispatcher: Dispatcher) -> None:
+    def __init__(self, server_address: Tuple[str, int], dispatcher: Dispatcher, is_listen) -> None:
         """Initialize
 
         Args:
