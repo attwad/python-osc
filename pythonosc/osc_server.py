@@ -41,17 +41,17 @@ def _is_valid_request(request: List[bytes]) -> bool:
             or osc_message.OscMessage.dgram_is_message(data))
 
 
-class OSCUDPServer(socketserver.UDPServer, is_listen=True):
+class OSCUDPServer(socketserver.UDPServer):
     """Superclass for different flavors of OSC UDP servers"""
 
-    def __init__(self, server_address: Tuple[str, int], dispatcher: Dispatcher, is_listen) -> None:
+    def __init__(self, server_address: Tuple[str, int], dispatcher: Dispatcher, is_listen=True) -> None:
         """Initialize
 
         Args:
             server_address: IP and port of server
             dispatcher: Dispatcher this server will use
         """
-        super().__init__(server_address, _UDPHandler)
+        super().__init__(server_address, _UDPHandler, is_listen)
         self._dispatcher = dispatcher
 
     def verify_request(self, request: List[bytes], client_address: Tuple[str, int]) -> bool:
