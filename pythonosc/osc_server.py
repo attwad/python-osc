@@ -44,15 +44,15 @@ def _is_valid_request(request: List[bytes]) -> bool:
 class OSCUDPServer(socketserver.UDPServer):
     """Superclass for different flavors of OSC UDP servers"""
 
-    def __init__(self, server_address: Tuple[str, int], dispatcher: Dispatcher, is_listen=True) -> None:
+    def __init__(self, server_address: Tuple[str, int], dispatcher: Dispatcher, bind_and_activate=True) -> None:
         """Initialize
 
         Args:
             server_address: IP and port of server
             dispatcher: Dispatcher this server will use
-            (optional) is_listen: default=True defines if the server has to start on call of constructor  
+            (optional) bind_and_activate: default=True defines if the server has to start on call of constructor  
         """
-        super().__init__(server_address, _UDPHandler, is_listen)
+        super().__init__(server_address, _UDPHandler, bind_and_activate)
         self._dispatcher = dispatcher
 
     def verify_request(self, request: List[bytes], client_address: Tuple[str, int]) -> bool:
