@@ -1,0 +1,9 @@
+#!/usr/bin/make -f
+
+export PYBUILD_NAME=pythonosc
+
+%:
+	dh $@ --buildsystem=pybuild
+
+override_dh_auto_test:
+	# Don't run the tests!

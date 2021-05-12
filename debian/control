@@ -1,0 +1,21 @@
+Source: python-osc
+Section: python
+Priority: optional
+Maintainer: attwad <tmusoft@gmail.com>
+Build-Depends:
+ debhelper-compat (= 12),
+ dh-sequence-python3,
+ dh-python,
+ python3-all-dev,
+ python3-setuptools,
+Standards-Version: 4.5.1
+
+Package: python3-osc
+Architecture: all
+Depends:
+ ${misc:Depends},
+ python3:any
+Homepage: https://github.com/attwad/python-osc
+Description: Open Sound Control server and client implementations in pure Python
+ This library was developed following the specifications at
+ http://opensoundcontrol.org/spec-1_0 and is currently in a stable state.
