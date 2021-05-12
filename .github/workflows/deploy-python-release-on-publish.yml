@@ -1,0 +1,28 @@
+name: Deploy Published Python Release
+
+on:
+  release:
+    types:
+      - published
+
+jobs:
+  deploy-python-release:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2.2.0
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+
+      - name: Upload to PyPI
+        uses: casperdcl/deploy-pypi@v2
+        with:
+          user: ${{ secrets.PYPI_USERNAME }}
+          password: ${{ secrets.PYPI_PASSWORD }}
+          build: true
+          upload: ${{ github.event_name == 'release' && github.event.action == 'published' }}

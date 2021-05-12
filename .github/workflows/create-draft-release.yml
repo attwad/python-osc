@@ -1,0 +1,116 @@
+name: Create Draft GitHub Release
+
+on:
+  workflow_dispatch:
+    branches:
+      - master
+
+jobs:
+  build-python:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: GitHub Environment Variables Action
+        uses: FranzDiebold/github-env-vars-action@v1.2.1
+
+      - name: Checkout code
+        uses: actions/checkout@v2.2.0
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+
+      - uses: casperdcl/deploy-pypi@v2
+        with:
+          build: true
+          upload: false
+          dist_dir: "dist"
+
+      - name: Upload Python distribution artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: "${{ env.GITHUB_REPOSITORY_NAME }}-#${{ env.GITHUB_SHA_SHORT }}-py"
+          path: "dist"
+
+  build-debian:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: GitHub Environment Variables Action
+        uses: FranzDiebold/github-env-vars-action@v1.2.1
+
+      - name: Checkout code
+        uses: actions/checkout@v2.2.0
+
+      - name: Build Debian package
+        run: |
+          mkdir -p /tmp/artifacts/{src,bin}
+          docker run --rm \
+            --volume ${{ github.workspace }}:/src \
+            --volume /tmp/artifacts/bin:/build \
+            -e LINTIAN_TAGS_TO_SUPPRESS="initial-upload-closes-no-bugs,source-package-encodes-python-version" \
+            pitop/deb-build:latest
+
+      - name: Separate Debian source package files from binary
+        run: |
+          mv /tmp/artifacts/bin/* /tmp/artifacts/src/
+          mv /tmp/artifacts/src/*.deb /tmp/artifacts/bin/
+
+      - name: Upload Debian source package files
+        uses: actions/upload-artifact@v2
+        with:
+          name: "${{ env.GITHUB_REPOSITORY_NAME }}-#${{ env.GITHUB_SHA_SHORT }}-deb-src"
+          path: "/tmp/artifacts/src/"
+
+      - name: Upload Debian binary packages
+        uses: actions/upload-artifact@v2
+        with:
+          name: "${{ env.GITHUB_REPOSITORY_NAME }}-#${{ env.GITHUB_SHA_SHORT }}-deb"
+          path: "/tmp/artifacts/bin/"
+
+  create-draft-release:
+    runs-on: ubuntu-20.04
+    needs: [ build-debian, build-python ]
+    steps:
+      - name: GitHub Environment Variables Action
+        uses: FranzDiebold/github-env-vars-action@v1.2.1
+
+      - name: Checkout code
+        uses: actions/checkout@v2.2.0
+
+      - name: Download Python artifact
+        if: needs.check-should-run.outputs.is_python_package == 'true'
+        uses: actions/download-artifact@v2
+        with:
+            name: "${{ env.GITHUB_REPOSITORY_NAME }}-#${{ env.GITHUB_SHA_SHORT }}-py"
+            path: "./py"
+
+      - name: Download Debian binary artifacts
+        uses: actions/download-artifact@v2
+        with:
+            name: "${{ env.GITHUB_REPOSITORY_NAME }}-#${{ env.GITHUB_SHA_SHORT }}-deb"
+            path: "./deb/"
+
+      - name: Download Debian source artifacts
+        uses: actions/download-artifact@v2
+        with:
+            name: "${{ env.GITHUB_REPOSITORY_NAME }}-#${{ env.GITHUB_SHA_SHORT }}-deb-src"
+            path: "./deb-src/"
+
+      - name: Determine version
+        run: |
+          sudo apt install -y dpkg-dev
+          echo "VERSION=$(dpkg-parsechangelog -Sversion)" >> $GITHUB_ENV
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: "v${{ env.VERSION }}"
+          name: "v${{ env.VERSION }}"
+          draft: true
+          prerelease: false
+          files: |
+            ./py/*
+            ./deb/*
+            ./deb-src/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
