@@ -30,7 +30,7 @@ jobs:
           docker run --rm \
             --volume ${{ github.workspace }}:/src \
             --volume /tmp/artifacts/bin:/build \
-            -e LINTIAN_TAGS_TO_SUPPRESS="initial-upload-closes-no-bugs,source-package-encodes-python-version" \
+            -e LINTIAN_TAGS_TO_SUPPRESS="initial-upload-closes-no-bugs,source-package-encodes-python-version,spelling-error-in-changelog" \
             pitop/deb-build:latest
 
       - name: Separate Debian source package files from binary
