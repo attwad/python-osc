@@ -25,4 +25,4 @@ jobs:
           user: ${{ secrets.PYPI_USERNAME }}
           password: ${{ secrets.PYPI_PASSWORD }}
           build: true
-          upload: ${{ github.event_name == 'release' && github.event.action == 'published' }}
+          upload: true
