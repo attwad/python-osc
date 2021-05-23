@@ -14,7 +14,7 @@ class TestNTP(unittest.TestCase):
         self.assertTrue(type(unix_time) is float)
         self.assertTrue(type(timestamp) is bytes)
         self.assertTrue(type(unix_time2) is float)
-        self.assertEqual(round(unix_time, 6), round(unix_time2, 6))
+        self.assertAlmostEqual(unix_time, unix_time2, places=5)
 
 
 if __name__ == "__main__":
