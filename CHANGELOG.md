@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file.
  
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+
+No changes so far
+
+## [1.7.7]
+
+###  Fixed
+
+Flaky NTP test
+
 ## [1.7.6]
 
 ### Added
