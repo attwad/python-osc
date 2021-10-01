@@ -40,6 +40,8 @@ class OscMessage(object):
             for param in type_tag:
                 if param == "i":  # Integer.
                     val, index = osc_types.get_int(self._dgram, index)
+                elif param == "h":  # Int64.
+                    val, index = osc_types.get_int64(self._dgram, index)
                 elif param == "f":  # Float.
                     val, index = osc_types.get_float(self._dgram, index)
                 elif param == "d":  # Double.
