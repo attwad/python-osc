@@ -5,7 +5,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## [Unreleased]
 
-### Added
+- Nothing yet.
+
+### [1.8.0]
 
 - Support for sending and receiving Int64 datatype (`h`).
 
