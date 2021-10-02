@@ -27,6 +27,7 @@ class TestOscMessageBuilder(unittest.TestCase):
         builder = osc_message_builder.OscMessageBuilder(address="/SYNC")
         builder.add_arg(4.0)
         builder.add_arg(2)
+        builder.add_arg(1099511627776)
         builder.add_arg("value")
         builder.add_arg(True)
         builder.add_arg(False)
@@ -36,6 +37,7 @@ class TestOscMessageBuilder(unittest.TestCase):
         # The same args but with explicit types.
         builder.add_arg(4.0, builder.ARG_TYPE_FLOAT)
         builder.add_arg(2, builder.ARG_TYPE_INT)
+        builder.add_arg(1099511627776, builder.ARG_TYPE_INT64)
         builder.add_arg("value", builder.ARG_TYPE_STRING)
         builder.add_arg(True)
         builder.add_arg(False)
@@ -45,13 +47,13 @@ class TestOscMessageBuilder(unittest.TestCase):
         builder.add_arg(4278255360, builder.ARG_TYPE_RGBA)
         builder.add_arg((1, 145, 36, 125), builder.ARG_TYPE_MIDI)
         builder.add_arg(1e-9, builder.ARG_TYPE_DOUBLE)
-        self.assertEqual(len("fisTFb[i[s]]N") * 2 + 3, len(builder.args))
+        self.assertEqual(len("fihsTFb[i[s]]N") * 2 + 3, len(builder.args))
         self.assertEqual("/SYNC", builder.address)
         builder.address = '/SEEK'
         msg = builder.build()
         self.assertEqual("/SEEK", msg.address)
         self.assertSequenceEqual(
-            [4.0, 2, "value", True, False, b"\x01\x02\x03", [1, ["abc"]]] * 2 +
+            [4.0, 2, 1099511627776, "value", True, False, b"\x01\x02\x03", [1, ["abc"]]] * 2 +
             [4278255360, (1, 145, 36, 125), 1e-9],
             msg.params)
 
