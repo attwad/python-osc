@@ -21,6 +21,7 @@ IMMEDIATELY = 0
 
 # Datagram length in bytes for types that have a fixed size.
 _INT_DGRAM_LEN = 4
+_INT64_DGRAM_LEN = 8
 _UINT64_DGRAM_LEN = 8
 _FLOAT_DGRAM_LEN = 4
 _DOUBLE_DGRAM_LEN = 8
@@ -122,6 +123,42 @@ def get_int(dgram: bytes, start_index: int) -> Tuple[int, int]:
             struct.unpack('>i',
                           dgram[start_index:start_index + _INT_DGRAM_LEN])[0],
             start_index + _INT_DGRAM_LEN)
+    except (struct.error, TypeError) as e:
+        raise ParseError('Could not parse datagram %s' % e)
+
+
+def write_int64(val: int) -> bytes:
+    """Returns the datagram for the given 64-bit big-endian signed parameter value
+
+    Raises:
+      - BuildError if the int64 could not be converted.
+    """
+    try:
+        return struct.pack('>q', val)
+    except struct.error as e:
+        raise BuildError('Wrong argument value passed: {}'.format(e))
+
+
+def get_int64(dgram: bytes, start_index: int) -> Tuple[int, int]:
+    """Get a 64-bit big-endian signed integer from the datagram.
+
+    Args:
+      dgram: A datagram packet.
+      start_index: An index where the 64-bit integer starts in the datagram.
+
+    Returns:
+      A tuple containing the 64-bit integer and the new end index.
+
+    Raises:
+      ParseError if the datagram could not be parsed.
+    """
+    try:
+        if len(dgram[start_index:]) < _INT64_DGRAM_LEN:
+            raise ParseError('Datagram is too short')
+        return (
+            struct.unpack('>q',
+                          dgram[start_index:start_index + _INT64_DGRAM_LEN])[0],
+            start_index + _INT64_DGRAM_LEN)
     except (struct.error, TypeError) as e:
         raise ParseError('Could not parse datagram %s' % e)
 

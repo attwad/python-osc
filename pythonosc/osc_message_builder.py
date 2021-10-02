@@ -15,6 +15,7 @@ class OscMessageBuilder(object):
     ARG_TYPE_FLOAT = "f"
     ARG_TYPE_DOUBLE = "d"
     ARG_TYPE_INT = "i"
+    ARG_TYPE_INT64 = "h"
     ARG_TYPE_STRING = "s"
     ARG_TYPE_BLOB = "b"
     ARG_TYPE_RGBA = "r"
@@ -27,7 +28,7 @@ class OscMessageBuilder(object):
     ARG_TYPE_ARRAY_STOP = "]"
 
     _SUPPORTED_ARG_TYPES = (
-        ARG_TYPE_FLOAT, ARG_TYPE_DOUBLE, ARG_TYPE_INT, ARG_TYPE_BLOB, ARG_TYPE_STRING,
+        ARG_TYPE_FLOAT, ARG_TYPE_DOUBLE, ARG_TYPE_INT, ARG_TYPE_INT64, ARG_TYPE_BLOB, ARG_TYPE_STRING,
         ARG_TYPE_RGBA, ARG_TYPE_MIDI, ARG_TYPE_TRUE, ARG_TYPE_FALSE, ARG_TYPE_NIL)
 
     def __init__(self, address: str=None) -> None:
@@ -105,7 +106,10 @@ class OscMessageBuilder(object):
         elif arg_value is False:
             arg_type = self.ARG_TYPE_FALSE
         elif isinstance(arg_value, int):
-            arg_type = self.ARG_TYPE_INT
+            if arg_value.bit_length() > 32:
+                arg_type = self.ARG_TYPE_INT64
+            else:
+                arg_type = self.ARG_TYPE_INT
         elif isinstance(arg_value, float):
             arg_type = self.ARG_TYPE_FLOAT
         elif isinstance(arg_value, tuple) and len(arg_value) == 4:
@@ -146,6 +150,8 @@ class OscMessageBuilder(object):
                     dgram += osc_types.write_string(value)
                 elif arg_type == self.ARG_TYPE_INT:
                     dgram += osc_types.write_int(value)
+                elif arg_type == self.ARG_TYPE_INT64:
+                    dgram += osc_types.write_int64(value)
                 elif arg_type == self.ARG_TYPE_FLOAT:
                     dgram += osc_types.write_float(value)
                 elif arg_type == self.ARG_TYPE_DOUBLE:
