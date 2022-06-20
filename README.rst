@@ -11,8 +11,8 @@ Open Sound Control server and client implementations in **pure python** (3.5+).
 Current status
 ==============
 
-This library was developed following the specifications at
-http://opensoundcontrol.org/spec-1_0
+This library was developed following the
+`OpenSoundControl Specification 1.0 <https://opensoundcontrol.stanford.edu/spec-1_0.html>`_
 and is currently in a stable state.
 
 Features
