@@ -12,7 +12,7 @@ from pythonosc.dispatcher import Dispatcher
 from asyncio import BaseEventLoop
 
 from socket import socket as _socket
-from typing import Tuple, Union
+from typing import Tuple, Union, cast
 from types import coroutine
 
 _RequestType = Union[_socket, Tuple[bytes, _socket]]
@@ -30,7 +30,8 @@ class _UDPHandler(socketserver.BaseRequestHandler):
         If not the server won't call it and so no new
         threads/processes will be spawned.
         """
-        self.server.dispatcher.call_handlers_for_packet(self.request[0], self.client_address)
+        server = cast(OSCUDPServer, self.server)
+        server.dispatcher.call_handlers_for_packet(self.request[0], self.client_address)
 
 
 def _is_valid_request(request: _RequestType) -> bool:
