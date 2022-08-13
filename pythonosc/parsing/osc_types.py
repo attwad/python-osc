@@ -5,7 +5,7 @@ import struct
 from pythonosc.parsing import ntp
 from datetime import datetime, timedelta, date
 
-from typing import Union, Tuple
+from typing import Union, Tuple, cast
 
 
 class ParseError(Exception):
@@ -447,7 +447,9 @@ def get_midi(dgram: bytes, start_index: int) -> Tuple[Tuple[int, int, int, int],
             raise ParseError('Datagram is too short')
         val = struct.unpack('>I',
                             dgram[start_index:start_index + _INT_DGRAM_LEN])[0]
-        midi_msg = tuple((val & 0xFF << 8 * i) >> 8 * i for i in range(3, -1, -1))
+        midi_msg = cast(
+            Tuple[int, int, int, int],
+            tuple((val & 0xFF << 8 * i) >> 8 * i for i in range(3, -1, -1)))
         return (midi_msg, start_index + _INT_DGRAM_LEN)
     except (struct.error, TypeError) as e:
         raise ParseError('Could not parse datagram %s' % e)
