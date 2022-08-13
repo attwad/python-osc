@@ -12,8 +12,7 @@ from pythonosc.dispatcher import Dispatcher
 from asyncio import BaseEventLoop
 
 from socket import socket as _socket
-from typing import Tuple, Union, cast
-from types import coroutine
+from typing import Any, Tuple, Union, cast, Coroutine
 
 _RequestType = Union[_socket, Tuple[bytes, _socket]]
 _AddressType = Union[Tuple[str, int], str]
@@ -142,7 +141,7 @@ class AsyncIOOSCUDPServer():
         """
         self._loop.run_until_complete(self.create_serve_endpoint())
 
-    def create_serve_endpoint(self) -> coroutine:
+    def create_serve_endpoint(self) -> Coroutine[Any, Any, Tuple[asyncio.transports.BaseTransport, asyncio.DatagramProtocol]]:
         """Creates a datagram endpoint and registers it with event loop as coroutine.
 
         Returns:
