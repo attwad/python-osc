@@ -6,8 +6,7 @@ import logging
 import re
 import time
 from pythonosc import osc_packet
-from typing import overload, List, Union, Any, Generator, Tuple
-from types import FunctionType
+from typing import overload, List, Union, Any, Generator, Tuple, Callable
 from pythonosc.osc_message import OscMessage
 
 
@@ -19,7 +18,7 @@ class Handler(object):
     message if any were passed.
     """
 
-    def __init__(self, _callback: FunctionType, _args: Union[Any, List[Any]],
+    def __init__(self, _callback: Callable, _args: Union[Any, List[Any]],
                  _needs_reply_address: bool = False) -> None:
         """
         Args:
@@ -67,7 +66,7 @@ class Dispatcher(object):
         self._map = collections.defaultdict(list)
         self._default_handler = None
 
-    def map(self, address: str, handler: FunctionType, *args: Union[Any, List[Any]],
+    def map(self, address: str, handler: Callable, *args: Union[Any, List[Any]],
             needs_reply_address: bool = False) -> Handler:
         """Map an address to a handler
 
@@ -108,7 +107,7 @@ class Dispatcher(object):
         pass
 
     @overload
-    def unmap(self, address: str, handler: FunctionType, *args: Union[Any, List[Any]],
+    def unmap(self, address: str, handler: Callable, *args: Union[Any, List[Any]],
               needs_reply_address: bool = False) -> None:
         """Remove an already mapped handler from an address
 
@@ -195,7 +194,7 @@ class Dispatcher(object):
         except osc_packet.ParseError:
             pass
 
-    def set_default_handler(self, handler: FunctionType, needs_reply_address: bool = False) -> None:
+    def set_default_handler(self, handler: Callable, needs_reply_address: bool = False) -> None:
         """Sets the default handler
 
         The default handler is invoked every time no other handler is mapped to an address.
