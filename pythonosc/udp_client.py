@@ -37,7 +37,7 @@ class UDPClient(object):
                 continue
             break
 
-        self._sock.setblocking(0)
+        self._sock.setblocking(False)
         if allow_broadcast:
             self._sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
         self._address = address
