@@ -50,7 +50,7 @@ def _is_valid_request(request: _RequestType) -> bool:
 class OSCUDPServer(socketserver.UDPServer):
     """Superclass for different flavors of OSC UDP servers"""
 
-    def __init__(self, server_address: Tuple[str, int], dispatcher: Dispatcher, bind_and_activate=True) -> None:
+    def __init__(self, server_address: Tuple[str, int], dispatcher: Dispatcher, bind_and_activate: bool = True) -> None:
         """Initialize
 
         Args:

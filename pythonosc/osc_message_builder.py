@@ -3,7 +3,7 @@
 from pythonosc import osc_message
 from pythonosc.parsing import osc_types
 
-from typing import List, Tuple, Union, Any
+from typing import List, Tuple, Union, Any, Optional
 
 
 ArgValue = Union[str, bytes, bool, int, float, osc_types.MidiPacket, list]
@@ -45,7 +45,7 @@ class OscMessageBuilder(object):
         self._args = []  # type: List[Tuple[str, Union[ArgValue, None]]]
 
     @property
-    def address(self) -> str:
+    def address(self) -> Optional[str]:
         """Returns the OSC address this message will be sent to."""
         return self._address
 

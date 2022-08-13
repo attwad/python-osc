@@ -90,7 +90,7 @@ class OscBundle(object):
         """Returns the datagram from which this bundle was built."""
         return self._dgram
 
-    def content(self, index) -> Any:
+    def content(self, index: int) -> Any:
         """Returns the bundle's content 0-indexed."""
         return self._contents[index]
 

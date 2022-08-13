@@ -6,7 +6,7 @@ import logging
 import re
 import time
 from pythonosc import osc_packet
-from typing import overload, List, Union, Any, Generator, Tuple, Callable
+from typing import overload, List, Union, Any, Generator, Tuple, Callable, Optional, DefaultDict
 from pythonosc.osc_message import OscMessage
 
 
@@ -31,13 +31,13 @@ class Handler(object):
         self.needs_reply_address = _needs_reply_address
 
     # needed for test module
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: Any) -> bool:
         return (type(self) == type(other) and
                 self.callback == other.callback and
                 self.args == other.args and
                 self.needs_reply_address == other.needs_reply_address)
 
-    def invoke(self, client_address: str, message: OscMessage) -> None:
+    def invoke(self, client_address: Tuple[str, int], message: OscMessage) -> None:
         """Invokes the associated callback function
 
         Args:
@@ -63,8 +63,8 @@ class Dispatcher(object):
     """
 
     def __init__(self) -> None:
-        self._map = collections.defaultdict(list)
-        self._default_handler = None
+        self._map = collections.defaultdict(list)  # type: DefaultDict[str, List[Handler]]
+        self._default_handler = None  # type: Optional[Handler]
 
     def map(self, address: str, handler: Callable, *args: Union[Any, List[Any]],
             needs_reply_address: bool = False) -> Handler:
