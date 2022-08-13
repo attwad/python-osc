@@ -187,7 +187,7 @@ def get_uint64(dgram: bytes, start_index: int) -> Tuple[int, int]:
         raise ParseError('Could not parse datagram %s' % e)
 
 
-def get_timetag(dgram: bytes, start_index: int) -> Tuple[datetime, int]:
+def get_timetag(dgram: bytes, start_index: int) -> Tuple[Tuple[datetime, int], int]:
     """Get a 64-bit OSC time tag from the datagram.
 
     Args:
