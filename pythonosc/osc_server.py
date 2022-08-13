@@ -58,7 +58,7 @@ class OSCUDPServer(socketserver.UDPServer):
             dispatcher: Dispatcher this server will use
             (optional) bind_and_activate: default=True defines if the server has to start on call of constructor  
         """
-        super().__init__(server_address, _UDPHandler, bind_and_activate)
+        super().__init__(server_address, _UDPHandler, bind_and_activate)  # type: ignore[call-arg]  # https://github.com/python/typeshed/pull/8542
         self._dispatcher = dispatcher
 
     def verify_request(self, request: _RequestType, client_address: _AddressType) -> bool:
