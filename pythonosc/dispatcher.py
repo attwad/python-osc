@@ -133,7 +133,7 @@ class Dispatcher(object):
             if str(e) == "list.remove(x): x not in list":
                 raise ValueError("Address '%s' doesn't have handler '%s' mapped to it" % (address, handler)) from e
 
-    def handlers_for_address(self, address_pattern: str) -> Generator[None, Handler, None]:
+    def handlers_for_address(self, address_pattern: str) -> Generator[Handler, None, None]:
         """Yields handlers matching an address
 
 
