@@ -413,7 +413,7 @@ def get_rgba(dgram: bytes, start_index: int) -> Tuple[bytes, int]:
         raise ParseError('Could not parse datagram %s' % e)
 
 
-def write_midi(val: Tuple[MidiPacket, int]) -> bytes:
+def write_midi(val: MidiPacket) -> bytes:
     """Returns the datagram for the given MIDI message parameter value
 
        A valid MIDI message: (port id, status byte, data1, data2).
