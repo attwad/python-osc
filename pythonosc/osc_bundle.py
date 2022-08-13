@@ -73,7 +73,7 @@ class OscBundle(object):
         return dgram.startswith(_BUNDLE_PREFIX)
 
     @property
-    def timestamp(self) -> int:
+    def timestamp(self) -> float:
         """Returns the timestamp associated with this bundle."""
         return self._timestamp
 
