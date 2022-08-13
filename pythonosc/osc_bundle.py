@@ -3,7 +3,7 @@ import logging
 from pythonosc import osc_message
 from pythonosc.parsing import osc_types
 
-from typing import Any, Iterator
+from typing import Any, Iterator, List, Union
 
 _BUNDLE_PREFIX = b"#bundle\x00"
 
@@ -37,10 +37,8 @@ class OscBundle(object):
         # Get the contents as a list of OscBundle and OscMessage.
         self._contents = self._parse_contents(index)
 
-    # Return type is actually List[OscBundle], but that would require import annotations from __future__, which is
-    # python 3.7+ only.
-    def _parse_contents(self, index: int) -> Any:
-        contents = []
+    def _parse_contents(self, index: int) -> List[Union['OscBundle', osc_message.OscMessage]]:
+        contents = []  # type: List[Union[OscBundle, osc_message.OscMessage]]
 
         try:
             # An OSC Bundle Element consists of its size and its contents.
