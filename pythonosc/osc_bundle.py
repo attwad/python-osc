@@ -59,7 +59,7 @@ class OscBundle(object):
                     contents.append(osc_message.OscMessage(content_dgram))
                 else:
                     logging.warning(
-                        "Could not identify content type of dgram %s" % content_dgram)
+                        "Could not identify content type of dgram %r" % content_dgram)
         except (osc_types.ParseError, osc_message.ParseError, IndexError) as e:
             raise ParseError("Could not parse a content datagram: %s" % e)
 
