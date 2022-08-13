@@ -7,7 +7,7 @@ import logging
 
 from pygame.constants import QUIT
 
-from pythonosc import dispatcher
+from pythonosc.dispatcher import Dispatcher
 from pythonosc import osc_server
 
 logging.basicConfig(
@@ -97,7 +97,7 @@ if __name__ == "__main__":
         bq.put([args[0], value])
 
 
-    dispatcher = dispatcher.Dispatcher()
+    dispatcher = Dispatcher()
     dispatcher.map("/debug", logging.debug)
     dispatcher.map("/beating", put_in_queue, "beating")
     dispatcher.map("/blocks", put_in_queue, "blocks")
