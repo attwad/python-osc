@@ -18,11 +18,11 @@ _SIMPLE_MSG_NO_PARAMS = b"/SYNC\x00\x00\x00"
 class TestOscServer(unittest.TestCase):
     def test_is_valid_request(self):
         self.assertTrue(
-            osc_server._is_valid_request([b'#bundle\x00foobar']))
+            osc_server._is_valid_request((b'#bundle\x00foobar',)))
         self.assertTrue(
-            osc_server._is_valid_request([b'/address/1/2/3,foobar']))
+            osc_server._is_valid_request((b'/address/1/2/3,foobar',)))
         self.assertFalse(
-            osc_server._is_valid_request([b'']))
+            osc_server._is_valid_request((b'',)))
 
 
 class TestUDPHandler(unittest.TestCase):

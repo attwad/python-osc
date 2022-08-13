@@ -11,8 +11,12 @@ from pythonosc.dispatcher import Dispatcher
 
 from asyncio import BaseEventLoop
 
-from typing import List, Tuple
+from socket import socket as _socket
+from typing import Tuple, Union
 from types import coroutine
+
+_RequestType = Union[_socket, Tuple[bytes, _socket]]
+_AddressType = Union[Tuple[str, int], str]
 
 
 class _UDPHandler(socketserver.BaseRequestHandler):
@@ -29,12 +33,13 @@ class _UDPHandler(socketserver.BaseRequestHandler):
         self.server.dispatcher.call_handlers_for_packet(self.request[0], self.client_address)
 
 
-def _is_valid_request(request: List[bytes]) -> bool:
+def _is_valid_request(request: _RequestType) -> bool:
     """Returns true if the request's data looks like an osc bundle or message.
 
     Returns:
         True if request is OSC bundle or OSC message
     """
+    assert isinstance(request, tuple)  # TODO: handle requests which are passed just as a socket?
     data = request[0]
     return (
             osc_bundle.OscBundle.dgram_is_bundle(data)
@@ -55,7 +60,7 @@ class OSCUDPServer(socketserver.UDPServer):
         super().__init__(server_address, _UDPHandler, bind_and_activate)
         self._dispatcher = dispatcher
 
-    def verify_request(self, request: List[bytes], client_address: Tuple[str, int]) -> bool:
+    def verify_request(self, request: _RequestType, client_address: _AddressType) -> bool:
         """Returns true if the data looks like a valid OSC UDP datagram
 
         Args:
