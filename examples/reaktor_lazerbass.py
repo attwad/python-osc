@@ -5,7 +5,7 @@ import multiprocessing
 import queue
 import logging
 
-from pygame.locals import *
+from pygame.constants import QUIT
 
 from pythonosc import dispatcher
 from pythonosc import osc_server
