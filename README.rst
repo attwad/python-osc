@@ -97,7 +97,7 @@ Simple server
   import argparse
   import math
 
-  from pythonosc import dispatcher
+  from pythonosc.dispatcher import Dispatcher
   from pythonosc import osc_server
 
   def print_volume_handler(unused_addr, args, volume):
@@ -116,7 +116,7 @@ Simple server
         type=int, default=5005, help="The port to listen on")
     args = parser.parse_args()
 
-    dispatcher = dispatcher.Dispatcher()
+    dispatcher = Dispatcher()
     dispatcher.map("/filter", print)
     dispatcher.map("/volume", print_volume_handler, "Volume")
     dispatcher.map("/logvolume", print_compute_handler, "Log volume", math.log)

@@ -5,9 +5,11 @@ import multiprocessing
 import queue
 import logging
 
-from pygame.locals import *
+from typing import Tuple
 
-from pythonosc import dispatcher
+from pygame.constants import QUIT
+
+from pythonosc.dispatcher import Dispatcher
 from pythonosc import osc_server
 
 logging.basicConfig(
@@ -88,16 +90,16 @@ if __name__ == "__main__":
 
     # client = udp_client.UDPClient(args.client_ip, args.client_port)
 
-    bq = multiprocessing.Queue()
+    bq = multiprocessing.Queue()  # type: multiprocessing.Queue[Tuple[str, float]]
     reaktor = ReaktorDisplay(bq)
 
 
     def put_in_queue(args, value):
         """Put a named argument in the queue to be able to use a single queue."""
-        bq.put([args[0], value])
+        bq.put((args[0], value))
 
 
-    dispatcher = dispatcher.Dispatcher()
+    dispatcher = Dispatcher()
     dispatcher.map("/debug", logging.debug)
     dispatcher.map("/beating", put_in_queue, "beating")
     dispatcher.map("/blocks", put_in_queue, "blocks")

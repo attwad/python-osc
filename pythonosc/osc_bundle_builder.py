@@ -1,5 +1,7 @@
 """Build OSC bundles for client applications."""
 
+from typing import List
+
 from pythonosc import osc_bundle
 from pythonosc import osc_message
 from pythonosc.parsing import osc_types
@@ -23,7 +25,7 @@ class OscBundleBuilder(object):
                        seconds since the epoch in UTC or IMMEDIATELY.
         """
         self._timestamp = timestamp
-        self._contents = []
+        self._contents = []  # type: List[osc_bundle.OscBundle]
 
     def add_content(self, content: osc_bundle.OscBundle) -> None:
         """Add a new content to this bundle.
