@@ -34,7 +34,8 @@ _DGRAM_ALL_NON_STANDARD_TYPES_OF_PARAMS = (
     b"/SYNC\x00\x00\x00"
     b"T"  # True
     b"F"  # False
-    b"[]th\x00\x00"  # Empty array
+    b"N"  # Nil
+    b"[]th\x00"  # Empty array
     b"\x00\x00\x00\x00\x00\x00\x00\x00"
     b"\x00\x00\x00\xe8\xd4\xa5\x10\x00"  # 1000000000000
 )
@@ -100,13 +101,14 @@ class TestOscMessage(unittest.TestCase):
         msg = osc_message.OscMessage(_DGRAM_ALL_NON_STANDARD_TYPES_OF_PARAMS)
 
         self.assertEqual("/SYNC", msg.address)
-        self.assertEqual(5, len(msg.params))
+        self.assertEqual(6, len(msg.params))
         self.assertEqual(True, msg.params[0])
         self.assertEqual(False, msg.params[1])
-        self.assertEqual([], msg.params[2])
-        self.assertEqual((datetime(1900, 1, 1, 0, 0, 0), 0), msg.params[3])
-        self.assertEqual(1000000000000, msg.params[4])
-        self.assertEqual(5, len(list(msg)))
+        self.assertEqual(None, msg.params[2])
+        self.assertEqual([], msg.params[3])
+        self.assertEqual((datetime(1900, 1, 1, 0, 0, 0), 0), msg.params[4])
+        self.assertEqual(1000000000000, msg.params[5])
+        self.assertEqual(6, len(list(msg)))
 
     def test_complex_array_params(self):
         msg = osc_message.OscMessage(_DGRAM_COMPLEX_ARRAY_PARAMS)
