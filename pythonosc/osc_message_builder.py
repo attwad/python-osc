@@ -35,7 +35,7 @@ class OscMessageBuilder(object):
         ARG_TYPE_FLOAT, ARG_TYPE_DOUBLE, ARG_TYPE_INT, ARG_TYPE_INT64, ARG_TYPE_BLOB, ARG_TYPE_STRING,
         ARG_TYPE_RGBA, ARG_TYPE_MIDI, ARG_TYPE_TRUE, ARG_TYPE_FALSE, ARG_TYPE_NIL)
 
-    def __init__(self, address: str=None) -> None:
+    def __init__(self, address: Optional[str] = None) -> None:
         """Initialize a new builder for a message.
 
         Args:
@@ -69,7 +69,7 @@ class OscMessageBuilder(object):
             return True
         return False
 
-    def add_arg(self, arg_value: ArgValue, arg_type: str=None) -> None:
+    def add_arg(self, arg_value: ArgValue, arg_type: Optional[str] = None) -> None:
         """Add a typed argument to this message.
 
         Args:
