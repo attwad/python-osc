@@ -1,8 +1,10 @@
 """UDP Clients for sending OSC messages to an OSC server"""
 
-try:
+import sys
+
+if sys.version_info > (3, 5):
     from collections.abc import Iterable
-except ImportError: # python 3.5
+else:
     from collections import Iterable
 
 import socket

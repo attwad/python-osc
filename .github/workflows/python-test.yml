@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.6, 3.7, 3.8, 3.9]
+        python-version: ['3.7', '3.8', '3.9', '3.10', '3.11']
 
     steps:
     - uses: actions/checkout@v2
@@ -37,7 +37,16 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Check with mypy
       run: |
-        pip install pygame   # Needed for examples
+        if [[ "${{ matrix.python-version }}" = "3.11" ]]
+        then
+          # --pre needed for Python 3.11 which doesn't have wheels (and may not
+          # be fully supported) in version 2.1.2. Once 2.1.3 is released this
+          # can be removed. Due to https://github.com/pygame/pygame/issues/3572
+          # we can't apply this for all Python versions.
+          pip install --pre pygame  # Needed for examples
+        else
+          pip install pygame   # Needed for examples
+        fi
         mypy pythonosc examples
     - name: Test with pytest
       run: |
