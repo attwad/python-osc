@@ -49,7 +49,7 @@ def _is_valid_request(request: _RequestType) -> bool:
 class OSCUDPServer(socketserver.UDPServer):
     """Superclass for different flavors of OSC UDP servers"""
 
-    def __init__(self, server_address: Tuple[str, int], dispatcher: Dispatcher, bind_and_activate: bool = True) -> None:  # type: ignore[call-arg]  # https://github.com/python/typeshed/pull/8542
+    def __init__(self, server_address: Tuple[str, int], dispatcher: Dispatcher, bind_and_activate: bool = True) -> None:
         """Initialize
 
         Args:
