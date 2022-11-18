@@ -5,13 +5,10 @@ from pythonosc.parsing import osc_types
 
 from typing import List, Tuple, Union, Any, Optional
 
-
 ArgValue = Union[str, bytes, bool, int, float, osc_types.MidiPacket, list]
-
 
 class BuildError(Exception):
     """Error raised when an incomplete message is trying to be built."""
-
 
 class OscMessageBuilder(object):
     """Builds arbitrary OscMessage instances."""

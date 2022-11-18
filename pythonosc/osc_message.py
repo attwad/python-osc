@@ -61,6 +61,8 @@ class OscMessage(object):
                     val = True
                 elif param == "F":  # False.
                     val = False
+                elif param == "N":  # Nil.
+                    val = None
                 elif param == "[":  # Array start.
                     array = []  # type: List[Any]
                     param_stack[-1].append(array)
