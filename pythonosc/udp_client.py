@@ -15,9 +15,6 @@ from pythonosc.osc_bundle import OscBundle
 
 from typing import Union
 
-class UdpClientException(Exception):
-    pass
-
 class UDPClient(object):
     """OSC client to send :class:`OscMessage` or :class:`OscBundle` via UDP"""
 
