@@ -18,7 +18,7 @@ from typing import Union
 class UDPClient(object):
     """OSC client to send :class:`OscMessage` or :class:`OscBundle` via UDP"""
 
-    def __init__(self, address: str, port: int, allow_broadcast: bool = False, family: socket.AddressFamily = 0) -> None:
+    def __init__(self, address: str, port: int, allow_broadcast: bool = False, family: socket.AddressFamily = socket.AF_UNSPEC) -> None:
         """Initialize client
 
         As this is UDP it will not actually make any attempt to connect to the
