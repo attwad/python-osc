@@ -18,7 +18,7 @@ from typing import Union
 class UDPClient(object):
     """OSC client to send :class:`OscMessage` or :class:`OscBundle` via UDP"""
 
-    def __init__(self, address: str, port: int, allow_broadcast: bool = False, force_ipv4 = False, force_ipv6 = False) -> None:
+    def __init__(self, address: str, port: int, allow_broadcast: bool = False, family: socket.AddressFamily = 0) -> None:
         """Initialize client
 
         As this is UDP it will not actually make any attempt to connect to the
@@ -28,18 +28,8 @@ class UDPClient(object):
             address: IP address of server
             port: Port of server
             allow_broadcast: Allow for broadcast transmissions
-            force_ipv4: require that remote address is IPv4
-            force_ipv6: require thta remote address is IPv6
+            family: address family parameter (passed to socket.getaddrinfo)
         """
-
-        if force_ipv4 and force_ipv6:
-            raise ValueError("Can only force one of IPv4 or IPv6")
-        elif force_ipv4:
-            family = socket.AF_INET
-        elif force_ipv6:
-            family = socket.AF_INET6
-        else:
-            family = 0
 
         for addr in socket.getaddrinfo(address, port, type=socket.SOCK_DGRAM, family=family):
             af, socktype, protocol, canonname, sa = addr
