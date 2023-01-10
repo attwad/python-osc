@@ -15,11 +15,10 @@ from pythonosc.osc_bundle import OscBundle
 
 from typing import Union
 
-
 class UDPClient(object):
     """OSC client to send :class:`OscMessage` or :class:`OscBundle` via UDP"""
 
-    def __init__(self, address: str, port: int, allow_broadcast: bool = False) -> None:
+    def __init__(self, address: str, port: int, allow_broadcast: bool = False, family: socket.AddressFamily = socket.AF_UNSPEC) -> None:
         """Initialize client
 
         As this is UDP it will not actually make any attempt to connect to the
@@ -29,8 +28,10 @@ class UDPClient(object):
             address: IP address of server
             port: Port of server
             allow_broadcast: Allow for broadcast transmissions
+            family: address family parameter (passed to socket.getaddrinfo)
         """
-        for addr in socket.getaddrinfo(address, port, type=socket.SOCK_DGRAM):
+
+        for addr in socket.getaddrinfo(address, port, type=socket.SOCK_DGRAM, family=family):
             af, socktype, protocol, canonname, sa = addr
 
             try:
