@@ -5,7 +5,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## [Unreleased]
 
-- Nothing yet.
+- Nothing yet
+
+## [1.8.1]
+
+- Add options to UdpClient to force the use of IPv4 when IPv6 is available and vice versa
+
+- Add support for arguments with Nil type
 
 ### [1.8.0]
 
