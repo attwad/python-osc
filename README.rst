@@ -2,7 +2,7 @@
 python-osc
 ==========
 
-Open Sound Control server and client implementations in **pure python** (3.5+).
+Open Sound Control server and client implementations in **pure python**.
 
 .. image:: https://github.com/attwad/python-osc/actions/workflows/python-test.yml/badge.svg
     :target: https://github.com/attwad/python-osc/actions/workflows/python-test.yml
@@ -20,7 +20,7 @@ Features
 
 * UDP blocking/threading/forking/asyncio server implementations
 * UDP client
-* int, int64, float, string, double, MIDI, timestamps, blob OSC arguments
+* int, int64, float, string, double, MIDI, timestamps, blob, nil OSC arguments
 * simple OSC address<->callback matching system
 * extensive unit test coverage
 * basic client and server examples
