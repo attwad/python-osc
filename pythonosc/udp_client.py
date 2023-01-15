@@ -1,23 +1,24 @@
 """UDP Clients for sending OSC messages to an OSC server"""
 
-try:
+import sys
+
+if sys.version_info > (3, 5):
     from collections.abc import Iterable
-except ImportError: # python 3.5
+else:
     from collections import Iterable
-    
+
 import socket
 
-from .osc_message_builder import OscMessageBuilder
+from .osc_message_builder import OscMessageBuilder, ArgValue
 from pythonosc.osc_message import OscMessage
 from pythonosc.osc_bundle import OscBundle
 
 from typing import Union
 
-
 class UDPClient(object):
     """OSC client to send :class:`OscMessage` or :class:`OscBundle` via UDP"""
 
-    def __init__(self, address: str, port: int, allow_broadcast: bool = False) -> None:
+    def __init__(self, address: str, port: int, allow_broadcast: bool = False, family: socket.AddressFamily = socket.AF_UNSPEC) -> None:
         """Initialize client
 
         As this is UDP it will not actually make any attempt to connect to the
@@ -27,8 +28,10 @@ class UDPClient(object):
             address: IP address of server
             port: Port of server
             allow_broadcast: Allow for broadcast transmissions
+            family: address family parameter (passed to socket.getaddrinfo)
         """
-        for addr in socket.getaddrinfo(address, port, type=socket.SOCK_DGRAM):
+
+        for addr in socket.getaddrinfo(address, port, type=socket.SOCK_DGRAM, family=family):
             af, socktype, protocol, canonname, sa = addr
 
             try:
@@ -37,7 +40,7 @@ class UDPClient(object):
                 continue
             break
 
-        self._sock.setblocking(0)
+        self._sock.setblocking(False)
         if allow_broadcast:
             self._sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
         self._address = address
@@ -55,7 +58,7 @@ class UDPClient(object):
 class SimpleUDPClient(UDPClient):
     """Simple OSC client that automatically builds :class:`OscMessage` from arguments"""
 
-    def send_message(self, address: str, value: Union[int, float, bytes, str, bool, tuple, list]) -> None:
+    def send_message(self, address: str, value: ArgValue) -> None:
         """Build :class:`OscMessage` from arguments and send to server
 
         Args:

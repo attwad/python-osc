@@ -1,3 +1,4 @@
+import sys
 from pythonosc.osc_server import AsyncIOOSCUDPServer
 from pythonosc.dispatcher import Dispatcher
 import asyncio
@@ -30,4 +31,10 @@ async def init_main():
     transport.close()  # Clean up serve endpoint
 
 
-asyncio.run(init_main())
+if sys.version_info >= (3, 7):
+    asyncio.run(init_main())
+else:
+    # TODO(python-upgrade): drop this once 3.6 is no longer supported
+    event_loop = asyncio.get_event_loop()
+    event_loop.run_until_complete(init_main())
+    event_loop.close()

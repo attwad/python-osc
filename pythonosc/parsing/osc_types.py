@@ -5,7 +5,9 @@ import struct
 from pythonosc.parsing import ntp
 from datetime import datetime, timedelta, date
 
-from typing import Union, Tuple
+from typing import Union, Tuple, cast
+
+MidiPacket = Tuple[int, int, int, int]
 
 
 class ParseError(Exception):
@@ -187,7 +189,7 @@ def get_uint64(dgram: bytes, start_index: int) -> Tuple[int, int]:
         raise ParseError('Could not parse datagram %s' % e)
 
 
-def get_timetag(dgram: bytes, start_index: int) -> Tuple[datetime, int]:
+def get_timetag(dgram: bytes, start_index: int) -> Tuple[Tuple[datetime, int], int]:
     """Get a 64-bit OSC time tag from the datagram.
 
     Args:
@@ -411,7 +413,7 @@ def get_rgba(dgram: bytes, start_index: int) -> Tuple[bytes, int]:
         raise ParseError('Could not parse datagram %s' % e)
 
 
-def write_midi(val: Tuple[Tuple[int, int, int, int], int]) -> bytes:
+def write_midi(val: MidiPacket) -> bytes:
     """Returns the datagram for the given MIDI message parameter value
 
        A valid MIDI message: (port id, status byte, data1, data2).
@@ -429,7 +431,7 @@ def write_midi(val: Tuple[Tuple[int, int, int, int], int]) -> bytes:
         raise BuildError('Wrong argument value passed: {}'.format(e))
 
 
-def get_midi(dgram: bytes, start_index: int) -> Tuple[Tuple[int, int, int, int], int]:
+def get_midi(dgram: bytes, start_index: int) -> Tuple[MidiPacket, int]:
     """Get a MIDI message (port id, status byte, data1, data2) from the datagram.
 
     Args:
@@ -447,7 +449,9 @@ def get_midi(dgram: bytes, start_index: int) -> Tuple[Tuple[int, int, int, int],
             raise ParseError('Datagram is too short')
         val = struct.unpack('>I',
                             dgram[start_index:start_index + _INT_DGRAM_LEN])[0]
-        midi_msg = tuple((val & 0xFF << 8 * i) >> 8 * i for i in range(3, -1, -1))
+        midi_msg = cast(
+            MidiPacket,
+            tuple((val & 0xFF << 8 * i) >> 8 * i for i in range(3, -1, -1)))
         return (midi_msg, start_index + _INT_DGRAM_LEN)
     except (struct.error, TypeError) as e:
         raise ParseError('Could not parse datagram %s' % e)

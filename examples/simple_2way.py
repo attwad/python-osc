@@ -11,7 +11,7 @@ import math
 import threading
 
 from pythonosc import udp_client
-from pythonosc import dispatcher
+from pythonosc.dispatcher import Dispatcher
 from pythonosc import osc_server
 
 
@@ -32,7 +32,7 @@ if __name__ == "__main__":
 
 
     # listen to addresses and print changes in values 
-    dispatcher = dispatcher.Dispatcher()
+    dispatcher = Dispatcher()
     dispatcher.map("/1/push2", print)
     dispatcher.map("/1/fader1", print_fader_handler, "Focus")
     dispatcher.map("/1/fader2", print_fader_handler, "Zoom")

@@ -53,7 +53,7 @@ class TestOscMessageBuilder(unittest.TestCase):
         msg = builder.build()
         self.assertEqual("/SEEK", msg.address)
         self.assertSequenceEqual(
-            [4.0, 2, 1099511627776, "value", True, False, b"\x01\x02\x03", [1, ["abc"]]] * 2 +
+            [4.0, 2, 1099511627776, "value", True, False, b"\x01\x02\x03", [1, ["abc"]], None] * 2 +
             [4278255360, (1, 145, 36, 125), 1e-9],
             msg.params)
 
