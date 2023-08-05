@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## [Unreleased]
 
+## [1.8.3]
+
 - Using trusted publisher setup to publish to pypi
 
 ## [1.8.2]
