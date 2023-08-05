@@ -43,13 +43,6 @@ to install it just use pip (prefered):
 
     $ pip install python-osc
 
-or from the raw sources for the development version:
-
-.. code-block:: bash
-
-    $ python setup.py test
-    $ python setup.py install
-
 Examples
 ========
 
