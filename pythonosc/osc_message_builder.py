@@ -1,4 +1,5 @@
 """Build OSC messages for client applications."""
+from typing import Iterable
 
 from pythonosc import osc_message
 from pythonosc.parsing import osc_types
@@ -195,3 +196,16 @@ class OscMessageBuilder(object):
             return osc_message.OscMessage(dgram)
         except osc_types.BuildError as be:
             raise BuildError("Could not build the message: {}".format(be))
+
+
+def build_msg(address: str, value: ArgValue):
+    builder = OscMessageBuilder(address=address)
+    if value is None:
+        values = []
+    elif not isinstance(value, Iterable) or isinstance(value, (str, bytes)):
+        values = [value]
+    else:
+        values = value
+    for val in values:
+        builder.add_arg(val)
+    return builder.build()
