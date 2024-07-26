@@ -14,11 +14,10 @@ _DGRAM_TWO_MESSAGES_IN_BUNDLE = (
     b"\x00\x00\x00\x10"
     b"/SYNC\x00\x00\x00"
     b",f\x00\x00"
-    b"?\x00\x00\x00")
+    b"?\x00\x00\x00"
+)
 
-_DGRAM_EMPTY_BUNDLE = (
-    b"#bundle\x00"
-    b"\x00\x00\x00\x00\x00\x00\x00\x01")
+_DGRAM_EMPTY_BUNDLE = b"#bundle\x00" b"\x00\x00\x00\x00\x00\x00\x00\x01"
 
 _DGRAM_NESTED_MESS = (
     b"#bundle\x00"
@@ -50,7 +49,8 @@ _DGRAM_NESTED_MESS = (
     b"\x00\x00\x00\x10"
     b"/4444\x00\x00\x00"
     b",f\x00\x00"
-    b"?\x00\x00\x00")
+    b"?\x00\x00\x00"
+)
 
 
 class TestOscPacket(unittest.TestCase):
@@ -59,7 +59,7 @@ class TestOscPacket(unittest.TestCase):
         self.assertEqual(2, len(packet.messages))
 
     def test_empty_dgram_raises_exception(self):
-        self.assertRaises(osc_packet.ParseError, osc_packet.OscPacket, b'')
+        self.assertRaises(osc_packet.ParseError, osc_packet.OscPacket, b"")
 
     def test_empty_bundle(self):
         packet = osc_packet.OscPacket(_DGRAM_EMPTY_BUNDLE)

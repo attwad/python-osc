@@ -31,8 +31,18 @@ class OscMessageBuilder(object):
     ARG_TYPE_ARRAY_STOP = "]"
 
     _SUPPORTED_ARG_TYPES = (
-        ARG_TYPE_FLOAT, ARG_TYPE_DOUBLE, ARG_TYPE_INT, ARG_TYPE_INT64, ARG_TYPE_BLOB, ARG_TYPE_STRING,
-        ARG_TYPE_RGBA, ARG_TYPE_MIDI, ARG_TYPE_TRUE, ARG_TYPE_FALSE, ARG_TYPE_NIL)
+        ARG_TYPE_FLOAT,
+        ARG_TYPE_DOUBLE,
+        ARG_TYPE_INT,
+        ARG_TYPE_INT64,
+        ARG_TYPE_BLOB,
+        ARG_TYPE_STRING,
+        ARG_TYPE_RGBA,
+        ARG_TYPE_MIDI,
+        ARG_TYPE_TRUE,
+        ARG_TYPE_FALSE,
+        ARG_TYPE_NIL,
+    )
 
     def __init__(self, address: Optional[str] = None) -> None:
         """Initialize a new builder for a message.
@@ -80,8 +90,10 @@ class OscMessageBuilder(object):
         """
         if arg_type and not self._valid_type(arg_type):
             raise ValueError(
-                'arg_type must be one of {}, or an array of valid types'
-                .format(self._SUPPORTED_ARG_TYPES))
+                "arg_type must be one of {}, or an array of valid types".format(
+                    self._SUPPORTED_ARG_TYPES
+                )
+            )
         if not arg_type:
             arg_type = self._get_arg_type(arg_value)
         if isinstance(arg_type, list):
@@ -124,7 +136,7 @@ class OscMessageBuilder(object):
         elif arg_value is None:
             arg_type = self.ARG_TYPE_NIL
         else:
-            raise ValueError('Infered arg_value type is not supported')
+            raise ValueError("Infered arg_value type is not supported")
         return arg_type
 
     def build(self) -> osc_message.OscMessage:
@@ -138,18 +150,18 @@ class OscMessageBuilder(object):
           - an osc_message.OscMessage instance.
         """
         if not self._address:
-            raise BuildError('OSC addresses cannot be empty')
-        dgram = b''
+            raise BuildError("OSC addresses cannot be empty")
+        dgram = b""
         try:
             # Write the address.
             dgram += osc_types.write_string(self._address)
             if not self._args:
-                dgram += osc_types.write_string(',')
+                dgram += osc_types.write_string(",")
                 return osc_message.OscMessage(dgram)
 
             # Write the parameters.
             arg_types = "".join([arg[0] for arg in self._args])
-            dgram += osc_types.write_string(',' + arg_types)
+            dgram += osc_types.write_string("," + arg_types)
             for arg_type, value in self._args:
                 if arg_type == self.ARG_TYPE_STRING:
                     dgram += osc_types.write_string(value)  # type: ignore[arg-type]
@@ -167,16 +179,19 @@ class OscMessageBuilder(object):
                     dgram += osc_types.write_rgba(value)  # type: ignore[arg-type]
                 elif arg_type == self.ARG_TYPE_MIDI:
                     dgram += osc_types.write_midi(value)  # type: ignore[arg-type]
-                elif arg_type in (self.ARG_TYPE_TRUE,
-                                  self.ARG_TYPE_FALSE,
-                                  self.ARG_TYPE_ARRAY_START,
-                                  self.ARG_TYPE_ARRAY_STOP,
-                                  self.ARG_TYPE_NIL):
+                elif arg_type in (
+                    self.ARG_TYPE_TRUE,
+                    self.ARG_TYPE_FALSE,
+                    self.ARG_TYPE_ARRAY_START,
+                    self.ARG_TYPE_ARRAY_STOP,
+                    self.ARG_TYPE_NIL,
+                ):
                     continue
                 else:
-                    raise BuildError('Incorrect parameter type found {}'.format(
-                        arg_type))
+                    raise BuildError(
+                        "Incorrect parameter type found {}".format(arg_type)
+                    )
 
             return osc_message.OscMessage(dgram)
         except osc_types.BuildError as be:
-            raise BuildError('Could not build the message: {}'.format(be))
+            raise BuildError("Could not build the message: {}".format(be))

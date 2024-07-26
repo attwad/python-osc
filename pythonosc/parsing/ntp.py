@@ -8,11 +8,11 @@ from typing import NamedTuple
 
 # 63 zero bits followed by a one in the least signifigant bit is a special
 # case meaning "immediately."
-IMMEDIATELY = struct.pack('>Q', 1)
+IMMEDIATELY = struct.pack(">Q", 1)
 
 # timetag * (1 / 2 ** 32) == l32bits + (r32bits / 1 ** 32)
-_NTP_TIMESTAMP_TO_SECONDS = 1. / 2. ** 32.
-_SECONDS_TO_NTP_TIMESTAMP = 2. ** 32.
+_NTP_TIMESTAMP_TO_SECONDS = 1.0 / 2.0**32.0
+_SECONDS_TO_NTP_TIMESTAMP = 2.0**32.0
 
 # From NTP lib.
 _SYSTEM_EPOCH = datetime.date(*time.gmtime(0)[0:3])
@@ -21,10 +21,13 @@ _NTP_EPOCH = datetime.date(1900, 1, 1)
 _NTP_DELTA = (_SYSTEM_EPOCH - _NTP_EPOCH).days * 24 * 3600
 
 
-Timestamp = NamedTuple('Timestamp', [
-    ('seconds', int),
-    ('fraction', int),
-])
+Timestamp = NamedTuple(
+    "Timestamp",
+    [
+        ("seconds", int),
+        ("fraction", int),
+    ],
+)
 
 
 class NtpError(Exception):
@@ -41,7 +44,7 @@ def parse_timestamp(timestamp: int) -> Timestamp:
 def ntp_to_system_time(timestamp: bytes) -> float:
     """Convert a NTP timestamp to system time in seconds."""
     try:
-        ts = struct.unpack('>Q', timestamp)[0]
+        ts = struct.unpack(">Q", timestamp)[0]
     except Exception as e:
         raise NtpError(e)
     return ts * _NTP_TIMESTAMP_TO_SECONDS - _NTP_DELTA
@@ -53,7 +56,7 @@ def system_time_to_ntp(seconds: float) -> bytes:
         seconds = seconds + _NTP_DELTA
     except TypeError as e:
         raise NtpError(e)
-    return struct.pack('>Q', int(seconds * _SECONDS_TO_NTP_TIMESTAMP))
+    return struct.pack(">Q", int(seconds * _SECONDS_TO_NTP_TIMESTAMP))
 
 
 def ntp_time_to_system_epoch(seconds: float) -> float:

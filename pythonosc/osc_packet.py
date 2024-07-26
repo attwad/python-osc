@@ -15,18 +15,23 @@ from typing import List, NamedTuple
 # 1) the system time at which the message should be executed
 #    in seconds since the epoch.
 # 2) the actual message.
-TimedMessage = NamedTuple('TimedMessage', [
-    ('time', float),
-    ('message', osc_message.OscMessage),
-])
+TimedMessage = NamedTuple(
+    "TimedMessage",
+    [
+        ("time", float),
+        ("message", osc_message.OscMessage),
+    ],
+)
 
 
-def _timed_msg_of_bundle(bundle: osc_bundle.OscBundle, now: float) -> List[TimedMessage]:
+def _timed_msg_of_bundle(
+    bundle: osc_bundle.OscBundle, now: float
+) -> List[TimedMessage]:
     """Returns messages contained in nested bundles as a list of TimedMessage."""
     msgs = []
     for content in bundle:
         if type(content) is osc_message.OscMessage:
-            if (bundle.timestamp == osc_types.IMMEDIATELY or bundle.timestamp < now):
+            if bundle.timestamp == osc_types.IMMEDIATELY or bundle.timestamp < now:
                 msgs.append(TimedMessage(now, content))
             else:
                 msgs.append(TimedMessage(bundle.timestamp, content))
@@ -60,16 +65,18 @@ class OscPacket(object):
             if osc_bundle.OscBundle.dgram_is_bundle(dgram):
                 self._messages = sorted(
                     _timed_msg_of_bundle(osc_bundle.OscBundle(dgram), now),
-                    key=lambda x: x.time)
+                    key=lambda x: x.time,
+                )
             elif osc_message.OscMessage.dgram_is_message(dgram):
                 self._messages = [TimedMessage(now, osc_message.OscMessage(dgram))]
             else:
                 # Empty packet, should not happen as per the spec but heh, UDP...
                 raise ParseError(
-                    'OSC Packet should at least contain an OscMessage or an '
-                    'OscBundle.')
+                    "OSC Packet should at least contain an OscMessage or an "
+                    "OscBundle."
+                )
         except (osc_bundle.ParseError, osc_message.ParseError) as pe:
-            raise ParseError('Could not parse packet %s' % pe)
+            raise ParseError("Could not parse packet %s" % pe)
 
     @property
     def messages(self) -> List[TimedMessage]:

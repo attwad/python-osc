@@ -25,9 +25,21 @@ def print_xy_fader_handler(unused_addr, args, value1, value2):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--serverip", default="127.0.0.1", help="The ip to listen on")
-    parser.add_argument("--serverport", type=int, default=5005, help="The port the OSC Server is listening on")
-    parser.add_argument("--clientip", default="127.0.0.1", help="The ip of the OSC server")
-    parser.add_argument("--clientport", type=int, default=5006, help="The port the OSC Client is listening on")
+    parser.add_argument(
+        "--serverport",
+        type=int,
+        default=5005,
+        help="The port the OSC Server is listening on",
+    )
+    parser.add_argument(
+        "--clientip", default="127.0.0.1", help="The ip of the OSC server"
+    )
+    parser.add_argument(
+        "--clientport",
+        type=int,
+        default=5006,
+        help="The port the OSC Client is listening on",
+    )
     args = parser.parse_args()
 
     # listen to addresses and print changes in values
@@ -41,8 +53,7 @@ if __name__ == "__main__":
 
 def start_server(ip, port):
     print("Starting Server")
-    server = osc_server.ThreadingOSCUDPServer(
-        (ip, port), dispatcher)
+    server = osc_server.ThreadingOSCUDPServer((ip, port), dispatcher)
     print("Serving on {}".format(server.server_address))
     thread = threading.Thread(target=server.serve_forever)
     thread.start()
@@ -63,7 +74,7 @@ def random_values(client):
             client.send_message("/1/fader2", random.random())
             client.send_message("/1/fader1", random.random())
             client.send_message("/1/xy1", [random.random(), random.random()])
-            time.sleep(.5)
+            time.sleep(0.5)
 
 
 start_server(args.serverip, args.serverport)

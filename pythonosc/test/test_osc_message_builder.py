@@ -9,7 +9,7 @@ class TestOscMessageBuilder(unittest.TestCase):
         self.assertEqual("/a/b/c", msg.address)
         self.assertEqual([], msg.params)
         # Messages with just an address should still contain the ",".
-        self.assertEqual(b'/a/b/c\x00\x00,\x00\x00\x00', msg.dgram)
+        self.assertEqual(b"/a/b/c\x00\x00,\x00\x00\x00", msg.dgram)
 
     def test_no_address_raises(self):
         builder = osc_message_builder.OscMessageBuilder("")
@@ -20,8 +20,8 @@ class TestOscMessageBuilder(unittest.TestCase):
         self.assertRaises(ValueError, builder.add_arg, "what?", 1)
 
     def test_add_arg_invalid_infered_type(self):
-        builder = osc_message_builder.OscMessageBuilder('')
-        self.assertRaises(ValueError, builder.add_arg, {'name': 'John'})
+        builder = osc_message_builder.OscMessageBuilder("")
+        self.assertRaises(ValueError, builder.add_arg, {"name": "John"})
 
     def test_all_param_types(self):
         builder = osc_message_builder.OscMessageBuilder(address="/SYNC")
@@ -49,13 +49,25 @@ class TestOscMessageBuilder(unittest.TestCase):
         builder.add_arg(1e-9, builder.ARG_TYPE_DOUBLE)
         self.assertEqual(len("fihsTFb[i[s]]N") * 2 + 3, len(builder.args))
         self.assertEqual("/SYNC", builder.address)
-        builder.address = '/SEEK'
+        builder.address = "/SEEK"
         msg = builder.build()
         self.assertEqual("/SEEK", msg.address)
         self.assertSequenceEqual(
-            [4.0, 2, 1099511627776, "value", True, False, b"\x01\x02\x03", [1, ["abc"]], None] * 2 +
-            [4278255360, (1, 145, 36, 125), 1e-9],
-            msg.params)
+            [
+                4.0,
+                2,
+                1099511627776,
+                "value",
+                True,
+                False,
+                b"\x01\x02\x03",
+                [1, ["abc"]],
+                None,
+            ]
+            * 2
+            + [4278255360, (1, 145, 36, 125), 1e-9],
+            msg.params,
+        )
 
     def test_long_list(self):
         huge_list = list(range(512))
@@ -67,18 +79,18 @@ class TestOscMessageBuilder(unittest.TestCase):
 
     def test_build_wrong_type_raises(self):
         builder = osc_message_builder.OscMessageBuilder(address="/SYNC")
-        builder.add_arg('this is not a float', builder.ARG_TYPE_FLOAT)
+        builder.add_arg("this is not a float", builder.ARG_TYPE_FLOAT)
         self.assertRaises(osc_message_builder.BuildError, builder.build)
 
     def test_build_noarg_message(self):
-        msg = osc_message_builder.OscMessageBuilder(address='/SYNC').build()
+        msg = osc_message_builder.OscMessageBuilder(address="/SYNC").build()
         # This reference message was generated with Cycling 74's Max software
         # and then was intercepted with Wireshark
-        reference = bytearray.fromhex('2f53594e430000002c000000')
+        reference = bytearray.fromhex("2f53594e430000002c000000")
         self.assertSequenceEqual(msg._dgram, reference)
 
     def test_bool_encoding(self):
-        builder = osc_message_builder.OscMessageBuilder('')
+        builder = osc_message_builder.OscMessageBuilder("")
         builder.add_arg(0)
         builder.add_arg(1)
         builder.add_arg(False)

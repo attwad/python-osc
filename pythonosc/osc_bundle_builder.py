@@ -41,19 +41,21 @@ class OscBundleBuilder(object):
         Raises:
           - BuildError: if we could not build the bundle.
         """
-        dgram = b'#bundle\x00'
+        dgram = b"#bundle\x00"
         try:
             dgram += osc_types.write_date(self._timestamp)
             for content in self._contents:
-                if (isinstance(content, osc_message.OscMessage)
-                        or isinstance(content, osc_bundle.OscBundle)):
+                if isinstance(content, osc_message.OscMessage) or isinstance(
+                    content, osc_bundle.OscBundle
+                ):
                     size = content.size
                     dgram += osc_types.write_int(size)
                     dgram += content.dgram
                 else:
                     raise BuildError(
                         "Content must be either OscBundle or OscMessage"
-                        "found {}".format(type(content)))
+                        "found {}".format(type(content))
+                    )
             return osc_bundle.OscBundle(dgram)
         except osc_types.BuildError as be:
-            raise BuildError('Could not build the bundle {}'.format(be))
+            raise BuildError("Could not build the bundle {}".format(be))

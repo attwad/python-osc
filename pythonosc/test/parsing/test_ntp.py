@@ -5,7 +5,7 @@ from pythonosc.parsing import ntp
 
 
 class TestNTP(unittest.TestCase):
-    """ TODO: Write real tests for this when I get time..."""
+    """TODO: Write real tests for this when I get time..."""
 
     def test_nto_to_system_time(self):
         unix_time = time.time()

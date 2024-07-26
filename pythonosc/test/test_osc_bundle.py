@@ -10,7 +10,8 @@ _DGRAM_KNOB_ROTATES_BUNDLE = (
     b"\x00\x00\x00\x14"
     b"/LFO_Rate\x00\x00\x00"
     b",f\x00\x00"
-    b">\x8c\xcc\xcd")
+    b">\x8c\xcc\xcd"
+)
 
 _DGRAM_SWITCH_GOES_OFF = (
     b"#bundle\x00"
@@ -18,7 +19,8 @@ _DGRAM_SWITCH_GOES_OFF = (
     b"\x00\x00\x00\x10"
     b"/SYNC\x00\x00\x00"
     b",f\x00\x00"
-    b"\x00\x00\x00\x00")
+    b"\x00\x00\x00\x00"
+)
 
 _DGRAM_SWITCH_GOES_ON = (
     b"#bundle\x00"
@@ -26,7 +28,8 @@ _DGRAM_SWITCH_GOES_ON = (
     b"\x00\x00\x00\x10"
     b"/SYNC\x00\x00\x00"
     b",f\x00\x00"
-    b"?\x00\x00\x00")
+    b"?\x00\x00\x00"
+)
 
 _DGRAM_TWO_MESSAGES_IN_BUNDLE = (
     b"#bundle\x00"
@@ -40,11 +43,10 @@ _DGRAM_TWO_MESSAGES_IN_BUNDLE = (
     b"\x00\x00\x00\x10"
     b"/SYNC\x00\x00\x00"
     b",f\x00\x00"
-    b"?\x00\x00\x00")
+    b"?\x00\x00\x00"
+)
 
-_DGRAM_EMPTY_BUNDLE = (
-    b"#bundle\x00"
-    b"\x00\x00\x00\x00\x00\x00\x00\x01")
+_DGRAM_EMPTY_BUNDLE = b"#bundle\x00" b"\x00\x00\x00\x00\x00\x00\x00\x01"
 
 _DGRAM_BUNDLE_IN_BUNDLE = (
     b"#bundle\x00"
@@ -55,23 +57,24 @@ _DGRAM_BUNDLE_IN_BUNDLE = (
     b"\x00\x00\x00\x10"
     b"/SYNC\x00\x00\x00"
     b",f\x00\x00"
-    b"?\x00\x00\x00")
+    b"?\x00\x00\x00"
+)
 
-_DGRAM_INVALID = (
-    b"#bundle\x00"
-    b"\x00\x00\x00")
+_DGRAM_INVALID = b"#bundle\x00" b"\x00\x00\x00"
 
 _DGRAM_INVALID_INDEX = (
     b"#bundle\x00"
     b"\x00\x00\x00\x00\x00\x00\x00\x01"
     b"\x00\x00\x00\x20"
-    b"/SYNC\x00\x00\x00\x00")
+    b"/SYNC\x00\x00\x00\x00"
+)
 
 _DGRAM_UNKNOWN_TYPE = (
     b"#bundle\x00"
     b"\x00\x00\x00\x00\x00\x00\x00\x01"
     b"\x00\x00\x00\x10"
-    b"iamnotaslash")
+    b"iamnotaslash"
+)
 
 
 class TestOscBundle(unittest.TestCase):
@@ -112,15 +115,14 @@ class TestOscBundle(unittest.TestCase):
         self.assertEqual(osc_bundle.OscBundle, type(bundle.content(0)))
 
     def test_dgram_is_bundle(self):
-        self.assertTrue(osc_bundle.OscBundle.dgram_is_bundle(
-            _DGRAM_SWITCH_GOES_ON))
-        self.assertFalse(osc_bundle.OscBundle.dgram_is_bundle(b'junk'))
+        self.assertTrue(osc_bundle.OscBundle.dgram_is_bundle(_DGRAM_SWITCH_GOES_ON))
+        self.assertFalse(osc_bundle.OscBundle.dgram_is_bundle(b"junk"))
 
     def test_raises_on_invalid_datagram(self):
+        self.assertRaises(osc_bundle.ParseError, osc_bundle.OscBundle, _DGRAM_INVALID)
         self.assertRaises(
-            osc_bundle.ParseError, osc_bundle.OscBundle, _DGRAM_INVALID)
-        self.assertRaises(
-            osc_bundle.ParseError, osc_bundle.OscBundle, _DGRAM_INVALID_INDEX)
+            osc_bundle.ParseError, osc_bundle.OscBundle, _DGRAM_INVALID_INDEX
+        )
 
     def test_unknown_type(self):
         osc_bundle.OscBundle(_DGRAM_UNKNOWN_TYPE)

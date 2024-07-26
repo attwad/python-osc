@@ -6,15 +6,8 @@ import socket
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--ip",
-        default="127.0.0.1",
-        help="The ip to listen on")
-    parser.add_argument(
-        "--port",
-        type=int,
-        default=5005,
-        help="The port to listen on")
+    parser.add_argument("--ip", default="127.0.0.1", help="The ip to listen on")
+    parser.add_argument("--port", type=int, default=5005, help="The port to listen on")
 
     args = parser.parse_args()
     _PrintOscMessages(args.ip, args.port)

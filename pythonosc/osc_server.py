@@ -39,17 +39,24 @@ def _is_valid_request(request: _RequestType) -> bool:
     Returns:
         True if request is OSC bundle or OSC message
     """
-    assert isinstance(request, tuple)  # TODO: handle requests which are passed just as a socket?
+    assert isinstance(
+        request, tuple
+    )  # TODO: handle requests which are passed just as a socket?
     data = request[0]
-    return (
-            osc_bundle.OscBundle.dgram_is_bundle(data)
-            or osc_message.OscMessage.dgram_is_message(data))
+    return osc_bundle.OscBundle.dgram_is_bundle(
+        data
+    ) or osc_message.OscMessage.dgram_is_message(data)
 
 
 class OSCUDPServer(socketserver.UDPServer):
     """Superclass for different flavors of OSC UDP servers"""
 
-    def __init__(self, server_address: Tuple[str, int], dispatcher: Dispatcher, bind_and_activate: bool = True) -> None:
+    def __init__(
+        self,
+        server_address: Tuple[str, int],
+        dispatcher: Dispatcher,
+        bind_and_activate: bool = True,
+    ) -> None:
         """Initialize
 
         Args:
@@ -60,7 +67,9 @@ class OSCUDPServer(socketserver.UDPServer):
         super().__init__(server_address, _UDPHandler, bind_and_activate)
         self._dispatcher = dispatcher
 
-    def verify_request(self, request: _RequestType, client_address: _AddressType) -> bool:
+    def verify_request(
+        self, request: _RequestType, client_address: _AddressType
+    ) -> bool:
         """Returns true if the data looks like a valid OSC UDP datagram
 
         Args:
@@ -95,6 +104,7 @@ class ThreadingOSCUDPServer(socketserver.ThreadingMixIn, OSCUDPServer):
 
 
 if hasattr(os, "fork"):
+
     class ForkingOSCUDPServer(socketserver.ForkingMixIn, OSCUDPServer):
         """Forking version of the OSC UDP server.
 
@@ -104,13 +114,18 @@ if hasattr(os, "fork"):
         """
 
 
-class AsyncIOOSCUDPServer():
+class AsyncIOOSCUDPServer:
     """Asynchronous OSC Server
 
     An asynchronous OSC Server using UDP. It creates a datagram endpoint that runs in an event loop.
     """
 
-    def __init__(self, server_address: Tuple[str, int], dispatcher: Dispatcher, loop: BaseEventLoop) -> None:
+    def __init__(
+        self,
+        server_address: Tuple[str, int],
+        dispatcher: Dispatcher,
+        loop: BaseEventLoop,
+    ) -> None:
         """Initialize
 
         Args:
@@ -130,7 +145,9 @@ class AsyncIOOSCUDPServer():
         def __init__(self, dispatcher: Dispatcher) -> None:
             self.dispatcher = dispatcher
 
-        def datagram_received(self, data: bytes, client_address: Tuple[str, int]) -> None:
+        def datagram_received(
+            self, data: bytes, client_address: Tuple[str, int]
+        ) -> None:
             self.dispatcher.call_handlers_for_packet(data, client_address)
 
     def serve(self) -> None:
@@ -141,7 +158,11 @@ class AsyncIOOSCUDPServer():
         """
         self._loop.run_until_complete(self.create_serve_endpoint())
 
-    def create_serve_endpoint(self) -> Coroutine[Any, Any, Tuple[asyncio.transports.BaseTransport, asyncio.DatagramProtocol]]:
+    def create_serve_endpoint(
+        self,
+    ) -> Coroutine[
+        Any, Any, Tuple[asyncio.transports.BaseTransport, asyncio.DatagramProtocol]
+    ]:
         """Creates a datagram endpoint and registers it with event loop as coroutine.
 
         Returns:
@@ -149,7 +170,8 @@ class AsyncIOOSCUDPServer():
         """
         return self._loop.create_datagram_endpoint(
             lambda: self._OSCProtocolFactory(self.dispatcher),
-            local_addr=self._server_address)
+            local_addr=self._server_address,
+        )
 
     @property
     def dispatcher(self) -> Dispatcher:

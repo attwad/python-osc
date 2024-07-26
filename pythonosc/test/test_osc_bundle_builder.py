@@ -7,7 +7,8 @@ from pythonosc import osc_message_builder
 class TestOscBundleBuilder(unittest.TestCase):
     def test_empty_bundle(self):
         bundle = osc_bundle_builder.OscBundleBuilder(
-            osc_bundle_builder.IMMEDIATELY).build()
+            osc_bundle_builder.IMMEDIATELY
+        ).build()
         self.assertEqual(0, bundle.num_contents)
 
     def test_raises_on_build(self):
@@ -20,8 +21,7 @@ class TestOscBundleBuilder(unittest.TestCase):
         self.assertRaises(osc_bundle_builder.BuildError, bundle.build)
 
     def test_build_complex_bundle(self):
-        bundle = osc_bundle_builder.OscBundleBuilder(
-            osc_bundle_builder.IMMEDIATELY)
+        bundle = osc_bundle_builder.OscBundleBuilder(osc_bundle_builder.IMMEDIATELY)
         msg = osc_message_builder.OscMessageBuilder(address="/SYNC")
         msg.add_arg(4.0)
         # Add 4 messages in the bundle, each with more arguments.

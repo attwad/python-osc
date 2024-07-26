@@ -3,6 +3,7 @@
 This program listens to several addresses, and prints some information about
 received packets.
 """
+
 import argparse
 import math
 
@@ -23,10 +24,8 @@ def print_compute_handler(unused_addr, args, volume):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--ip",
-                        default="127.0.0.1", help="The ip to listen on")
-    parser.add_argument("--port",
-                        type=int, default=5005, help="The port to listen on")
+    parser.add_argument("--ip", default="127.0.0.1", help="The ip to listen on")
+    parser.add_argument("--port", type=int, default=5005, help="The port to listen on")
     args = parser.parse_args()
 
     dispatcher = Dispatcher()
@@ -34,7 +33,6 @@ if __name__ == "__main__":
     dispatcher.map("/volume", print_volume_handler, "Volume")
     dispatcher.map("/logvolume", print_compute_handler, "Log volume", math.log)
 
-    server = osc_server.ThreadingOSCUDPServer(
-        (args.ip, args.port), dispatcher)
+    server = osc_server.ThreadingOSCUDPServer((args.ip, args.port), dispatcher)
     print("Serving on {}".format(server.server_address))
     server.serve_forever()

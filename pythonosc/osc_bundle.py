@@ -37,7 +37,9 @@ class OscBundle(object):
         # Get the contents as a list of OscBundle and OscMessage.
         self._contents = self._parse_contents(index)
 
-    def _parse_contents(self, index: int) -> List[Union['OscBundle', osc_message.OscMessage]]:
+    def _parse_contents(
+        self, index: int
+    ) -> List[Union["OscBundle", osc_message.OscMessage]]:
         contents = []  # type: List[Union[OscBundle, osc_message.OscMessage]]
 
         try:
@@ -49,7 +51,7 @@ class OscBundle(object):
                 # Get the sub content size.
                 content_size, index = osc_types.get_int(self._dgram, index)
                 # Get the datagram for the sub content.
-                content_dgram = self._dgram[index:index + content_size]
+                content_dgram = self._dgram[index : index + content_size]
                 # Increment our position index up to the next possible content.
                 index += content_size
                 # Parse the content into an OSC message or bundle.
@@ -59,7 +61,8 @@ class OscBundle(object):
                     contents.append(osc_message.OscMessage(content_dgram))
                 else:
                     logging.warning(
-                        "Could not identify content type of dgram %r" % content_dgram)
+                        "Could not identify content type of dgram %r" % content_dgram
+                    )
         except (osc_types.ParseError, osc_message.ParseError, IndexError) as e:
             raise ParseError("Could not parse a content datagram: %s" % e)
 
