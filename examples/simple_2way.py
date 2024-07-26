@@ -65,5 +65,6 @@ def random_values(client):
             client.send_message("/1/xy1", [random.random(), random.random()])
             time.sleep(.5)
 
+
 start_server(args.serverip, args.serverport)
 start_client(args.clientip, args.clientport)
