@@ -29,7 +29,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install flake8 pytest pytest-cov mypy
+        python -m pip install flake8 pytest mypy
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
@@ -40,5 +40,3 @@ jobs:
       run: mypy pythonosc examples
     - name: Test with pytest
       run: pytest
-    - name: Coverage with pytest-cov
-      run: pytest -cov=pythonosc
