@@ -9,7 +9,7 @@ from pythonosc.parsing import osc_types
 from pythonosc import osc_bundle
 from pythonosc import osc_message
 
-from typing import Union, List, NamedTuple
+from typing import List, NamedTuple
 
 # A namedtuple as returned my the _timed_msg_of_bundle function.
 # 1) the system time at which the message should be executed

@@ -32,7 +32,7 @@ class Handler(object):
 
     # needed for test module
     def __eq__(self, other: Any) -> bool:
-        return (type(self) == type(other) and
+        return (isinstance(self, type(other)) and
                 self.callback == other.callback and
                 self.args == other.args and
                 self.needs_reply_address == other.needs_reply_address)
@@ -63,8 +63,8 @@ class Dispatcher(object):
     """
 
     def __init__(self) -> None:
-        self._map = collections.defaultdict(list)  # type: DefaultDict[str, List[Handler]]
-        self._default_handler = None  # type: Optional[Handler]
+        self._map: DefaultDict[str, List[Handler]] = collections.defaultdict(list)
+        self._default_handler: Optional[Handler] = None
 
     def map(self, address: str, handler: Callable, *args: Union[Any, List[Any]],
             needs_reply_address: bool = False) -> Handler:

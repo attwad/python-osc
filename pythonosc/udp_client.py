@@ -68,12 +68,11 @@ class SimpleUDPClient(UDPClient):
         """
         builder = OscMessageBuilder(address=address)
         if value is None:
-            values = []
+            pass
         elif not isinstance(value, Iterable) or isinstance(value, (str, bytes)):
-            values = [value]
+            builder.add_arg(value)
         else:
-            values = value
-        for val in values:
-            builder.add_arg(val)
+            for val in value:
+                builder.add_arg(val)
         msg = builder.build()
         self.send(msg)

@@ -66,21 +66,21 @@ class TestOscMessage(unittest.TestCase):
         msg = osc_message.OscMessage(_DGRAM_SWITCH_GOES_OFF)
         self.assertEqual("/SYNC", msg.address)
         self.assertEqual(1, len(msg.params))
-        self.assertTrue(type(msg.params[0]) == float)
+        self.assertTrue(isinstance(msg.params[0], float))
         self.assertAlmostEqual(0.0, msg.params[0])
 
     def test_switch_goes_on(self):
         msg = osc_message.OscMessage(_DGRAM_SWITCH_GOES_ON)
         self.assertEqual("/SYNC", msg.address)
         self.assertEqual(1, len(msg.params))
-        self.assertTrue(type(msg.params[0]) == float)
+        self.assertTrue(isinstance(msg.params[0], float))
         self.assertAlmostEqual(0.5, msg.params[0])
 
     def test_knob_rotates(self):
         msg = osc_message.OscMessage(_DGRAM_KNOB_ROTATES)
         self.assertEqual("/FB", msg.address)
         self.assertEqual(1, len(msg.params))
-        self.assertTrue(type(msg.params[0]) == float)
+        self.assertTrue(isinstance(msg.params[0], float))
 
     def test_no_params(self):
         msg = osc_message.OscMessage(_DGRAM_NO_PARAMS)
@@ -126,7 +126,7 @@ class TestOscMessage(unittest.TestCase):
         msg = osc_message.OscMessage(_DGRAM_UNKNOWN_PARAM_TYPE)
         self.assertEqual("/SYNC", msg.address)
         self.assertEqual(1, len(msg.params))
-        self.assertTrue(type(msg.params[0]) == float)
+        self.assertTrue(isinstance(msg.params[0], float))
         self.assertAlmostEqual(0.5, msg.params[0])
 
     def test_raises_on_invalid_array(self):

@@ -25,7 +25,7 @@ class OscBundleBuilder(object):
                        seconds since the epoch in UTC or IMMEDIATELY.
         """
         self._timestamp = timestamp
-        self._contents = []  # type: List[osc_bundle.OscBundle]
+        self._contents: List[osc_bundle.OscBundle] = []
 
     def add_content(self, content: osc_bundle.OscBundle) -> None:
         """Add a new content to this bundle.
@@ -45,8 +45,8 @@ class OscBundleBuilder(object):
         try:
             dgram += osc_types.write_date(self._timestamp)
             for content in self._contents:
-                if (type(content) == osc_message.OscMessage
-                        or type(content) == osc_bundle.OscBundle):
+                if (isinstance(content, osc_message.OscMessage)
+                        or isinstance(content, osc_bundle.OscBundle)):
                     size = content.size
                     dgram += osc_types.write_int(size)
                     dgram += content.dgram

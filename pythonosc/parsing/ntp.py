@@ -41,10 +41,10 @@ def parse_timestamp(timestamp: int) -> Timestamp:
 def ntp_to_system_time(timestamp: bytes) -> float:
     """Convert a NTP timestamp to system time in seconds."""
     try:
-        timestamp = struct.unpack('>Q', timestamp)[0]
+        ts = struct.unpack('>Q', timestamp)[0]
     except Exception as e:
         raise NtpError(e)
-    return timestamp * _NTP_TIMESTAMP_TO_SECONDS - _NTP_DELTA
+    return ts * _NTP_TIMESTAMP_TO_SECONDS - _NTP_DELTA
 
 
 def system_time_to_ntp(seconds: float) -> bytes:
