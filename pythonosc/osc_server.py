@@ -55,7 +55,7 @@ class OSCUDPServer(socketserver.UDPServer):
         Args:
             server_address: IP and port of server
             dispatcher: Dispatcher this server will use
-            (optional) bind_and_activate: default=True defines if the server has to start on call of constructor  
+            (optional) bind_and_activate: default=True defines if the server has to start on call of constructor
         """
         super().__init__(server_address, _UDPHandler, bind_and_activate)
         self._dispatcher = dispatcher

@@ -7,7 +7,6 @@ import argparse
 import random
 import time
 
-from pythonosc import osc_message_builder
 from pythonosc import udp_client
 
 if __name__ == "__main__":

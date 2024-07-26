@@ -7,8 +7,10 @@ from typing import List, Tuple, Union, Any, Optional
 
 ArgValue = Union[str, bytes, bool, int, float, osc_types.MidiPacket, list]
 
+
 class BuildError(Exception):
     """Error raised when an incomplete message is trying to be built."""
+
 
 class OscMessageBuilder(object):
     """Builds arbitrary OscMessage instances."""
@@ -79,7 +81,7 @@ class OscMessageBuilder(object):
         if arg_type and not self._valid_type(arg_type):
             raise ValueError(
                 'arg_type must be one of {}, or an array of valid types'
-                    .format(self._SUPPORTED_ARG_TYPES))
+                .format(self._SUPPORTED_ARG_TYPES))
         if not arg_type:
             arg_type = self._get_arg_type(arg_value)
         if isinstance(arg_type, list):

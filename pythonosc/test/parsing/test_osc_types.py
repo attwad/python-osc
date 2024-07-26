@@ -125,7 +125,7 @@ class TestMidi(unittest.TestCase):
     def test_get_midi(self):
         cases = {
             b"\x00\x00\x00\x00": ((0, 0, 0, 0), 4),
-            b"\x00\x00\x00\x02": ((0, 0, 0, 1), 4),
+            b"\x00\x00\x00\x01": ((0, 0, 0, 1), 4),
             b"\x00\x00\x00\x02": ((0, 0, 0, 2), 4),
             b"\x00\x00\x00\x03": ((0, 0, 0, 3), 4),
 

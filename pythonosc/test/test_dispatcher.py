@@ -142,11 +142,11 @@ class TestDispatcher(unittest.TestCase):
         def dummyhandler():
             pass
 
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(ValueError):
             self.dispatcher.unmap("/unmap/exception", dummyhandler)
 
         handlerobj = self.dispatcher.map("/unmap/somethingelse", dummyhandler())
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(ValueError):
             self.dispatcher.unmap("/unmap/exception", handlerobj)
 
 

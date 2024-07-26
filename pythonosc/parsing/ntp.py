@@ -28,20 +28,18 @@ Timestamp = NamedTuple('Timestamp', [
 
 
 class NtpError(Exception):
-  """Base class for ntp module errors."""
+    """Base class for ntp module errors."""
 
 
 def parse_timestamp(timestamp: int) -> Timestamp:
-    """Parse NTP timestamp as Timetag.
-    """
+    """Parse NTP timestamp as Timetag."""
     seconds = timestamp >> 32
     fraction = timestamp & 0xFFFFFFFF
     return Timestamp(seconds, fraction)
 
 
 def ntp_to_system_time(timestamp: bytes) -> float:
-    """Convert a NTP timestamp to system time in seconds.
-    """
+    """Convert a NTP timestamp to system time in seconds."""
     try:
         timestamp = struct.unpack('>Q', timestamp)[0]
     except Exception as e:
@@ -50,22 +48,19 @@ def ntp_to_system_time(timestamp: bytes) -> float:
 
 
 def system_time_to_ntp(seconds: float) -> bytes:
-    """Convert a system time in seconds to NTP timestamp.
-    """
+    """Convert a system time in seconds to NTP timestamp."""
     try:
-      seconds = seconds + _NTP_DELTA
+        seconds = seconds + _NTP_DELTA
     except TypeError as e:
-      raise NtpError(e)
+        raise NtpError(e)
     return struct.pack('>Q', int(seconds * _SECONDS_TO_NTP_TIMESTAMP))
 
 
 def ntp_time_to_system_epoch(seconds: float) -> float:
-    """Convert a NTP time in seconds to system time in seconds.
-    """
+    """Convert a NTP time in seconds to system time in seconds."""
     return seconds - _NTP_DELTA
 
 
 def system_time_to_ntp_epoch(seconds: float) -> float:
-    """Convert a system time in seconds to NTP time in seconds.
-    """
+    """Convert a system time in seconds to NTP time in seconds."""
     return seconds + _NTP_DELTA

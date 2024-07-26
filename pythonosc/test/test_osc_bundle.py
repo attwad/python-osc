@@ -123,7 +123,7 @@ class TestOscBundle(unittest.TestCase):
             osc_bundle.ParseError, osc_bundle.OscBundle, _DGRAM_INVALID_INDEX)
 
     def test_unknown_type(self):
-        bundle = osc_bundle.OscBundle(_DGRAM_UNKNOWN_TYPE)
+        osc_bundle.OscBundle(_DGRAM_UNKNOWN_TYPE)
 
 
 if __name__ == "__main__":

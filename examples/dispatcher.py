@@ -1,5 +1,7 @@
 from pythonosc.dispatcher import Dispatcher
 from typing import List, Any
+from pythonosc.osc_server import BlockingOSCUDPServer
+from pythonosc.udp_client import SimpleUDPClient
 
 dispatcher = Dispatcher()
 
@@ -22,8 +24,6 @@ def set_filter(address: str, *args: List[Any]) -> None:
 dispatcher.map("/filter*", set_filter)  # Map wildcard address to set_filter function
 
 # Set up server and client for testing
-from pythonosc.osc_server import BlockingOSCUDPServer
-from pythonosc.udp_client import SimpleUDPClient
 
 server = BlockingOSCUDPServer(("127.0.0.1", 1337), dispatcher)
 client = SimpleUDPClient("127.0.0.1", 1337)

@@ -3,7 +3,7 @@
 import struct
 
 from pythonosc.parsing import ntp
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta
 
 from typing import Union, Tuple, cast
 
