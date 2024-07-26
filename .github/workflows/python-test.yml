@@ -5,15 +5,10 @@ name: Test
 
 permissions: read-all
 
-on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+on: [push, pull_request]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -40,3 +35,8 @@ jobs:
       run: mypy pythonosc examples
     - name: Test with pytest
       run: pytest
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: psf/black@stable
