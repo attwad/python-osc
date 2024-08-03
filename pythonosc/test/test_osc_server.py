@@ -1,8 +1,7 @@
 import unittest
 import unittest.mock
 
-from pythonosc import dispatcher
-from pythonosc import osc_server
+from pythonosc import dispatcher, osc_server
 
 _SIMPLE_PARAM_INT_MSG = b"/SYNC\x00\x00\x00" b",i\x00\x00" b"\x00\x00\x00\x04"
 
@@ -33,6 +32,7 @@ class TestUDPHandler(unittest.TestCase):
 
     def test_no_match(self):
         mock_meth = unittest.mock.MagicMock()
+        mock_meth.return_value = None
         self.dispatcher.map("/foobar", mock_meth)
         osc_server._UDPHandler(
             [_SIMPLE_PARAM_INT_MSG, None], self.client_address, self.server
@@ -41,6 +41,7 @@ class TestUDPHandler(unittest.TestCase):
 
     def test_match_with_args(self):
         mock_meth = unittest.mock.MagicMock()
+        mock_meth.return_value = None
         self.dispatcher.map("/SYNC", mock_meth, 1, 2, 3)
         osc_server._UDPHandler(
             [_SIMPLE_PARAM_INT_MSG, None], self.client_address, self.server
@@ -49,6 +50,7 @@ class TestUDPHandler(unittest.TestCase):
 
     def test_match_int9(self):
         mock_meth = unittest.mock.MagicMock()
+        mock_meth.return_value = None
         self.dispatcher.map("/debug", mock_meth)
         osc_server._UDPHandler(
             [_SIMPLE_PARAM_INT_9, None], self.client_address, self.server
@@ -58,6 +60,7 @@ class TestUDPHandler(unittest.TestCase):
 
     def test_match_without_args(self):
         mock_meth = unittest.mock.MagicMock()
+        mock_meth.return_value = None
         self.dispatcher.map("/SYNC", mock_meth)
         osc_server._UDPHandler(
             [_SIMPLE_MSG_NO_PARAMS, None], self.client_address, self.server
@@ -66,11 +69,47 @@ class TestUDPHandler(unittest.TestCase):
 
     def test_match_default_handler(self):
         mock_meth = unittest.mock.MagicMock()
+        mock_meth.return_value = None
         self.dispatcher.set_default_handler(mock_meth)
         osc_server._UDPHandler(
             [_SIMPLE_MSG_NO_PARAMS, None], self.client_address, self.server
         )
         mock_meth.assert_called_with("/SYNC")
+
+    def test_response_no_args(self):
+        def respond(*args, **kwargs):
+            return "/SYNC"
+
+        mock_sock = unittest.mock.Mock()
+        mock_sock.sendto = unittest.mock.Mock()
+        self.dispatcher.map("/SYNC", respond)
+        osc_server._UDPHandler(
+            (_SIMPLE_PARAM_INT_MSG, mock_sock), self.client_address, self.server
+        )
+        mock_sock.sendto.assert_called_with(
+            b"/SYNC\00\00\00,\00\00\00", ("127.0.0.1", 8080)
+        )
+
+    def test_response_with_args(self):
+        def respond(*args, **kwargs):
+            return (
+                "/SYNC",
+                1,
+                "2",
+                3.0,
+            )
+
+        self.dispatcher.map("/SYNC", respond)
+        mock_sock = unittest.mock.Mock()
+        mock_sock.sendto = unittest.mock.Mock()
+        self.dispatcher.map("/SYNC", respond)
+        osc_server._UDPHandler(
+            (_SIMPLE_PARAM_INT_MSG, mock_sock), self.client_address, self.server
+        )
+        mock_sock.sendto.assert_called_with(
+            b"/SYNC\00\00\00,isf\x00\x00\x00\x00\x00\x00\x00\x012\x00\x00\x00@@\x00\x00",
+            ("127.0.0.1", 8080),
+        )
 
 
 if __name__ == "__main__":

@@ -1,6 +1,3 @@
-# TODO: timeouts!
-
-
 """OSC Servers that receive TCP packets and invoke handlers accordingly.
 
 Use like this:
@@ -33,61 +30,21 @@ loop.run_forever()
 
 """
 
+# mypy: disable-error-code="attr-defined"
+
 import asyncio
-import inspect
 import logging
 import os
 import socketserver
 import struct
-import time
+from typing import List, Tuple
 
-from pythonosc import osc_message_builder, osc_packet, slip
+from pythonosc import osc_message_builder, slip
+from pythonosc.dispatcher import Dispatcher
 
 LOG = logging.getLogger()
 MODE_1_0 = "1.0"
 MODE_1_1 = "1.1"
-
-
-def _call_handlers_for_packet(data, dispatcher):
-    """
-    This function calls the handlers registered to the dispatcher for
-    every message it found in the packet.
-    The process/thread granularity is thus the OSC packet, not the handler.
-
-    If parameters were registered with the dispatcher, then the handlers are
-    called this way:
-      handler('/address that triggered the message',
-              registered_param_list, osc_msg_arg1, osc_msg_arg2, ...)
-    if no parameters were registered, then it is just called like this:
-      handler('/address that triggered the message',
-              osc_msg_arg1, osc_msg_arg2, osc_msg_param3, ...)
-    """
-
-    # Get OSC messages from all bundles or standalone message.
-    all_resp = []
-    try:
-        LOG.debug("_call_handlers_for_packet: data ", data)
-        packet = osc_packet.OscPacket(data)
-        for timed_msg in packet.messages:
-            now = time.time()
-            handlers = dispatcher.handlers_for_address(
-                timed_msg.message.address)
-            if not handlers:
-                continue
-            # If the message is to be handled later, then so be it.
-            if timed_msg.time > now:
-                time.sleep(timed_msg.time - now)
-            for handler in handlers:
-                if handler.args:
-                    resp = handler.callback(
-                        timed_msg.message.address, handler.args, *timed_msg.message)
-                else:
-                    resp = handler.callback(timed_msg.message.address, *timed_msg.message)
-                if resp:
-                    all_resp.append(resp)
-    except osc_packet.ParseError:
-        pass
-    return all_resp
 
 
 class _TCPHandler1_0(socketserver.BaseRequestHandler):
@@ -101,32 +58,35 @@ class _TCPHandler1_0(socketserver.BaseRequestHandler):
     if not the server won't even bother to call it and so no new
     threads/processes will be spawned.
     """
-    def handle(self):
+
+    def handle(self) -> None:
         LOG.debug("handle OSC 1.0 protocol")
         while True:
             lengthbuf = self.recvall(4)
-            if lengthbuf is None:
+            if lengthbuf == b"":
                 break
-            length, = struct.unpack('!I', lengthbuf)
+            (length,) = struct.unpack("!I", lengthbuf)
             data = self.recvall(length)
-            if data is None:
+            if data == b"":
                 break
 
-            resp = _call_handlers_for_packet(data, self.server.dispatcher)
+            resp = self.server.dispatcher.call_handlers_for_packet(
+                data, self.client_address
+            )
+            # resp = _call_handlers_for_packet(data, self.server.dispatcher)
             for r in resp:
-                if r is not None:
-                    if not isinstance(r, list):
-                        r = [r]
-                    msg = osc_message_builder.build_msg(r[0], r[1:])
-                    b = struct.pack('!I', len(msg.dgram))
-                    self.request.sendall(b + msg.dgram)
+                if not isinstance(r, list):
+                    r = [r]
+                msg = osc_message_builder.build_msg(r[0], r[1:])
+                b = struct.pack("!I", len(msg.dgram))
+                self.request.sendall(b + msg.dgram)
 
-    def recvall(self, count):
-        buf = b''
+    def recvall(self, count: int) -> bytes:
+        buf = b""
         while count > 0:
             newbuf = self.request.recv(count)
             if not newbuf:
-                return None
+                return b""
             buf += newbuf
             count -= len(newbuf)
         return buf
@@ -143,25 +103,29 @@ class _TCPHandler1_1(socketserver.BaseRequestHandler):
     if not the server won't even bother to call it and so no new
     threads/processes will be spawned.
     """
-    def handle(self):
+
+    def handle(self) -> None:
         LOG.debug("handle OSC 1.1 protocol")
         while True:
             packets = self.recvall()
-            if packets is None:
+            if not packets:
                 break
 
             for p in packets:
-                resp = _call_handlers_for_packet(p, self.server.dispatcher)
+                # resp = _call_handlers_for_packet(p, self.server.dispatcher)
+                resp = self.server.dispatcher.call_handlers_for_packet(
+                    p, self.client_address
+                )
                 for r in resp:
                     if not isinstance(r, list):
                         r = [r]
                     msg = osc_message_builder.build_msg(r[0], r[1:])
                     self.request.sendall(slip.encode(msg.dgram))
 
-    def recvall(self):
+    def recvall(self) -> List[bytes]:
         buf = self.request.recv(4096)
         if not buf:
-            return None
+            return []
         # If the last byte is not an END marker there could be more data coming
         while buf[-1] != 192:
             newbuf = self.request.recv(4096)
@@ -177,7 +141,12 @@ class _TCPHandler1_1(socketserver.BaseRequestHandler):
 class OSCTCPServer(socketserver.TCPServer):
     """Superclass for different flavors of OSCTCPServer"""
 
-    def __init__(self, server_address, dispatcher, mode: str = MODE_1_1):
+    def __init__(
+        self,
+        server_address: Tuple[str | bytes | bytearray, int],
+        dispatcher: Dispatcher,
+        mode: str = MODE_1_1,
+    ):
         self.request_queue_size = 300
         self.mode = mode
         if mode not in [MODE_1_0, MODE_1_1]:
@@ -187,12 +156,6 @@ class OSCTCPServer(socketserver.TCPServer):
         else:
             super().__init__(server_address, _TCPHandler1_1)
         self._dispatcher = dispatcher
-
-    def verify_request(self, request, client_address):
-        """Returns true if the data looks like a valid OSC TCP datagram."""
-        # d = request.recv(9999).decode("utf-8")
-        # print("d:type=%s d=%s" % (type(d), d))
-        return True
 
     @property
     def dispatcher(self):
@@ -218,6 +181,7 @@ class ThreadingOSCTCPServer(socketserver.ThreadingMixIn, OSCTCPServer):
 
 
 if hasattr(os, "fork"):
+
     class ForkingOSCTCPServer(socketserver.ForkingMixIn, OSCTCPServer):
         """Forking version of the OSC TCP server.
 
@@ -233,7 +197,13 @@ class AsyncOSCTCPServer:
     OSCTCPServer family of blocking, threading, and forking servers
     """
 
-    def __init__(self, server_address: str, port: int, dispatcher, mode: str = MODE_1_1):
+    def __init__(
+        self,
+        server_address: str,
+        port: int,
+        dispatcher: Dispatcher,
+        mode: str = MODE_1_1,
+    ):
         """
         :param server_address: tuple of (IP address to bind to, port)
         :param dispatcher: a pythonosc.dispatcher.Dispatcher
@@ -241,17 +211,7 @@ class AsyncOSCTCPServer:
         self._port = port
         self._server_address = server_address
         self._dispatcher = dispatcher
-        self._server = None
         self._mode = mode
-
-    # class _OSCProtocolFactory(asyncio.DatagramProtocol):
-    #     """OSC protocol factory which passes datagrams to _call_handlers_for_packet"""
-    #
-    #     def __init__(self, dispatcher):
-    #         self.dispatcher = dispatcher
-    #
-    #     def datagram_received(self, data, unused_addr):
-    #         _call_handlers_for_packet(data, self.dispatcher)
 
     async def __aenter__(self):
         return self
@@ -259,35 +219,49 @@ class AsyncOSCTCPServer:
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         await self.stop()
 
-    async def start(self):
+    async def start(self) -> None:
         """creates a socket endpoint and registers it with our event loop"""
         self._server = await asyncio.start_server(
-            self.handle, self._server_address, self._port)
+            self.handle, self._server_address, self._port
+        )
 
-        addrs = ', '.join(str(sock.getsockname()) for sock in self._server.sockets)
-        LOG.debug(f'Serving on {addrs}')
+        addrs = ", ".join(str(sock.getsockname()) for sock in self._server.sockets)
+        LOG.debug(f"Serving on {addrs}")
 
         async with self._server:
             await self._server.serve_forever()
 
-    async def stop(self):
-        await self._server.cancel()
+    async def stop(self) -> None:
+        self._server.close()
+        await self._server.wait_closed()
 
     @property
     def dispatcher(self):
         return self._dispatcher
 
-    async def handle(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
+    async def handle(
+        self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter
+    ) -> None:
+        client_address = ("", 0)
+        sock = writer.transport.get_extra_info("socket")
+        if sock is not None:
+            client_address = sock.getpeername()
+
         if self._mode == MODE_1_1:
-            await self.handle_1_1(reader, writer)
+            await self.handle_1_1(reader, writer, client_address)
         else:
-            await self.handle1_0(reader, writer)
+            await self.handle1_0(reader, writer, client_address)
         writer.write_eof()
         LOG.debug("Close the connection")
         writer.close()
         await writer.wait_closed()
 
-    async def handle1_0(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
+    async def handle1_0(
+        self,
+        reader: asyncio.StreamReader,
+        writer: asyncio.StreamWriter,
+        client_address: Tuple[str, int],
+    ) -> None:
         LOG.debug("Incoming socket open 1.0")
         while True:
             try:
@@ -295,10 +269,10 @@ class AsyncOSCTCPServer:
             except Exception as e:
                 LOG.exception("Read error", e)
                 return
-            if buf == b'':
+            if buf == b"":
                 break
-            length, = struct.unpack('!I', buf)
-            buf = b''
+            (length,) = struct.unpack("!I", buf)
+            buf = b""
             while length > 0:
                 newbuf = await reader.read(length)
                 if not newbuf:
@@ -306,17 +280,23 @@ class AsyncOSCTCPServer:
                 buf += newbuf
                 length -= len(newbuf)
 
-            result = await self._call_handlers_for_packet(buf)
+            result = await self.dispatcher.async_call_handlers_for_packet(
+                buf, client_address
+            )
             for r in result:
-                if r is not None:
-                    if not isinstance(r, list):
-                        r = [r]
-                    msg = osc_message_builder.build_msg(r[0], r[1:])
-                    b = struct.pack('!I', len(msg.dgram))
-                    writer.write(b + msg.dgram)
-                    await writer.drain()
+                if not isinstance(r, list):
+                    r = [r]
+                msg = osc_message_builder.build_msg(r[0], r[1:])
+                b = struct.pack("!I", len(msg.dgram))
+                writer.write(b + msg.dgram)
+                await writer.drain()
 
-    async def handle_1_1(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
+    async def handle_1_1(
+        self,
+        reader: asyncio.StreamReader,
+        writer: asyncio.StreamWriter,
+        client_address: Tuple[str, int],
+    ) -> None:
         LOG.debug("Incoming socket open 1.1")
         while True:
             try:
@@ -324,7 +304,7 @@ class AsyncOSCTCPServer:
             except Exception as e:
                 LOG.exception("Read error", e)
                 return
-            if buf == b'':
+            if buf == b"":
                 break
             while len(buf) > 0 and buf[-1] != 192:
                 newbuf = await reader.read(4096)
@@ -335,58 +315,12 @@ class AsyncOSCTCPServer:
 
             packets = [slip.decode(p) for p in buf.split(slip.END_END)]
             for p in packets:
-                result = await self._call_handlers_for_packet(p)
+                result = await self.dispatcher.async_call_handlers_for_packet(
+                    p, client_address
+                )
                 for r in result:
-                    if r is not None:
-                        if not isinstance(r, list):
-                            r = [r]
-                        msg = osc_message_builder.build_msg(r[0], r[1:])
-                        writer.write(slip.encode(msg.dgram))
-                        await writer.drain()
-
-    async def _call_handlers_for_packet(self, data) -> list:
-        """
-        This function calls the handlers registered to the dispatcher for
-        every message it found in the packet.
-        The process/thread granularity is thus the OSC packet, not the handler.
-
-        If parameters were registered with the dispatcher, then the handlers are
-        called this way:
-          handler('/address that triggered the message',
-                  registered_param_list, osc_msg_arg1, osc_msg_arg2, ...)
-        if no parameters were registered, then it is just called like this:
-          handler('/address that triggered the message',
-                  osc_msg_arg1, osc_msg_arg2, osc_msg_param3, ...)
-        """
-
-        # Get OSC messages from all bundles or standalone message.
-        results = []
-        try:
-            packet = osc_packet.OscPacket(data)
-            for timed_msg in packet.messages:
-                now = time.time()
-                handlers = self._dispatcher.handlers_for_address(
-                    timed_msg.message.address)
-                if not handlers:
-                    continue
-                # If the message is to be handled later, then so be it.
-                if timed_msg.time > now:
-                    time.sleep(timed_msg.time - now)
-                for handler in handlers:
-                    if inspect.iscoroutinefunction(handler.callback):
-                        if handler.args:
-                            result = await handler.callback(
-                                timed_msg.message.address, handler.args, *timed_msg.message)
-                        else:
-                            result = await handler.callback(timed_msg.message.address,
-                                                            *timed_msg.message)
-                    else:
-                        if handler.args:
-                            result = handler.callback(
-                                timed_msg.message.address, handler.args, *timed_msg.message)
-                        else:
-                            result = handler.callback(timed_msg.message.address, *timed_msg.message)
-                    results.append(result)
-        except osc_packet.ParseError as e:
-            LOG.debug(f"Packet parse error: {str(e)}")
-        return results
+                    if not isinstance(r, list):
+                        r = [r]
+                    msg = osc_message_builder.build_msg(r[0], r[1:])
+                    writer.write(slip.encode(msg.dgram))
+                    await writer.drain()

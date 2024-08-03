@@ -23,15 +23,20 @@ async def loop():
 
 async def init_main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--ip", default="127.0.0.1",
-                        help="The ip of the OSC server")
-    parser.add_argument("--port", type=int, default=5005,
-                        help="The port the OSC server is listening on")
-    parser.add_argument("--mode", default="1.1",
-                        help="The OSC protocol version of the server (default is 1.1)")
+    parser.add_argument("--ip", default="127.0.0.1", help="The ip of the OSC server")
+    parser.add_argument(
+        "--port", type=int, default=5005, help="The port the OSC server is listening on"
+    )
+    parser.add_argument(
+        "--mode",
+        default="1.1",
+        help="The OSC protocol version of the server (default is 1.1)",
+    )
     args = parser.parse_args()
 
-    async with AsyncOSCTCPServer(args.ip, args.port, dispatcher, mode=args.mode) as server:
+    async with AsyncOSCTCPServer(
+        args.ip, args.port, dispatcher, mode=args.mode
+    ) as server:
         async with asyncio.TaskGroup() as tg:
             tg.create_task(server.start())
             tg.create_task(loop())

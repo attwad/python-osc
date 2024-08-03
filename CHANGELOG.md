@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## [Unreleased]
 
+- Added TCP Client and Server support for OSC 1.0 and OSC 1.1 formats, with support for sending responses to the client
+- Added response support to the existing UDP Client and Server code
+
 ## [1.8.3]
 
 - Using trusted publisher setup to publish to pypi
