@@ -1,10 +1,9 @@
 """Build OSC messages for client applications."""
-from typing import Iterable
+
+from typing import Any, Iterable, List, Optional, Tuple, Union
 
 from pythonosc import osc_message
 from pythonosc.parsing import osc_types
-
-from typing import List, Tuple, Union, Any, Optional
 
 ArgValue = Union[str, bytes, bool, int, float, osc_types.MidiPacket, list]
 
@@ -198,9 +197,10 @@ class OscMessageBuilder(object):
             raise BuildError("Could not build the message: {}".format(be))
 
 
-def build_msg(address: str, value: ArgValue):
+def build_msg(address: str, value: ArgValue = "") -> osc_message.OscMessage:
     builder = OscMessageBuilder(address=address)
-    if value is None:
+    values: ArgValue
+    if value == "":
         values = []
     elif not isinstance(value, Iterable) or isinstance(value, (str, bytes)):
         values = [value]

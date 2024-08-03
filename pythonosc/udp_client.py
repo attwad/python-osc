@@ -8,12 +8,11 @@ else:
     from collections import Iterable
 
 import socket
-
-from .osc_message_builder import OscMessageBuilder, ArgValue
-from pythonosc.osc_message import OscMessage
-from pythonosc.osc_bundle import OscBundle
-
 from typing import Union
+
+from pythonosc.osc_bundle import OscBundle
+from pythonosc.osc_message import OscMessage
+from pythonosc.osc_message_builder import ArgValue, OscMessageBuilder
 
 
 class UDPClient(object):
@@ -75,6 +74,7 @@ class SimpleUDPClient(UDPClient):
             value: One or more arguments to be added to the message
         """
         builder = OscMessageBuilder(address=address)
+        values: ArgValue
         if value is None:
             pass
         elif not isinstance(value, Iterable) or isinstance(value, (str, bytes)):

@@ -4,6 +4,7 @@ This program listens for incoming messages in one task, and
 sends 10 random values between 0.0 and 1.0 to the /filter address,
 waiting for 1 seconds between each value in a second task.
 """
+
 import argparse
 import asyncio
 import random
@@ -27,18 +28,24 @@ async def send_messages(client):
 
 async def init_main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--ip", default="127.0.0.1",
-                        help="The ip of the OSC server")
-    parser.add_argument("--port", type=int, default=5005,
-                        help="The port the OSC server is listening on")
-    parser.add_argument("--mode", default="1.1",
-                        help="The OSC protocol version of the server (default is 1.1)")
+    parser.add_argument("--ip", default="127.0.0.1", help="The ip of the OSC server")
+    parser.add_argument(
+        "--port", type=int, default=5005, help="The port the OSC server is listening on"
+    )
+    parser.add_argument(
+        "--mode",
+        default="1.1",
+        help="The OSC protocol version of the server (default is 1.1)",
+    )
     args = parser.parse_args()
 
-    async with tcp_client.AsyncSimpleTCPClient(args.ip, args.port, mode=args.mode) as client:
+    async with tcp_client.AsyncSimpleTCPClient(
+        args.ip, args.port, mode=args.mode
+    ) as client:
         async with asyncio.TaskGroup() as tg:
             tg.create_task(get_messages(client))
             tg.create_task(send_messages(client))
+
 
 if sys.version_info >= (3, 7):
     asyncio.run(init_main())
