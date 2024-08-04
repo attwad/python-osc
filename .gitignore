@@ -58,3 +58,6 @@ bin/
 
 # PyBuilder
 target/
+
+# PyCharm
+.idea/
