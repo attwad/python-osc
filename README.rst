@@ -18,10 +18,12 @@ and is currently in a stable state.
 Features
 ========
 
-* UDP blocking/threading/forking/asyncio server implementations
-* UDP client
+* UDP and TCP blocking/threading/forking/asyncio server implementations
+* UDP and TCP clients, including asyncio support
+* TCP support for 1.0 and 1.1 protocol formats
 * int, int64, float, string, double, MIDI, timestamps, blob, nil OSC arguments
 * simple OSC address<->callback matching system
+* support for sending responses from callback handlers in client and server
 * extensive unit test coverage
 * basic client and server examples
 
