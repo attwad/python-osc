@@ -22,6 +22,9 @@ class OscMessage(object):
         self._parameters = []  # type: List[Any]
         self._parse_datagram()
 
+    def __str__(self):
+        return f"{self.address} {' '.join(str(p) for p in self.params)}"
+
     def _parse_datagram(self) -> None:
         try:
             self._address_regexp, index = osc_types.get_string(self._dgram, 0)

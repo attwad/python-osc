@@ -117,6 +117,18 @@ The handler must have the same signature as map callbacks:
     def some_callback(address: str, *osc_arguments: List[Any]) -> None:
 
 
+Handler Responses
+-----------------
+
+Handler functions can return responses back to the client, when running on a server, or to the
+server when running as a client.  Handler functions should return one of:
+
+* None
+* An OSC address in string format
+* A tuple containing a string OSC address and the associated arguments
+
+If the handler function response is not None it will be encoded in an OSCMessage and sent to the
+remote client or server.
 
 Dispatcher Module Documentation
 ---------------------------------

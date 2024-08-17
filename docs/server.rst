@@ -2,7 +2,7 @@ Server
 =========
 
 The server receives OSC Messages from connected clients and invoked the appropriate callback functions with the dispatcher. There are several server types available.
-
+Server implementations are available for both UDP and TCP protocols.
 
 Blocking Server
 -----------------
@@ -123,6 +123,11 @@ Server Module Documentation
 ------------------------------
 
 .. automodule:: pythonosc.osc_server
+  :special-members:
+  :members:
+  :exclude-members: __weakref__
+
+.. automodule:: pythonosc.osc_tcp_server
   :special-members:
   :members:
   :exclude-members: __weakref__

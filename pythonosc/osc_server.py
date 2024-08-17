@@ -4,15 +4,12 @@
 import asyncio
 import os
 import socketserver
-
-from pythonosc import osc_bundle
-from pythonosc import osc_message
-from pythonosc.dispatcher import Dispatcher
-
-from asyncio import BaseEventLoop
-
 from socket import socket as _socket
-from typing import Any, Tuple, Union, cast, Coroutine
+from typing import Any, Coroutine, Tuple, Union, cast
+
+from pythonosc import osc_bundle, osc_message
+from pythonosc.dispatcher import Dispatcher
+from pythonosc.osc_message_builder import build_msg
 
 _RequestType = Union[_socket, Tuple[bytes, _socket]]
 _AddressType = Union[Tuple[str, int], str]
@@ -20,6 +17,10 @@ _AddressType = Union[Tuple[str, int], str]
 
 class _UDPHandler(socketserver.BaseRequestHandler):
     """Handles correct UDP messages for all types of server."""
+
+    def __init__(self, request, client_address, server):
+        self.socket = request[1]
+        super().__init__(request, client_address, server)
 
     def handle(self) -> None:
         """Calls the handlers via dispatcher
@@ -30,7 +31,14 @@ class _UDPHandler(socketserver.BaseRequestHandler):
         threads/processes will be spawned.
         """
         server = cast(OSCUDPServer, self.server)
-        server.dispatcher.call_handlers_for_packet(self.request[0], self.client_address)
+        resp = server.dispatcher.call_handlers_for_packet(
+            self.request[0], self.client_address
+        )
+        for r in resp:
+            if not isinstance(r, tuple):
+                r = [r]
+            msg = build_msg(r[0], r[1:])
+            self.socket.sendto(msg.dgram, self.client_address)
 
 
 def _is_valid_request(request: _RequestType) -> bool:
@@ -124,7 +132,7 @@ class AsyncIOOSCUDPServer:
         self,
         server_address: Tuple[str, int],
         dispatcher: Dispatcher,
-        loop: BaseEventLoop,
+        loop: asyncio.BaseEventLoop,
     ) -> None:
         """Initialize
 
@@ -145,10 +153,18 @@ class AsyncIOOSCUDPServer:
         def __init__(self, dispatcher: Dispatcher) -> None:
             self.dispatcher = dispatcher
 
+        def connection_made(self, transport):
+            self.transport = transport
+
         def datagram_received(
             self, data: bytes, client_address: Tuple[str, int]
         ) -> None:
-            self.dispatcher.call_handlers_for_packet(data, client_address)
+            resp = self.dispatcher.call_handlers_for_packet(data, client_address)
+            for r in resp:
+                if not isinstance(r, tuple):
+                    r = [r]
+                msg = build_msg(r[0], r[1:])
+                self.transport.sendto(msg.dgram, client_address)
 
     def serve(self) -> None:
         """Creates a datagram endpoint and registers it with event loop.
