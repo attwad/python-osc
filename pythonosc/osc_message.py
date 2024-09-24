@@ -20,12 +20,12 @@ class OscMessage(object):
     def __init__(self, dgram: bytes) -> None:
         self._dgram = dgram
         self._parameters = []  # type: List[Any]
-        self._parse_datagram()
+        self._dgram_tail = self._parse_datagram()
 
     def __str__(self):
         return f"{self.address} {' '.join(str(p) for p in self.params)}"
 
-    def _parse_datagram(self) -> None:
+    def _parse_datagram(self) -> bytes|None:
         try:
             self._address_regexp, index = osc_types.get_string(self._dgram, 0)
             if not self._dgram[index:]:
@@ -91,6 +91,13 @@ class OscMessage(object):
             self._parameters = params
         except osc_types.ParseError as pe:
             raise ParseError("Found incorrect datagram, ignoring it", pe)
+
+        if index < len(self._dgram):
+            tail = self._dgram[index:]
+            self._dgram = self.dgram[0:index]
+            return tail
+
+        return
 
     @property
     def address(self) -> str:

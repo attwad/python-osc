@@ -68,7 +68,14 @@ class OscPacket(object):
                     key=lambda x: x.time,
                 )
             elif osc_message.OscMessage.dgram_is_message(dgram):
-                self._messages = [TimedMessage(now, osc_message.OscMessage(dgram))]
+                self._messages = []
+                while(True):
+                    msg = osc_message.OscMessage(dgram)
+                    self._messages.append(TimedMessage(now, msg))
+                    if msg._dgram_tail is None:
+                        break
+                    dgram = msg._dgram_tail
+
             else:
                 # Empty packet, should not happen as per the spec but heh, UDP...
                 raise ParseError(
