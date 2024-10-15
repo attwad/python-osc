@@ -90,9 +90,7 @@ class OscMessageBuilder(object):
         """
         if arg_type and not self._valid_type(arg_type):
             raise ValueError(
-                "arg_type must be one of {}, or an array of valid types".format(
-                    self._SUPPORTED_ARG_TYPES
-                )
+                f"arg_type must be one of {self._SUPPORTED_ARG_TYPES}, or an array of valid types"
             )
         if not arg_type:
             arg_type = self._get_arg_type(arg_value)
