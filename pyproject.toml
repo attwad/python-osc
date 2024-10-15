@@ -4,22 +4,22 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "python-osc"
-version="1.9.0"
-description="Open Sound Control server and client implementations in pure Python"
-readme="README.rst"
-requires-python=">=3.10"
-license = {file = "LICENSE.txt"}
+version = "1.9.0"
+description = "Open Sound Control server and client implementations in pure Python"
+readme = "README.rst"
+requires-python = ">=3.10"
+license = { file = "LICENSE.txt" }
 authors = [
-  {name = "attwad", email = "tmusoft@gmail.com"},
+    { name = "attwad", email = "tmusoft@gmail.com" },
 ]
 keywords = ["osc", "sound", "midi", "music"]
-classifiers=[
-    'Development Status :: 5 - Production/Stable',
-    'Intended Audience :: Developers',
-    'License :: Freely Distributable',
-    'Programming Language :: Python :: 3',
-    'Topic :: Multimedia :: Sound/Audio',
-    'Topic :: System :: Networking',
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: Freely Distributable",
+    "Programming Language :: Python :: 3",
+    "Topic :: Multimedia :: Sound/Audio",
+    "Topic :: System :: Networking",
 ]
 
 [project.urls]
@@ -37,7 +37,6 @@ disallow_subclassing_any = true
 disallow_incomplete_defs = true
 # check_untyped_defs = true
 disallow_untyped_decorators = true
-
 
 # # Would be great to turn these on eventually
 # no_implicit_optional = true
