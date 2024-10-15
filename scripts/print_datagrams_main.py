@@ -16,10 +16,10 @@ def main():
 def _PrintOscMessages(ip, port):
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.bind((ip, port))
-    print("Listening for UDP packets on {0}:{1} ...".format(ip, port))
+    print(f"Listening for UDP packets on {ip}:{port} ...")
     while True:
         data, _ = sock.recvfrom(1024)
-        print("%s" % data)
+        print(f"{data}")
 
 
 if __name__ == "__main__":

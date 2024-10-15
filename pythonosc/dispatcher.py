@@ -175,8 +175,7 @@ class Dispatcher(object):
         except ValueError as e:
             if str(e) == "list.remove(x): x not in list":
                 raise ValueError(
-                    "Address '%s' doesn't have handler '%s' mapped to it"
-                    % (address, handler)
+                    f"Address '{address}' doesn't have handler '{handler}' mapped to it"
                 ) from e
 
     def handlers_for_address(

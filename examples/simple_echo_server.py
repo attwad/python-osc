@@ -26,5 +26,5 @@ if __name__ == "__main__":
     dispatcher.set_default_handler(echo_handler, True)
 
     server = osc_server.ThreadingOSCUDPServer((args.ip, args.port), dispatcher)
-    print("Serving on {}".format(server.server_address))
+    print(f"Serving on {server.server_address}")
     server.serve_forever()

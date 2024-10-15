@@ -15,11 +15,11 @@ from pythonosc import osc_server
 
 
 def print_fader_handler(unused_addr, args, value):
-    print("[{0}] ~ {1:0.2f}".format(args[0], value))
+    print(f"[{args[0]}] ~ {value:0.2f}")
 
 
 def print_xy_fader_handler(unused_addr, args, value1, value2):
-    print("[{0}] ~ {1:0.2f} ~ {2:0.2f}".format(args[0], value2, value1))
+    print(f"[{args[0]}] ~ {value2:0.2f} ~ {value1:0.2f}")
 
 
 if __name__ == "__main__":
@@ -54,7 +54,7 @@ if __name__ == "__main__":
 def start_server(ip, port):
     print("Starting Server")
     server = osc_server.ThreadingOSCUDPServer((ip, port), dispatcher)
-    print("Serving on {}".format(server.server_address))
+    print(f"Serving on {server.server_address}")
     thread = threading.Thread(target=server.serve_forever)
     thread.start()
 

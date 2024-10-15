@@ -12,12 +12,12 @@ from pythonosc import osc_server
 
 
 def print_volume_handler(unused_addr, args, volume):
-    print("[{0}] ~ {1}".format(args[0], volume))
+    print(f"[{args[0]}] ~ {volume}")
 
 
 def print_compute_handler(unused_addr, args, volume):
     try:
-        print("[{0}] ~ {1}".format(args[0], args[1](volume)))
+        print(f"[{args[0]}] ~ {args[1](volume)}")
     except ValueError:
         pass
 
@@ -34,5 +34,5 @@ if __name__ == "__main__":
     dispatcher.map("/logvolume", print_compute_handler, "Log volume", math.log)
 
     server = osc_server.ThreadingOSCUDPServer((args.ip, args.port), dispatcher)
-    print("Serving on {}".format(server.server_address))
+    print(f"Serving on {server.server_address}")
     server.serve_forever()

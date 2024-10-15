@@ -76,7 +76,7 @@ class OscPacket(object):
                     "OscBundle."
                 )
         except (osc_bundle.ParseError, osc_message.ParseError) as pe:
-            raise ParseError("Could not parse packet %s" % pe)
+            raise ParseError(f"Could not parse packet {pe}")
 
     @property
     def messages(self) -> List[TimedMessage]:

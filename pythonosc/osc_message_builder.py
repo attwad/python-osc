@@ -188,13 +188,11 @@ class OscMessageBuilder(object):
                 ):
                     continue
                 else:
-                    raise BuildError(
-                        "Incorrect parameter type found {}".format(arg_type)
-                    )
+                    raise BuildError(f"Incorrect parameter type found {arg_type}")
 
             return osc_message.OscMessage(dgram)
         except osc_types.BuildError as be:
-            raise BuildError("Could not build the message: {}".format(be))
+            raise BuildError(f"Could not build the message: {be}")
 
 
 def build_msg(address: str, value: ArgValue = "") -> osc_message.OscMessage:

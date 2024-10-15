@@ -73,21 +73,17 @@ class OscMessage(object):
                 elif param == "]":  # Array stop.
                     if len(param_stack) < 2:
                         raise ParseError(
-                            "Unexpected closing bracket in type tag: {0}".format(
-                                type_tag
-                            )
+                            f"Unexpected closing bracket in type tag: {type_tag}"
                         )
                     param_stack.pop()
                 # TODO: Support more exotic types as described in the specification.
                 else:
-                    logging.warning("Unhandled parameter type: {0}".format(param))
+                    logging.warning(f"Unhandled parameter type: {param}")
                     continue
                 if param not in "[]":
                     param_stack[-1].append(val)
             if len(param_stack) != 1:
-                raise ParseError(
-                    "Missing closing bracket in type tag: {0}".format(type_tag)
-                )
+                raise ParseError(f"Missing closing bracket in type tag: {type_tag}")
             self._parameters = params
         except osc_types.ParseError as pe:
             raise ParseError("Found incorrect datagram, ignoring it", pe)
