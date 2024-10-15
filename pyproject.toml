@@ -1,21 +1,58 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "python-osc"
-version="1.9.0"
-description="Open Sound Control server and client implementations in pure Python"
-readme="README.rst"
-requires-python=">=3.10"
-license = {file = "LICENSE.txt"}
+version = "1.9.0"
+description = "Open Sound Control server and client implementations in pure Python"
+readme = "README.rst"
+requires-python = ">=3.10"
+license = { file = "LICENSE.txt" }
 authors = [
-  {name = "attwad", email = "tmusoft@gmail.com"},
+    { name = "attwad", email = "tmusoft@gmail.com" },
 ]
 keywords = ["osc", "sound", "midi", "music"]
-classifiers=[
-    'Development Status :: 5 - Production/Stable',
-    'Intended Audience :: Developers',
-    'License :: Freely Distributable',
-    'Programming Language :: Python :: 3',
-    'Topic :: Multimedia :: Sound/Audio',
-    'Topic :: System :: Networking',
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: Freely Distributable",
+    "Programming Language :: Python :: 3",
+    "Topic :: Multimedia :: Sound/Audio",
+    "Topic :: System :: Networking",
 ]
+
 [project.urls]
 Repository = "https://github.com/attwad/python-osc"
+
+[tool.mypy]
+# Would be great to turn this on, however there's too many cases it would break
+# right now.
+# disallow_any_generics = true
+
+disallow_subclassing_any = true
+
+# Allow functions _without_ type annotations, but require that annotations be
+# complete (possibly including the `Any` type) where they are present.
+disallow_incomplete_defs = true
+# check_untyped_defs = true
+disallow_untyped_decorators = true
+
+# # Would be great to turn these on eventually
+# no_implicit_optional = true
+# strict_optional = true
+
+warn_redundant_casts = true
+warn_unused_ignores = true
+show_error_codes = true
+# # Would be great to turn this on eventually
+# # warn_return_any = true
+# warn_unreachable = true
+
+# implicit_reexport = False
+# strict_equality = true
+
+scripts_are_modules = true
+warn_unused_configs = true
+
+enable_error_code = "ignore-without-code"
