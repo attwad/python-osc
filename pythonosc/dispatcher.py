@@ -201,7 +201,7 @@ class Dispatcher(object):
         pattern = pattern.replace("\\*", "[\\w|\\+]*")
         # The rest of the syntax in the specification is like the re module so
         # we're fine.
-        pattern = pattern + "$"
+        pattern = f"{pattern}$"
         patterncompiled = re.compile(pattern)
         matched = False
 

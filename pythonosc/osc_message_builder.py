@@ -161,7 +161,7 @@ class OscMessageBuilder(object):
 
             # Write the parameters.
             arg_types = "".join([arg[0] for arg in self._args])
-            dgram += osc_types.write_string("," + arg_types)
+            dgram += osc_types.write_string(f",{arg_types}")
             for arg_type, value in self._args:
                 if arg_type == self.ARG_TYPE_STRING:
                     dgram += osc_types.write_string(value)  # type: ignore[arg-type]
