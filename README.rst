@@ -148,7 +148,8 @@ Building bundles
     # The bundle has 5 elements in total now.
 
     bundle = bundle.build()
-    # You can now send it via a client as described in other examples.
+    # You can now send it via a client with the `.send()` method:
+    client.send(bundle)
 
 License?
 ========
