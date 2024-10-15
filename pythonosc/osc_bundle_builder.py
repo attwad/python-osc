@@ -53,9 +53,8 @@ class OscBundleBuilder(object):
                     dgram += content.dgram
                 else:
                     raise BuildError(
-                        "Content must be either OscBundle or OscMessage"
-                        "found {}".format(type(content))
+                        f"Content must be either OscBundle or OscMessage, found {type(content)}"
                     )
             return osc_bundle.OscBundle(dgram)
         except osc_types.BuildError as be:
-            raise BuildError("Could not build the bundle {}".format(be))
+            raise BuildError(f"Could not build the bundle {be}")

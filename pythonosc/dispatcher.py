@@ -175,8 +175,7 @@ class Dispatcher(object):
         except ValueError as e:
             if str(e) == "list.remove(x): x not in list":
                 raise ValueError(
-                    "Address '%s' doesn't have handler '%s' mapped to it"
-                    % (address, handler)
+                    f"Address '{address}' doesn't have handler '{handler}' mapped to it"
                 ) from e
 
     def handlers_for_address(
@@ -202,7 +201,7 @@ class Dispatcher(object):
         pattern = pattern.replace("\\*", "[\\w|\\+]*")
         # The rest of the syntax in the specification is like the re module so
         # we're fine.
-        pattern = pattern + "$"
+        pattern = f"{pattern}$"
         patterncompiled = re.compile(pattern)
         matched = False
 
