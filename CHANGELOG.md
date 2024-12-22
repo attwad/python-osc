@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## [Unreleased]
 
+## [1.9.2]
+
+- Reinstate mistakenly deleted package type annotations on main branch
+
 ## [1.9.1]
 
 - Reinstate mistakenly deleted package type annotations
