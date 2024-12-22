@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## [Unreleased]
 
+## [1.9.1]
+
+- Reinstate mistakenly deleted package type annotations
+
 ## [1.9.0]
 
 - Added TCP Client and Server support for OSC 1.0 and OSC 1.1 formats, with support for sending responses to the client
