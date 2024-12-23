@@ -38,3 +38,26 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: psf/black@stable
+
+  check-types-published:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          pip install build
+          python -m build --sdist --wheel
+
+          temp=$(mktemp -d)
+
+          python -m venv $temp/venv
+          source $temp/venv/bin/activate
+
+          pip install mypy ./dist/*whl
+
+          cd $temp
+
+          echo 'import pythonosc' > demo.py
+          mypy demo.py
