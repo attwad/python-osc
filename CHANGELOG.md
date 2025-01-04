@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## [Unreleased]
 
+- Fixed TPC dispatcher type annotations
+
 ## [1.9.3]
 
 - Reinstate mistakenly deleted package type annotations on main branch (again)
