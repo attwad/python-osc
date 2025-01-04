@@ -95,12 +95,12 @@ class TestTCP_1_1_Handler(unittest.TestCase):
 
     def test_response_with_args(self):
         def respond(*args, **kwargs):
-            return [
+            return (
                 "/SYNC",
                 1,
                 "2",
                 3.0,
-            ]
+            )
 
         self.dispatcher.map("/SYNC", respond)
         mock_sock = mock.Mock()
@@ -208,12 +208,12 @@ class TestTCP_1_0_Handler(unittest.TestCase):
 
     def test_response_with_args(self):
         def respond(*args, **kwargs):
-            return [
+            return (
                 "/SYNC",
                 1,
                 "2",
                 3.0,
-            ]
+            )
 
         self.dispatcher.map("/SYNC", respond)
         mock_sock = mock.Mock()
@@ -314,12 +314,12 @@ class TestAsync1_1Handler(unittest.IsolatedAsyncioTestCase):
 
     async def test_response_with_args(self):
         def respond(*args, **kwargs):
-            return [
+            return (
                 "/SYNC",
                 1,
                 "2",
                 3.0,
-            ]
+            )
 
         self.dispatcher.map("/SYNC", respond)
         self.mock_reader.read.side_effect = [_SIMPLE_MSG_NO_PARAMS_1_1, b""]
@@ -332,12 +332,12 @@ class TestAsync1_1Handler(unittest.IsolatedAsyncioTestCase):
 
     async def test_async_response_with_args(self):
         async def respond(*args, **kwargs):
-            return [
+            return (
                 "/SYNC",
                 1,
                 "2",
                 3.0,
-            ]
+            )
 
         self.dispatcher.map("/SYNC", respond)
         self.mock_reader.read.side_effect = [_SIMPLE_MSG_NO_PARAMS_1_1, b""]

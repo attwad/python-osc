@@ -75,7 +75,7 @@ class _TCPHandler1_0(socketserver.BaseRequestHandler):
             )
             # resp = _call_handlers_for_packet(data, self.server.dispatcher)
             for r in resp:
-                if not isinstance(r, list):
+                if not isinstance(r, tuple):
                     r = [r]
                 msg = osc_message_builder.build_msg(r[0], r[1:])
                 b = struct.pack("!I", len(msg.dgram))
@@ -117,7 +117,7 @@ class _TCPHandler1_1(socketserver.BaseRequestHandler):
                     p, self.client_address
                 )
                 for r in resp:
-                    if not isinstance(r, list):
+                    if not isinstance(r, tuple):
                         r = [r]
                     msg = osc_message_builder.build_msg(r[0], r[1:])
                     self.request.sendall(slip.encode(msg.dgram))
@@ -284,7 +284,7 @@ class AsyncOSCTCPServer:
                 buf, client_address
             )
             for r in result:
-                if not isinstance(r, list):
+                if not isinstance(r, tuple):
                     r = [r]
                 msg = osc_message_builder.build_msg(r[0], r[1:])
                 b = struct.pack("!I", len(msg.dgram))
@@ -319,7 +319,7 @@ class AsyncOSCTCPServer:
                     p, client_address
                 )
                 for r in result:
-                    if not isinstance(r, list):
+                    if not isinstance(r, tuple):
                         r = [r]
                     msg = osc_message_builder.build_msg(r[0], r[1:])
                     writer.write(slip.encode(msg.dgram))
