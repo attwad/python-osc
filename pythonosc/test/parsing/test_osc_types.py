@@ -85,10 +85,10 @@ class TestRGBA(unittest.TestCase):
             b"\x00\x00\x00\x01": (1, 4),
             b"\x00\x00\x00\x02": (2, 4),
             b"\x00\x00\x00\x03": (3, 4),
-            b"\xFF\x00\x00\x00": (4278190080, 4),
-            b"\x00\xFF\x00\x00": (16711680, 4),
-            b"\x00\x00\xFF\x00": (65280, 4),
-            b"\x00\x00\x00\xFF": (255, 4),
+            b"\xff\x00\x00\x00": (4278190080, 4),
+            b"\x00\xff\x00\x00": (16711680, 4),
+            b"\x00\x00\xff\x00": (65280, 4),
+            b"\x00\x00\x00\xff": (255, 4),
             b"\x00\x00\x00\x01GARBAGE": (1, 4),
         }
 
@@ -164,7 +164,7 @@ class TestDate(unittest.TestCase):
                 (datetime(1900, 1, 1, 0, 0, 0), 0),
                 8,
             ),
-            b"\x83\xaa\x7E\x80\x0A\x00\xB0\x0C": (
+            b"\x83\xaa\x7e\x80\x0a\x00\xb0\x0c": (
                 (datetime(1970, 1, 1, 0, 0, 0), 167817228),
                 8,
             ),

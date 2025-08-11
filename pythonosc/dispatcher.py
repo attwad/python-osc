@@ -1,5 +1,4 @@
-"""Maps OSC addresses to handler functions
-"""
+"""Maps OSC addresses to handler functions"""
 
 import collections
 import inspect

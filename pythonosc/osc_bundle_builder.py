@@ -25,9 +25,11 @@ class OscBundleBuilder(object):
                        seconds since the epoch in UTC or IMMEDIATELY.
         """
         self._timestamp = timestamp
-        self._contents: List[osc_bundle.OscBundle] = []
+        self._contents: List[osc_bundle.OscBundle | osc_message.OscMessage] = []
 
-    def add_content(self, content: osc_bundle.OscBundle) -> None:
+    def add_content(
+        self, content: osc_bundle.OscBundle | osc_message.OscMessage
+    ) -> None:
         """Add a new content to this bundle.
 
         Args:

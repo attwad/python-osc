@@ -1,5 +1,4 @@
-"""OSC Servers that receive UDP packets and invoke handlers accordingly.
-"""
+"""OSC Servers that receive UDP packets and invoke handlers accordingly."""
 
 import asyncio
 import os

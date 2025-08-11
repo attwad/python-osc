@@ -96,7 +96,7 @@ class OscMessageBuilder(object):
             arg_type = self._get_arg_type(arg_value)
         if isinstance(arg_type, list):
             self._args.append((self.ARG_TYPE_ARRAY_START, None))
-            for v, t in zip(arg_value, arg_type):  # type: ignore[var-annotated, arg-type]
+            for v, t in zip(arg_value, arg_type):  # type: ignore[arg-type]
                 self.add_arg(v, t)
             self._args.append((self.ARG_TYPE_ARRAY_STOP, None))
         else:
