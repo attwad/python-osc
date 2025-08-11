@@ -28,7 +28,7 @@ class OscBundleBuilder(object):
         self._contents: List[osc_bundle.OscBundle | osc_message.OscMessage] = []
 
     def add_content(
-            self, content: osc_bundle.OscBundle | osc_message.OscMessage
+        self, content: osc_bundle.OscBundle | osc_message.OscMessage
     ) -> None:
         """Add a new content to this bundle.
 
