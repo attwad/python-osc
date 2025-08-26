@@ -5,7 +5,7 @@ from typing import Any, Iterable, List, Optional, Tuple, Union
 from pythonosc import osc_message
 from pythonosc.parsing import osc_types
 
-ArgValue = Union[str, bytes, bool, int, float, osc_types.MidiPacket, list]
+ArgValue = Union[str, bytes, bool, int, float, osc_types.MidiPacket, list, None]
 
 
 class BuildError(Exception):
