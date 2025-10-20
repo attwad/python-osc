@@ -121,6 +121,7 @@ class SimpleTCPClient(TCPClient):
                 yield OscMessage(m)
             r = self.receive(timeout)
 
+
 class TCPDispatchClient(SimpleTCPClient):
     """OSC TCP Client that includes a :class:`Dispatcher` for handling responses and other messages from the server"""
 
@@ -138,7 +139,6 @@ class TCPDispatchClient(SimpleTCPClient):
             for m in r:
                 self.dispatcher.call_handlers_for_packet(m, (self.address, self.port))
                 r = self.receive(timeout)
-
 
 
 class AsyncTCPClient:
