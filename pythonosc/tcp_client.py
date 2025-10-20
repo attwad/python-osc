@@ -122,7 +122,7 @@ class SimpleTCPClient(TCPClient):
             r = self.receive(timeout)
 
 class TCPDispatchClient(SimpleTCPClient):
-    """OSC Client that includes a :class:`Dispatcher` for handling responses and other messages from the server"""
+    """OSC TCP Client that includes a :class:`Dispatcher` for handling responses and other messages from the server"""
 
     dispatcher = Dispatcher()
 
