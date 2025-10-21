@@ -5,6 +5,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## [Unreleased]
 
+- Added TCPDispatchClient to tcp_client
 - Fixed TPC dispatcher type annotations
 
 ## [1.9.3]
