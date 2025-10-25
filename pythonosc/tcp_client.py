@@ -122,6 +122,25 @@ class SimpleTCPClient(TCPClient):
             r = self.receive(timeout)
 
 
+class TCPDispatchClient(SimpleTCPClient):
+    """OSC TCP Client that includes a :class:`Dispatcher` for handling responses and other messages from the server"""
+
+    dispatcher = Dispatcher()
+
+    def handle_messages(self, timeout_sec: int = 30) -> None:
+        """Wait :int:`timeout` seconds for a message from the server and process each message with the registered
+        handlers.  Continue until a timeout occurs.
+
+        Args:
+            timeout: Time in seconds to wait for a message
+        """
+        r = self.receive(timeout_sec)
+        while r:
+            for m in r:
+                self.dispatcher.call_handlers_for_packet(m, (self.address, self.port))
+            r = self.receive(timeout_sec)
+
+
 class AsyncTCPClient:
     """Async OSC client to send :class:`OscMessage` or :class:`OscBundle` via TCP"""
 
