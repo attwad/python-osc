@@ -17,7 +17,7 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@v7
         with:
-          python-version: "3.x"
+          python-version: "3.12"
       - name: Build a binary wheel and a source tarball
         run: uv build
       - name: Publish distribution 📦 to PyPI
