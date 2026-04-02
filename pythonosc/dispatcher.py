@@ -240,8 +240,8 @@ class Dispatcher(object):
         matched = False
         for addr, handlers in self._map.items():
             if patterncompiled.match(addr) or (
-                ("*" in addr)
-                and re.match(addr.replace("*", "[^/]*?/*"), address_pattern)
+                "*" in addr
+                and re.match(addr.replace("*", ".*?") + "$", address_pattern)
             ):
                 yield from handlers
                 matched = True

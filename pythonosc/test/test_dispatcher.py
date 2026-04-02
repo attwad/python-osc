@@ -181,6 +181,17 @@ class TestDispatcher(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.dispatcher.unmap("/unmap/exception", handlerobj)
 
+    def test_handlers_for_address_wildcard_no_partial_match(self):
+        self.dispatcher.map("/qwer/*/zxcv", 1)
+        # Should not match
+        handlers = list(
+            self.dispatcher.handlers_for_address("/qwer/whatever/zxcvsomethingmore")
+        )
+        self.assertEqual(len(handlers), 0)
+        # Should match
+        handlers = list(self.dispatcher.handlers_for_address("/qwer/whatever/zxcv"))
+        self.assertEqual(len(handlers), 1)
+
 
 if __name__ == "__main__":
     unittest.main()
