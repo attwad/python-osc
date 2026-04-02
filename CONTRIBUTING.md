@@ -7,6 +7,7 @@ TL;DR:
 -  Provide type annotations with mypy (`uv run mypy pythonosc examples`)
 -  Write and run tests with pytest (`uv run pytest`)
 -  Use [uv](https://docs.astral.sh/uv/) for package management and environment isolation
+-  Install and use [pre-commit](https://pre-commit.com/) to automatically run ruff before each commit (`uv run pre-commit install`)
 -  If you're adding a new feature, mention it in the [CHANGELOG.md](CHANGELOG.md) file under the _Unreleased_ section
 
 Please only send the PR once all of the above is done, thanks!

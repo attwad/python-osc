@@ -32,6 +32,7 @@ dev = [
     "mypy",
     "ruff",
     "pytest-cov",
+    "pre-commit",
 ]
 
 [tool.uv.build-backend]
