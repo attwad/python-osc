@@ -3,7 +3,7 @@ import unittest.mock
 
 from pythonosc import dispatcher, osc_server
 
-_SIMPLE_PARAM_INT_MSG = b"/SYNC\x00\x00\x00" b",i\x00\x00" b"\x00\x00\x00\x04"
+_SIMPLE_PARAM_INT_MSG = b"/SYNC\x00\x00\x00,i\x00\x00\x00\x00\x00\x04"
 
 # Regression test for a datagram that should NOT be stripped, ever...
 _SIMPLE_PARAM_INT_9 = b"/debug\x00\x00,i\x00\x00\x00\x00\x00\t"

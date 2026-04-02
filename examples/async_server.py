@@ -24,7 +24,10 @@ async def loop():
 
 async def init_main():
     server = AsyncIOOSCUDPServer((ip, port), dispatcher, asyncio.get_event_loop())
-    transport, protocol = (
+    (
+        transport,
+        protocol,
+    ) = (
         await server.create_serve_endpoint()
     )  # Create datagram endpoint and start serving
 

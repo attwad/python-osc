@@ -72,8 +72,7 @@ class OscPacket(object):
             else:
                 # Empty packet, should not happen as per the spec but heh, UDP...
                 raise ParseError(
-                    "OSC Packet should at least contain an OscMessage or an "
-                    "OscBundle."
+                    "OSC Packet should at least contain an OscMessage or an OscBundle."
                 )
         except (osc_bundle.ParseError, osc_message.ParseError) as pe:
             raise ParseError(f"Could not parse packet {pe}")

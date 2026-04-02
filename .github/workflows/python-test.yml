@@ -17,47 +17,42 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
+    - name: Set up uv
+      uses: astral-sh/setup-uv@v5
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install flake8 pytest mypy
-    - name: Lint with flake8
+      run: uv sync --group dev
+    - name: Lint with ruff
       run: |
         # stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        uv run ruff check .
     - name: Check with mypy
-      run: mypy pythonosc examples
+      run: uv run mypy pythonosc examples
     - name: Test with pytest
-      run: pytest
+      run: uv run pytest
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: psf/black@stable
+      - uses: actions/checkout@v4
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+      - name: Run ruff format
+        run: uv run ruff format --check .
 
   check-types-published:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
         with:
           python-version: '3.12'
-      - run: |
-          pip install build
-          python -m build --sdist --wheel
-
+      - name: Build package
+        run: uv build
+      - name: Verify package installation and types
+        run: |
           temp=$(mktemp -d)
-
-          python -m venv $temp/venv
-          source $temp/venv/bin/activate
-
-          pip install mypy ./dist/*whl
-
-          cd $temp
-
-          echo 'import pythonosc' > demo.py
-          mypy demo.py
+          uv run --with mypy --with ./dist/*.whl --no-project -- python -c "import pythonosc"
+          echo 'import pythonosc' > $temp/demo.py
+          uv run --with mypy --with ./dist/*.whl --no-project -- mypy $temp/demo.py

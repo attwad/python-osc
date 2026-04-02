@@ -17,7 +17,7 @@ _DGRAM_TWO_MESSAGES_IN_BUNDLE = (
     b"?\x00\x00\x00"
 )
 
-_DGRAM_EMPTY_BUNDLE = b"#bundle\x00" b"\x00\x00\x00\x00\x00\x00\x00\x01"
+_DGRAM_EMPTY_BUNDLE = b"#bundle\x00\x00\x00\x00\x00\x00\x00\x00\x01"
 
 _DGRAM_NESTED_MESS = (
     b"#bundle\x00"

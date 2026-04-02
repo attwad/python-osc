@@ -5,7 +5,7 @@ import unittest.mock as mock
 from pythonosc import dispatcher, osc_tcp_server
 from pythonosc.slip import END
 
-_SIMPLE_PARAM_INT_MSG = b"/SYNC\x00\x00\x00" b",i\x00\x00" b"\x00\x00\x00\x04"
+_SIMPLE_PARAM_INT_MSG = b"/SYNC\x00\x00\x00,i\x00\x00\x00\x00\x00\x04"
 
 LEN_SIMPLE_PARAM_INT_MSG = struct.pack("!I", len(_SIMPLE_PARAM_INT_MSG))
 _SIMPLE_PARAM_INT_MSG_1_1 = END + _SIMPLE_PARAM_INT_MSG + END

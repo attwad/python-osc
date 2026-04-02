@@ -1,6 +1,6 @@
 [build-system]
-requires = ["setuptools"]
-build-backend = "setuptools.build_meta"
+requires = ["uv-build"]
+build-backend = "uv_build"
 
 [project]
 name = "python-osc"
@@ -21,9 +21,22 @@ classifiers = [
     "Topic :: Multimedia :: Sound/Audio",
     "Topic :: System :: Networking",
 ]
+dependencies = []
 
 [project.urls]
 Repository = "https://github.com/attwad/python-osc"
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "mypy",
+    "ruff",
+    "pytest-cov",
+]
+
+[tool.uv.build-backend]
+module-name = "pythonosc"
+module-root = "."
 
 [tool.mypy]
 # Would be great to turn this on, however there's too many cases it would break
