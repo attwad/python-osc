@@ -72,9 +72,9 @@ class OscMessageBuilder(object):
         """Returns the (type, value) arguments list of this message."""
         return self._args
 
-    def _valid_type(self, arg_type: str) -> bool:
-        if arg_type in self._SUPPORTED_ARG_TYPES:
-            return True
+    def _valid_type(self, arg_type: Union[str, List[Any]]) -> bool:
+        if isinstance(arg_type, str):
+            return arg_type in self._SUPPORTED_ARG_TYPES
         elif isinstance(arg_type, list):
             for sub_type in arg_type:
                 if not self._valid_type(sub_type):
@@ -82,7 +82,9 @@ class OscMessageBuilder(object):
             return True
         return False
 
-    def add_arg(self, arg_value: ArgValue, arg_type: Optional[str] = None) -> None:
+    def add_arg(
+        self, arg_value: ArgValue, arg_type: Optional[Union[str, List[Any]]] = None
+    ) -> None:
         """Add a typed argument to this message.
 
         Args:
@@ -100,7 +102,7 @@ class OscMessageBuilder(object):
             arg_type = self._get_arg_type(arg_value)
         if isinstance(arg_type, list):
             self._args.append((self.ARG_TYPE_ARRAY_START, None))
-            for v, t in zip(arg_value, arg_type):  # type: ignore[arg-type, var-annotated]
+            for v, t in zip(arg_value, arg_type):  # type: ignore[arg-type]
                 self.add_arg(v, t)
             self._args.append((self.ARG_TYPE_ARRAY_STOP, None))
         else:

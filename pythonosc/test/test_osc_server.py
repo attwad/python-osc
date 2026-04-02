@@ -1,3 +1,4 @@
+import socket
 import unittest
 import unittest.mock
 
@@ -118,6 +119,21 @@ class TestOscUdpServer(unittest.TestCase):
         dispatcher = unittest.mock.Mock()
         server = osc_server.OSCUDPServer(("127.0.0.1", 0), dispatcher, timeout=10.0)
         self.assertEqual(server.timeout, 10.0)
+
+    @unittest.mock.patch("socket.socket")
+    def test_init_family_inference_ipv4(self, mock_socket_ctor):
+        dispatcher = unittest.mock.Mock()
+        server = osc_server.OSCUDPServer(("127.0.0.1", 0), dispatcher)
+        self.assertEqual(server.address_family, socket.AF_INET)
+
+    @unittest.mock.patch("socket.socket")
+    def test_init_family_inference_ipv6(self, mock_socket_ctor):
+        dispatcher = unittest.mock.Mock()
+        # Mock getaddrinfo to return IPv6 for this test to be environment-independent
+        with unittest.mock.patch("socket.getaddrinfo") as mock_getaddrinfo:
+            mock_getaddrinfo.return_value = [(socket.AF_INET6, None, None, None, None)]
+            server = osc_server.OSCUDPServer(("::1", 0), dispatcher)
+            self.assertEqual(server.address_family, socket.AF_INET6)
 
 
 if __name__ == "__main__":

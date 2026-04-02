@@ -35,6 +35,7 @@ loop.run_forever()
 import asyncio
 import logging
 import os
+import socket
 import socketserver
 import struct
 from typing import List, Tuple
@@ -146,11 +147,30 @@ class OSCTCPServer(socketserver.TCPServer):
         server_address: Tuple[str | bytes | bytearray, int],
         dispatcher: Dispatcher,
         mode: str = MODE_1_1,
+        family: socket.AddressFamily | None = None,
     ):
         self.request_queue_size = 300
         self.mode = mode
         if mode not in [MODE_1_0, MODE_1_1]:
             raise ValueError("OSC Mode must be '1.0' or '1.1'")
+
+        if family is not None:
+            self.address_family = family
+        elif isinstance(server_address[0], str):
+            # Try to infer address family from server_address
+            try:
+                infos = socket.getaddrinfo(
+                    server_address[0],
+                    server_address[1],
+                    type=socket.SOCK_STREAM,
+                    family=socket.AF_UNSPEC,
+                )
+                if infos:
+                    self.address_family = infos[0][0]
+            except (socket.gaierror, IndexError):
+                # Fallback to default if resolution fails
+                pass
+
         if self.mode == MODE_1_0:
             super().__init__(server_address, _TCPHandler1_0)
         else:

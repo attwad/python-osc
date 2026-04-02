@@ -2,6 +2,7 @@
 
 import asyncio
 import os
+import socket
 import socketserver
 from socket import socket as _socket
 from typing import Any, Coroutine, Tuple, Union, cast
@@ -64,6 +65,7 @@ class OSCUDPServer(socketserver.UDPServer):
         dispatcher: Dispatcher,
         bind_and_activate: bool = True,
         timeout: float | None = None,
+        family: socket.AddressFamily | None = None,
     ) -> None:
         """Initialize
 
@@ -72,7 +74,25 @@ class OSCUDPServer(socketserver.UDPServer):
             dispatcher: Dispatcher this server will use
             (optional) bind_and_activate: default=True defines if the server has to start on call of constructor
             (optional) timeout: Default timeout in seconds for socket operations
+            (optional) family: socket.AF_INET or socket.AF_INET6. If None, it will be inferred from server_address.
         """
+        if family is not None:
+            self.address_family = family
+        else:
+            # Try to infer address family from server_address
+            try:
+                infos = socket.getaddrinfo(
+                    server_address[0],
+                    server_address[1],
+                    type=socket.SOCK_DGRAM,
+                    family=socket.AF_UNSPEC,
+                )
+                if infos:
+                    self.address_family = infos[0][0]
+            except (socket.gaierror, IndexError):
+                # Fallback to default if resolution fails
+                pass
+
         super().__init__(server_address, _UDPHandler, bind_and_activate)
         self._dispatcher = dispatcher
         self.timeout = timeout
