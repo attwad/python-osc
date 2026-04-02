@@ -3,7 +3,7 @@
 import asyncio
 import socket
 import struct
-from typing import AsyncGenerator, Generator, List, Union
+from typing import AsyncGenerator, Generator, Iterable, List, Union
 
 from pythonosc import slip
 from pythonosc.dispatcher import Dispatcher
@@ -104,7 +104,9 @@ class SimpleTCPClient(TCPClient):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def send_message(self, address: str, value: ArgValue = "") -> None:
+    def send_message(
+        self, address: str, value: Union[ArgValue, Iterable[ArgValue]] = ""
+    ) -> None:
         """Build :class:`OscMessage` from arguments and send to server
 
         Args:
@@ -251,7 +253,9 @@ class AsyncSimpleTCPClient(AsyncTCPClient):
     ):
         super().__init__(address, port, family, mode)
 
-    async def send_message(self, address: str, value: ArgValue = "") -> None:
+    async def send_message(
+        self, address: str, value: Union[ArgValue, Iterable[ArgValue]] = ""
+    ) -> None:
         """Build :class:`OscMessage` from arguments and send to server
 
         Args:

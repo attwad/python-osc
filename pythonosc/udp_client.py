@@ -91,7 +91,9 @@ class UDPClient(object):
 class SimpleUDPClient(UDPClient):
     """Simple OSC client that automatically builds :class:`OscMessage` from arguments"""
 
-    def send_message(self, address: str, value: ArgValue) -> None:
+    def send_message(
+        self, address: str, value: Union[ArgValue, Iterable[ArgValue]]
+    ) -> None:
         """Build :class:`OscMessage` from arguments and send to server
 
         Args:

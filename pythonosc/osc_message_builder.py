@@ -5,7 +5,11 @@ from typing import Any, Iterable, List, Optional, Tuple, Union
 from pythonosc import osc_message
 from pythonosc.parsing import osc_types
 
-ArgValue = Union[str, bytes, bool, int, float, osc_types.MidiPacket, list, None]
+# Represents a single OSC argument value.
+# Can be a primitive type, a MIDI packet, or a list/tuple for nested OSC arrays.
+ArgValue = Union[
+    str, bytes, bool, int, float, osc_types.MidiPacket, List[Any], Tuple[Any, ...], None
+]
 
 
 class BuildError(Exception):
@@ -193,7 +197,9 @@ class OscMessageBuilder(object):
             raise BuildError(f"Could not build the message: {be}")
 
 
-def build_msg(address: str, value: ArgValue = "") -> osc_message.OscMessage:
+def build_msg(
+    address: str, value: Union[ArgValue, Iterable[ArgValue]] = ""
+) -> osc_message.OscMessage:
     builder = OscMessageBuilder(address=address)
     values: Iterable[Any]
     if value == "":
