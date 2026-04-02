@@ -22,6 +22,7 @@ class TCPClient(object):
         port: int,
         family: socket.AddressFamily = socket.AF_INET,
         mode: str = MODE_1_1,
+        timeout: float | None = 30.0,
     ) -> None:
         """Initialize client
 
@@ -29,13 +30,15 @@ class TCPClient(object):
             address: IP address of server
             port: Port of server
             family: address family parameter (passed to socket.getaddrinfo)
+            timeout: Default timeout in seconds for socket operations
         """
         self.address = address
         self.port = port
         self.family = family
         self.mode = mode
+        self._timeout = timeout
         self.socket = socket.socket(self.family, socket.SOCK_STREAM)
-        self.socket.settimeout(30)
+        self.socket.settimeout(timeout)
         self.socket.connect((address, port))
 
     def __enter__(self):
@@ -56,12 +59,13 @@ class TCPClient(object):
             b = struct.pack("!I", len(content.dgram))
             self.socket.sendall(b + content.dgram)
 
-    def receive(self, timeout: int = 30) -> List[bytes]:
-        self.socket.settimeout(timeout)
+    def receive(self, timeout: float | None = None) -> List[bytes]:
+        effective_timeout = timeout if timeout is not None else self._timeout
+        self.socket.settimeout(effective_timeout)
         if self.mode == MODE_1_1:
             try:
                 buf = self.socket.recv(4096)
-            except TimeoutError:
+            except (TimeoutError, socket.timeout):
                 return []
             if not buf:
                 return []
@@ -69,7 +73,7 @@ class TCPClient(object):
             while buf[-1] != 192:
                 try:
                     newbuf = self.socket.recv(4096)
-                except TimeoutError:
+                except (TimeoutError, socket.timeout):
                     break
                 if not newbuf:
                     # Maybe should raise an exception here?
@@ -80,13 +84,13 @@ class TCPClient(object):
             buf = b""
             try:
                 lengthbuf = self.socket.recv(4)
-            except TimeoutError:
+            except (TimeoutError, socket.timeout):
                 return []
             (length,) = struct.unpack("!I", lengthbuf)
             while length > 0:
                 try:
                     newbuf = self.socket.recv(length)
-                except TimeoutError:
+                except (TimeoutError, socket.timeout):
                     return []
                 if not newbuf:
                     return []
@@ -116,7 +120,7 @@ class SimpleTCPClient(TCPClient):
         msg = build_msg(address, value)
         return self.send(msg)
 
-    def get_messages(self, timeout: int = 30) -> Generator:
+    def get_messages(self, timeout: float | None = None) -> Generator:
         r = self.receive(timeout)
         while r:
             for m in r:
@@ -129,7 +133,7 @@ class TCPDispatchClient(SimpleTCPClient):
 
     dispatcher = Dispatcher()
 
-    def handle_messages(self, timeout_sec: int = 30) -> None:
+    def handle_messages(self, timeout_sec: float | None = None) -> None:
         """Wait :int:`timeout` seconds for a message from the server and process each message with the registered
         handlers.  Continue until a timeout occurs.
 
@@ -152,6 +156,7 @@ class AsyncTCPClient:
         port: int,
         family: socket.AddressFamily = socket.AF_INET,
         mode: str = MODE_1_1,
+        timeout: float | None = 30.0,
     ) -> None:
         """Initialize client
 
@@ -159,11 +164,13 @@ class AsyncTCPClient:
             address: IP address of server
             port: Port of server
             family: address family parameter (passed to socket.getaddrinfo)
+            timeout: Default timeout in seconds for socket operations
         """
         self.address: str = address
         self.port: int = port
         self.mode: str = mode
         self.family: socket.AddressFamily = family
+        self._timeout = timeout
 
     def __await__(self):
         async def closure():
@@ -197,19 +204,22 @@ class AsyncTCPClient:
             self.writer.write(b + content.dgram)
         await self.writer.drain()
 
-    async def receive(self, timeout: int = 30) -> List[bytes]:
+    async def receive(self, timeout: float | None = None) -> List[bytes]:
+        effective_timeout = timeout if timeout is not None else self._timeout
         if self.mode == MODE_1_1:
             try:
-                buf = await asyncio.wait_for(self.reader.read(4096), timeout)
-            except TimeoutError:
+                buf = await asyncio.wait_for(self.reader.read(4096), effective_timeout)
+            except (TimeoutError, asyncio.TimeoutError):
                 return []
             if not buf:
                 return []
             # If the last byte is not an END marker there could be more data coming
             while buf[-1] != 192:
                 try:
-                    newbuf = await asyncio.wait_for(self.reader.read(4096), timeout)
-                except TimeoutError:
+                    newbuf = await asyncio.wait_for(
+                        self.reader.read(4096), effective_timeout
+                    )
+                except (TimeoutError, asyncio.TimeoutError):
                     break
                 if not newbuf:
                     # Maybe should raise an exception here?
@@ -219,15 +229,19 @@ class AsyncTCPClient:
         else:
             buf = b""
             try:
-                lengthbuf = await asyncio.wait_for(self.reader.read(4), timeout)
-            except TimeoutError:
+                lengthbuf = await asyncio.wait_for(
+                    self.reader.read(4), effective_timeout
+                )
+            except (TimeoutError, asyncio.TimeoutError):
                 return []
 
             (length,) = struct.unpack("!I", lengthbuf)
             while length > 0:
                 try:
-                    newbuf = await asyncio.wait_for(self.reader.read(length), timeout)
-                except TimeoutError:
+                    newbuf = await asyncio.wait_for(
+                        self.reader.read(length), effective_timeout
+                    )
+                except (TimeoutError, asyncio.TimeoutError):
                     return []
                 if not newbuf:
                     return []
@@ -250,8 +264,9 @@ class AsyncSimpleTCPClient(AsyncTCPClient):
         port: int,
         family: socket.AddressFamily = socket.AF_INET,
         mode: str = MODE_1_1,
+        timeout: float | None = 30.0,
     ):
-        super().__init__(address, port, family, mode)
+        super().__init__(address, port, family, mode, timeout)
 
     async def send_message(
         self, address: str, value: Union[ArgValue, Iterable[ArgValue]] = ""
@@ -265,7 +280,7 @@ class AsyncSimpleTCPClient(AsyncTCPClient):
         msg = build_msg(address, value)
         return await self.send(msg)
 
-    async def get_messages(self, timeout: int = 30) -> AsyncGenerator:
+    async def get_messages(self, timeout: float | None = None) -> AsyncGenerator:
         r = await self.receive(timeout)
         while r:
             for m in r:
@@ -278,7 +293,7 @@ class AsyncDispatchTCPClient(AsyncTCPClient):
 
     dispatcher = Dispatcher()
 
-    async def handle_messages(self, timeout: int = 30) -> None:
+    async def handle_messages(self, timeout: float | None = None) -> None:
         """Wait :int:`timeout` seconds for a message from the server and process each message with the registered
         handlers.  Continue until a timeout occurs.
 

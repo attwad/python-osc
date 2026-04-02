@@ -73,7 +73,7 @@ Simple client
         help="The port the OSC server is listening on")
     args = parser.parse_args()
 
-    client = udp_client.SimpleUDPClient(args.ip, args.port)
+    client = udp_client.SimpleUDPClient(args.ip, args.port, timeout=10)
 
     for x in range(10):
       client.send_message("/filter", random.random())
@@ -117,7 +117,7 @@ Simple server
     dispatcher.map("/logvolume", print_compute_handler, "Log volume", math.log)
 
     server = osc_server.ThreadingOSCUDPServer(
-        (args.ip, args.port), dispatcher)
+        (args.ip, args.port), dispatcher, timeout=10)
     print("Serving on {}".format(server.server_address))
     server.serve_forever()
 

@@ -63,6 +63,7 @@ class OSCUDPServer(socketserver.UDPServer):
         server_address: Tuple[str, int],
         dispatcher: Dispatcher,
         bind_and_activate: bool = True,
+        timeout: float | None = None,
     ) -> None:
         """Initialize
 
@@ -70,9 +71,11 @@ class OSCUDPServer(socketserver.UDPServer):
             server_address: IP and port of server
             dispatcher: Dispatcher this server will use
             (optional) bind_and_activate: default=True defines if the server has to start on call of constructor
+            (optional) timeout: Default timeout in seconds for socket operations
         """
         super().__init__(server_address, _UDPHandler, bind_and_activate)
         self._dispatcher = dispatcher
+        self.timeout = timeout
 
     def verify_request(
         self, request: _RequestType, client_address: _AddressType

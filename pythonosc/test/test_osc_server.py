@@ -112,5 +112,13 @@ class TestUDPHandler(unittest.TestCase):
         )
 
 
+class TestOscUdpServer(unittest.TestCase):
+    @unittest.mock.patch("socket.socket")
+    def test_init_timeout(self, mock_socket_ctor):
+        dispatcher = unittest.mock.Mock()
+        server = osc_server.OSCUDPServer(("127.0.0.1", 0), dispatcher, timeout=10.0)
+        self.assertEqual(server.timeout, 10.0)
+
+
 if __name__ == "__main__":
     unittest.main()
