@@ -1,22 +1,24 @@
 name: Publish to PyPI
+
 on:
   push:
     tags:
       - 'v*'
+
 jobs:
-    build-n-publish:
-        name: Build and publish to PyPI
-        runs-on: ubuntu-latest
-        permissions:
-          # IMPORTANT: this permission is mandatory for trusted publishing
-          id-token: write
-        steps:
-            - uses: actions/checkout@v6
-            - name: Set up uv
-              uses: astral-sh/setup-uv@v7
-              with:
-                python-version: "3.x"
-            - name: Build a binary wheel and a source tarball
-              run: uv build
-            - name: Publish distribution 📦 to PyPI
-              run: uv publish
+  build-n-publish:
+    name: Build and publish to PyPI
+    runs-on: ubuntu-latest
+    permissions:
+      # IMPORTANT: this permission is mandatory for trusted publishing
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          python-version: "3.x"
+      - name: Build a binary wheel and a source tarball
+        run: uv build
+      - name: Publish distribution 📦 to PyPI
+        run: uv publish

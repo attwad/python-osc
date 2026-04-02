@@ -31,15 +31,15 @@ jobs:
       run: uv run mypy pythonosc examples
     - name: Test with pytest
       run: uv run pytest
+
   lint:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v6
     - name: Set up uv
       uses: astral-sh/setup-uv@v7
-
-      - name: Run ruff format
-        run: uv run ruff format --check .
+    - name: Run ruff format
+      run: uv run ruff format --check .
 
   check-types-published:
     runs-on: ubuntu-latest
@@ -47,14 +47,13 @@ jobs:
     - uses: actions/checkout@v6
     - name: Set up uv
       uses: astral-sh/setup-uv@v7
-
-        with:
-          python-version: '3.12'
-      - name: Build package
-        run: uv build
-      - name: Verify package installation and types
-        run: |
-          temp=$(mktemp -d)
-          uv run --with mypy --with ./dist/*.whl --no-project -- python -c "import pythonosc"
-          echo 'import pythonosc' > $temp/demo.py
-          uv run --with mypy --with ./dist/*.whl --no-project -- mypy $temp/demo.py
+      with:
+        python-version: '3.12'
+    - name: Build package
+      run: uv build
+    - name: Verify package installation and types
+      run: |
+        temp=$(mktemp -d)
+        uv run --with mypy --with ./dist/*.whl --no-project -- python -c "import pythonosc"
+        echo 'import pythonosc' > $temp/demo.py
+        uv run --with mypy --with ./dist/*.whl --no-project -- mypy $temp/demo.py
