@@ -48,5 +48,21 @@ class TestSimpleUdpClient(unittest.TestCase):
         self.assertEqual(self.builder.add_arg.call_count, 3)
 
 
+class TestUdpClientClose(unittest.TestCase):
+    @mock.patch("socket.socket")
+    def test_close(self, mock_socket_ctor):
+        mock_socket = mock_socket_ctor.return_value
+        client = udp_client.UDPClient("::1", 31337)
+        client.close()
+        self.assertTrue(mock_socket.close.called)
+
+    @mock.patch("socket.socket")
+    def test_context_manager(self, mock_socket_ctor):
+        mock_socket = mock_socket_ctor.return_value
+        with udp_client.UDPClient("::1", 31337) as client:
+            self.assertIsInstance(client, udp_client.UDPClient)
+        self.assertTrue(mock_socket.close.called)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -55,6 +55,16 @@ class UDPClient(object):
         self._address = address
         self._port = port
 
+    def __enter__(self) -> "UDPClient":
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+        self.close()
+
+    def close(self) -> None:
+        """Close the socket"""
+        self._sock.close()
+
     def send(self, content: Union[OscMessage, OscBundle]) -> None:
         """Sends an :class:`OscMessage` or :class:`OscBundle` via UDP
 
