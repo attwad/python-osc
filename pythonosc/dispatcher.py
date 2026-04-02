@@ -1,5 +1,6 @@
 """Maps OSC addresses to handler functions"""
 
+import asyncio
 import collections
 import inspect
 import logging
@@ -80,6 +81,46 @@ class Handler(object):
             else:
                 return self.callback(message.address, *message)
 
+    async def async_invoke(
+        self, client_address: Tuple[str, int], message: OscMessage
+    ) -> Union[None, AnyStr, Tuple[AnyStr, ArgValue]]:
+        """Invokes the associated callback function (asynchronously)
+
+        Args:
+            client_address: Address match that causes the invocation
+            message: Message causing invocation
+        Returns:
+            The result of the handler function can be None, a string OSC address, or a tuple of the OSC address
+            and arguments.
+        """
+        cb = self.callback
+        is_async = inspect.iscoroutinefunction(cb)
+
+        if self.needs_reply_address:
+            if self.args:
+                if is_async:
+                    return await cb(
+                        client_address, message.address, self.args, *message
+                    )
+                else:
+                    return cb(client_address, message.address, self.args, *message)
+            else:
+                if is_async:
+                    return await cb(client_address, message.address, *message)
+                else:
+                    return cb(client_address, message.address, *message)
+        else:
+            if self.args:
+                if is_async:
+                    return await cb(message.address, self.args, *message)
+                else:
+                    return cb(message.address, self.args, *message)
+            else:
+                if is_async:
+                    return await cb(message.address, *message)
+                else:
+                    return cb(message.address, *message)
+
 
 class Dispatcher(object):
     """Maps Handlers to OSC addresses and dispatches messages to the handler on matched addresses
@@ -87,9 +128,20 @@ class Dispatcher(object):
     Maps OSC addresses to handler functions and invokes the correct handler when a message comes in.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, strict_timing: bool = True) -> None:
+        """Initialize the dispatcher.
+
+        Args:
+            strict_timing: Whether to automatically schedule messages with future timetags.
+                If True (default), the dispatcher will wait (using sleep) until the specified
+                timetag before invoking handlers.
+                If False, messages are dispatched immediately regardless of their timetag.
+                Disabling this can prevent memory/thread accumulation issues when receiving
+                many future-dated messages.
+        """
         self._map: DefaultDict[str, List[Handler]] = collections.defaultdict(list)
         self._default_handler: Optional[Handler] = None
+        self._strict_timing = strict_timing
 
     def map(
         self,
@@ -272,7 +324,7 @@ class Dispatcher(object):
                 if not handlers:
                     continue
                 # If the message is to be handled later, then so be it.
-                if timed_msg.time > now:
+                if self._strict_timing and timed_msg.time > now:
                     time.sleep(timed_msg.time - now)
                 for handler in handlers:
                     result = handler.invoke(client_address, timed_msg.message)
@@ -309,46 +361,13 @@ class Dispatcher(object):
                 if not handlers:
                     continue
                 # If the message is to be handled later, then so be it.
-                if timed_msg.time > now:
-                    time.sleep(timed_msg.time - now)
+                if self._strict_timing and timed_msg.time > now:
+                    await asyncio.sleep(timed_msg.time - now)
                 for handler in handlers:
-                    if inspect.iscoroutinefunction(handler.callback):
-                        if handler.needs_reply_address:
-                            result = await handler.callback(
-                                client_address,
-                                timed_msg.message.address,
-                                handler.args,
-                                *timed_msg.message,
-                            )
-                        elif handler.args:
-                            result = await handler.callback(
-                                timed_msg.message.address,
-                                handler.args,
-                                *timed_msg.message,
-                            )
-                        else:
-                            result = await handler.callback(
-                                timed_msg.message.address, *timed_msg.message
-                            )
-                    else:
-                        if handler.needs_reply_address:
-                            result = handler.callback(
-                                client_address,
-                                timed_msg.message.address,
-                                handler.args,
-                                *timed_msg.message,
-                            )
-                        elif handler.args:
-                            result = handler.callback(
-                                timed_msg.message.address,
-                                handler.args,
-                                *timed_msg.message,
-                            )
-                        else:
-                            result = handler.callback(
-                                timed_msg.message.address, *timed_msg.message
-                            )
-                    if result:
+                    result = await handler.async_invoke(
+                        client_address, timed_msg.message
+                    )
+                    if result is not None:
                         results.append(result)
         except osc_packet.ParseError:
             pass
