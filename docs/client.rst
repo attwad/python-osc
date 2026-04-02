@@ -23,6 +23,10 @@ Examples
     client.send_message("/some/address", 123)   # Send float message
     client.send_message("/some/address", [1, 2., "hello"])  # Send message with int, float and string
 
+    # Alternatively, use a context manager to automatically close the socket
+    with SimpleUDPClient(ip, port) as client:
+        client.send_message("/some/address", 123)
+
 
 .. code-block:: python
 
