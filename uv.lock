@@ -455,7 +455,7 @@ wheels = [
 
 [[package]]
 name = "python-osc"
-version = "1.10.0"
+version = "1.10.2"
 source = { editable = "." }
 
 [package.dev-dependencies]

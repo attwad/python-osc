@@ -5,7 +5,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## Unreleased
 
+## [1.10.2]
 
+- Better asyncio handling, ability to ignore timetags for future messages
 
 ## [1.10.0]
 
