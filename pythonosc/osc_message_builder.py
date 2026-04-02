@@ -195,6 +195,7 @@ class OscMessageBuilder(object):
 
 def build_msg(address: str, value: ArgValue = "") -> osc_message.OscMessage:
     builder = OscMessageBuilder(address=address)
+    values: Iterable[Any]
     if value == "":
         values = []
     elif not isinstance(value, Iterable) or isinstance(value, (str, bytes)):
