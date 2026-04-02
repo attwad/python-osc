@@ -22,15 +22,7 @@ _DGRAM_ALL_STANDARD_TYPES_OF_PARAMS = (
     b"\x00\x00\x00\x08stuff\x00\x00\x00"
 )  # b"stuff\x00\x00\x00"
 
-_DGRAM_ALL_NON_STANDARD_TYPES_OF_PARAMS = (
-    b"/SYNC\x00\x00\x00"
-    b"T"  # True
-    b"F"  # False
-    b"N"  # Nil
-    b"[]th\x00"  # Empty array
-    b"\x00\x00\x00\x00\x00\x00\x00\x00"
-    b"\x00\x00\x00\xe8\xd4\xa5\x10\x00"  # 1000000000000
-)
+_DGRAM_ALL_NON_STANDARD_TYPES_OF_PARAMS = b"/SYNC\x00\x00\x00,TFN[]th\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xe8\xd4\xa5\x10\x00"
 
 _DGRAM_COMPLEX_ARRAY_PARAMS = (
     b"/SYNC\x00\x00\x00"

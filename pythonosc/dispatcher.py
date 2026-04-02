@@ -182,28 +182,62 @@ class Dispatcher(object):
     ) -> Generator[Handler, None, None]:
         """Yields handlers matching an address
 
-
         Args:
             address_pattern: Address to match
 
         Returns:
             Generator yielding Handlers matching address_pattern
         """
-        # First convert the address_pattern into a matchable regexp.
-        # '?' in the OSC Address Pattern matches any single character.
-        # Let's consider numbers and _ "characters" too here, it's not said
-        # explicitly in the specification but it sounds good.
-        escaped_address_pattern = re.escape(address_pattern)
-        pattern = escaped_address_pattern.replace("\\?", "\\w?")
-        # '*' in the OSC Address Pattern matches any sequence of zero or more
-        # characters.
-        pattern = pattern.replace("\\*", "[\\w|\\+]*")
-        # The rest of the syntax in the specification is like the re module so
-        # we're fine.
-        pattern = f"{pattern}$"
-        patterncompiled = re.compile(pattern)
-        matched = False
+        # Convert OSC Address Pattern to a Python regular expression.
+        # Spec: https://opensoundcontrol.stanford.edu/spec-1_0.html#osc-address-patterns
 
+        pattern = "^"
+        i = 0
+        while i < len(address_pattern):
+            c = address_pattern[i]
+            if c == "*":
+                pattern += "[^/]*"
+            elif c == "?":
+                pattern += "[^/]"
+            elif c == "[":
+                pattern += "["
+                i += 1
+                if i < len(address_pattern) and address_pattern[i] == "!":
+                    pattern += "^"
+                    i += 1
+                while i < len(address_pattern) and address_pattern[i] != "]":
+                    if address_pattern[i] in r"\^$.|()+*?":
+                        pattern += "\\"
+                    pattern += address_pattern[i]
+                    i += 1
+                pattern += "]"
+            elif c == "{":
+                pattern += "("
+                i += 1
+                while i < len(address_pattern) and address_pattern[i] != "}":
+                    char = address_pattern[i]
+                    if char == ",":
+                        pattern += "|"
+                    elif char in r"\^$.|()[]+*?":
+                        pattern += "\\" + char
+                    else:
+                        pattern += char
+                    i += 1
+                pattern += ")"
+            elif c in r"\^$.|()[]+?":
+                pattern += "\\" + c
+            else:
+                pattern += c
+            i += 1
+        pattern += "$"
+
+        try:
+            patterncompiled = re.compile(pattern)
+        except re.error:
+            # If the pattern is invalid, it won't match anything.
+            return
+
+        matched = False
         for addr, handlers in self._map.items():
             if patterncompiled.match(addr) or (
                 ("*" in addr)

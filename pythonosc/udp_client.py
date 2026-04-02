@@ -58,7 +58,9 @@ class UDPClient(object):
     def __enter__(self) -> "UDPClient":
         return self
 
-    def __exit__(self, exc_type: type | None, exc_val: Exception | None, exc_tb: object | None) -> None:
+    def __exit__(
+        self, exc_type: type | None, exc_val: Exception | None, exc_tb: object | None
+    ) -> None:
         self.close()
 
     def close(self) -> None:

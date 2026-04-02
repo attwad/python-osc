@@ -71,24 +71,21 @@ def get_string(dgram: bytes, start_index: int) -> Tuple[str, int]:
         raise ParseError("start_index < 0")
     offset = 0
     try:
-        if (
-            len(dgram) > start_index + _STRING_DGRAM_PAD
-            and dgram[start_index + _STRING_DGRAM_PAD] == _EMPTY_STR_DGRAM
-        ):
-            return "", start_index + _STRING_DGRAM_PAD
         while dgram[start_index + offset] != 0:
             offset += 1
-        # Align to a byte word.
-        if (offset) % _STRING_DGRAM_PAD == 0:
-            offset += _STRING_DGRAM_PAD
-        else:
-            offset += -offset % _STRING_DGRAM_PAD
-        # Python slices do not raise an IndexError past the last index,
-        # do it ourselves.
-        if offset > len(dgram[start_index:]):
+
+        # OSC spec: "followed by a null, followed by 0-3 additional null characters
+        # to make the total number of bits a multiple of 32"
+        # This means the total length (including the first null) must be a multiple of 4.
+        total_len = offset + 1
+        if total_len % 4 != 0:
+            total_len += 4 - (total_len % 4)
+
+        if start_index + total_len > len(dgram):
             raise ParseError("Datagram is too short")
+
         data_str = dgram[start_index : start_index + offset]
-        return data_str.replace(b"\x00", b"").decode("utf-8"), start_index + offset
+        return data_str.decode("utf-8"), start_index + total_len
     except IndexError as ie:
         raise ParseError(f"Could not parse datagram {ie}")
     except TypeError as te:
@@ -214,11 +211,8 @@ def get_timetag(dgram: bytes, start_index: int) -> Tuple[Tuple[datetime, int], i
         timetag, _ = get_uint64(dgram, start_index)
         seconds, fraction = ntp.parse_timestamp(timetag)
 
-        hours, seconds = seconds // 3600, seconds % 3600
-        minutes, seconds = seconds // 60, seconds % 60
-
         utc = datetime.combine(ntp._NTP_EPOCH, datetime.min.time()) + timedelta(
-            hours=hours, minutes=minutes, seconds=seconds
+            seconds=seconds
         )
 
         return (utc, fraction), start_index + _TIMETAG_DGRAM_LEN

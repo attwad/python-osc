@@ -34,8 +34,12 @@ class OscMessage(object):
 
             # Get the parameters types.
             type_tag, index = osc_types.get_string(self._dgram, index)
-            if type_tag.startswith(","):
-                type_tag = type_tag[1:]
+            if not type_tag.startswith(","):
+                raise ParseError(
+                    f"OSC Type Tag String must start with a comma, got: {type_tag}"
+                )
+
+            type_tag = type_tag[1:]
 
             params = []  # type: List[Any]
             param_stack = [params]
