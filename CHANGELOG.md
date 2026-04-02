@@ -3,10 +3,17 @@ All notable changes to this project will be documented in this file.
  
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## Unreleased
+
+
+
+## [1.10.0]
 
 - Added TCPDispatchClient to tcp_client
 - Fixed TPC dispatcher type annotations
+- Fixed regexp matching
+- Fixed timestamp parsing > 24h
+- Switched to uv
 
 ## [1.9.3]
 
