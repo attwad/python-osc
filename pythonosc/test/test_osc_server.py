@@ -2,7 +2,7 @@ import socket
 import unittest
 import unittest.mock
 
-from pythonosc import dispatcher, osc_server
+from pythonosc import dispatcher, osc_bundle_builder, osc_message_builder, osc_server
 
 _SIMPLE_PARAM_INT_MSG = b"/SYNC\x00\x00\x00,i\x00\x00\x00\x00\x00\x04"
 
@@ -114,6 +114,36 @@ class TestUDPHandler(unittest.TestCase):
 
 
 class TestOscUdpServer(unittest.TestCase):
+    @unittest.mock.patch("socket.socket")
+    def test_receive_large_datagrams(self, mock_socket_ctor):
+        message_builder = osc_message_builder.OscMessageBuilder("/large")
+        message_builder.add_arg(b"x" * 9000)
+        message = message_builder.build()
+        bundle_builder = osc_bundle_builder.OscBundleBuilder(
+            osc_bundle_builder.IMMEDIATELY
+        )
+        bundle_builder.add_content(message)
+        bundle = bundle_builder.build()
+        client_address = ("127.0.0.1", 8080)
+
+        for packet in (message, bundle):
+            with self.subTest(packet=type(packet).__name__):
+                # Model recvfrom's truncation when its buffer is too small.
+                mock_socket_ctor.return_value.recvfrom.side_effect = lambda size: (
+                    packet.dgram[:size],
+                    client_address,
+                )
+                callback = unittest.mock.Mock(return_value=None)
+                dispatch = dispatcher.Dispatcher()
+                dispatch.map("/large", callback)
+                with osc_server.BlockingOSCUDPServer(
+                    ("127.0.0.1", 0), dispatch
+                ) as server:
+                    request, address = server.get_request()
+                    self.assertEqual(request[0], packet.dgram)
+                    osc_server._UDPHandler(request, address, server)
+                    callback.assert_called_once_with("/large", b"x" * 9000)
+
     @unittest.mock.patch("socket.socket")
     def test_init_timeout(self, mock_socket_ctor):
         dispatcher = unittest.mock.Mock()

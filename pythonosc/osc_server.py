@@ -59,6 +59,9 @@ def _is_valid_request(request: _RequestType) -> bool:
 class OSCUDPServer(socketserver.UDPServer):
     """Superclass for different flavors of OSC UDP servers"""
 
+    # Receive complete UDP datagrams instead of socketserver's 8192-byte default.
+    max_packet_size = 65535
+
     def __init__(
         self,
         server_address: Tuple[str, int],
