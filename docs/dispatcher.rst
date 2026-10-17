@@ -11,12 +11,12 @@ Example
 .. code-block:: python
 
     from pythonosc.dispatcher import Dispatcher
-    from typing import List, Any
+    from pythonosc.osc_message_builder import ArgValue
 
     dispatcher = Dispatcher()
 
 
-    def set_filter(address: str, *args: List[Any]) -> None:
+    def set_filter(address: str, *args: ArgValue) -> None:
         # We expect two float arguments
         if not len(args) == 2 or type(args[0]) is not float or type(args[1]) is not float:
             return
@@ -69,14 +69,23 @@ Additionally you can provide any amount of extra fixed argument that will always
 
     handler = disp.map("/some/other/address", some_printing_func, "This is a fixed arg", "and this is another fixed arg")
 
-The handler callback signature must look like this:
+The handler callback signature must look like this (choose the form matching
+whether fixed arguments were supplied):
 
 .. code-block:: python
 
-    def some_callback(address: str, *osc_arguments: List[Any]) -> None:
-    def some_callback(address: str, fixed_argument: List[Any], *osc_arguments: List[Any]) -> None:
+    from typing import Any, List
+    from pythonosc.osc_message_builder import ArgValue
 
-Instead of a list you can of course also use a fixed amount of arguments for ``osc_arguments``
+    def some_callback(address: str, *osc_arguments: ArgValue) -> None: ...
+    def some_callback(address: str, fixed_argument: List[Any], *osc_arguments: ArgValue) -> None: ...
+
+The annotation on ``*osc_arguments`` describes each received OSC argument;
+inside the callback, ``osc_arguments`` is a tuple of those values. ``ArgValue``
+includes scalar values, blobs, MIDI packets and OSC arrays. Fixed arguments
+passed to ``map`` are instead collected into one separate ``List[Any]``.
+You can also declare a fixed number of positional parameters when you know
+which OSC arguments the address accepts.
 
 The ``Dispatcher.map`` method returns a ``Handler`` object, which can be used to remove the mapping from the dispatcher.
 
@@ -114,7 +123,7 @@ The handler must have the same signature as map callbacks:
 
 .. code-block:: python
 
-    def some_callback(address: str, *osc_arguments: List[Any]) -> None:
+    def some_callback(address: str, *osc_arguments: ArgValue) -> None: ...
 
 
 Handler Responses

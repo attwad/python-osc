@@ -154,13 +154,15 @@ class Dispatcher(object):
 
         The callback function must have one of the following signatures:
 
-        ``def some_cb(address: str, *osc_args: List[Any]) -> Union[None, AnyStr, Tuple(str, ArgValue)]:``
-        ``def some_cb(address: str, fixed_args: List[Any], *osc_args: List[Any]) -> Union[None, AnyStr,
-                                                                                          Tuple(str, ArgValue)]:``
+        .. code-block:: python
 
-        ``def some_cb(client_address: Tuple[str, int], address: str, *osc_args: List[Any]) -> Union[None, AnyStr,
-                                                                                                    Tuple(str, ArgValue)]:``
-        ``def some_cb(client_address: Tuple[str, int], address: str, fixed_args: List[Any], *osc_args: List[Any]) -> Union[None, AnyStr, Tuple(str, ArgValue)]:``
+            def some_cb(address: str, *osc_args: ArgValue) -> Union[None, str, Tuple[str, ArgValue]]: ...
+            def some_cb(address: str, fixed_args: List[Any], *osc_args: ArgValue) -> Union[None, str, Tuple[str, ArgValue]]: ...
+            def some_cb(client_address: Tuple[str, int], address: str, *osc_args: ArgValue) -> Union[None, str, Tuple[str, ArgValue]]: ...
+            def some_cb(client_address: Tuple[str, int], address: str, fixed_args: List[Any], *osc_args: ArgValue) -> Union[None, str, Tuple[str, ArgValue]]: ...
+
+        Each variadic OSC argument is a single ArgValue, not a list of all arguments.
+        Any fixed arguments passed to map() are collected into the separate fixed_args list.
 
         The callback function can return None, or a string representing an OSC address to be returned to the client,
         or a tuple that includes the address and ArgValue which will be converted to an OSC message and returned to
