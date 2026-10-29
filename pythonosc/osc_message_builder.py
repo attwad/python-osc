@@ -200,13 +200,16 @@ class OscMessageBuilder(object):
 
 
 def build_msg(
-    address: str, value: Union[ArgValue, Iterable[ArgValue]] = ""
+    address: str, value: Union[ArgValue, Iterable[ArgValue]] = ()
 ) -> osc_message.OscMessage:
+    """Build a message from a scalar value or an iterable of arguments.
+
+    Omit the value or pass an empty iterable for a message with no arguments.
+    An explicitly supplied empty string is retained as a string argument.
+    """
     builder = OscMessageBuilder(address=address)
     values: Iterable[Any]
-    if value == "":
-        values = []
-    elif not isinstance(value, Iterable) or isinstance(value, (str, bytes)):
+    if not isinstance(value, Iterable) or isinstance(value, (str, bytes)):
         values = [value]
     else:
         values = value
