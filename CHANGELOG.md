@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## Unreleased
 
+- Preserve explicit empty-string arguments in message helpers and TCP clients while keeping omitted values argument-free.
+
 ## [1.10.2]
 
 - Better asyncio handling, ability to ignore timetags for future messages

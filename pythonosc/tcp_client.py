@@ -77,13 +77,14 @@ class SimpleTCPClient(TCPClient):
     """Simple OSC client that automatically builds :class:`OscMessage` from arguments"""
 
     def send_message(
-        self, address: str, value: Union[ArgValue, Iterable[ArgValue]] = ""
+        self, address: str, value: Union[ArgValue, Iterable[ArgValue]] = ()
     ) -> None:
         """Build :class:`OscMessage` from arguments and send to server
 
         Args:
             address: OSC address the message shall go to
-            value: One or more arguments to be added to the message
+            value: One or more arguments to be added to the message. Omit for
+                no arguments; an empty string is a string argument.
         """
         msg = build_msg(address, value)
         return self.send(msg)
@@ -188,13 +189,14 @@ class AsyncSimpleTCPClient(AsyncTCPClient):
     """Simple OSC client that automatically builds :class:`OscMessage` from arguments"""
 
     async def send_message(
-        self, address: str, value: Union[ArgValue, Iterable[ArgValue]] = ""
+        self, address: str, value: Union[ArgValue, Iterable[ArgValue]] = ()
     ) -> None:
         """Build :class:`OscMessage` from arguments and send to server
 
         Args:
             address: OSC address the message shall go to
-            value: One or more arguments to be added to the message
+            value: One or more arguments to be added to the message. Omit for
+                no arguments; an empty string is a string argument.
         """
         msg = build_msg(address, value)
         return await self.send(msg)
