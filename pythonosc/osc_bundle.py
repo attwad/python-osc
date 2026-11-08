@@ -50,6 +50,12 @@ class OscBundle(object):
             while self._dgram[index:]:
                 # Get the sub content size.
                 content_size, index = osc_types.get_int(self._dgram, index)
+                if content_size <= 0 or content_size % 4:
+                    raise ParseError(
+                        "Invalid bundle element size: {}".format(content_size)
+                    )
+                if content_size > len(self._dgram) - index:
+                    raise ParseError("Bundle element exceeds the datagram length")
                 # Get the datagram for the sub content.
                 content_dgram = self._dgram[index : index + content_size]
                 # Increment our position index up to the next possible content.

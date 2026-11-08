@@ -51,7 +51,7 @@ _DGRAM_EMPTY_BUNDLE = b"#bundle\x00\x00\x00\x00\x00\x00\x00\x00\x01"
 _DGRAM_BUNDLE_IN_BUNDLE = (
     b"#bundle\x00"
     b"\x00\x00\x00\x00\x00\x00\x00\x01"
-    b"\x00\x00\x00("  # length of sub bundle: 40 bytes.
+    b"\x00\x00\x00$"  # length of sub bundle: 36 bytes.
     b"#bundle\x00"
     b"\x00\x00\x00\x00\x00\x00\x00\x01"
     b"\x00\x00\x00\x10"
@@ -67,7 +67,7 @@ _DGRAM_INVALID_INDEX = (
 )
 
 _DGRAM_UNKNOWN_TYPE = (
-    b"#bundle\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x10iamnotaslash"
+    b"#bundle\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x0ciamnotaslash"
 )
 
 
@@ -117,6 +117,25 @@ class TestOscBundle(unittest.TestCase):
         self.assertRaises(
             osc_bundle.ParseError, osc_bundle.OscBundle, _DGRAM_INVALID_INDEX
         )
+
+    def test_rejects_oversized_element(self):
+        message = _DGRAM_SWITCH_GOES_ON[20:]
+        packet = _DGRAM_EMPTY_BUNDLE + osc_types.write_int(len(message) + 4) + message
+        with self.assertRaises(osc_bundle.ParseError):
+            osc_bundle.OscBundle(packet)
+
+    def test_rejects_invalid_element_lengths(self):
+        for size in (-2147483648, -8, -4, -1, 0, 1, 3, 5):
+            with self.subTest(size=size):
+                packet = _DGRAM_EMPTY_BUNDLE + osc_types.write_int(size) + b"abcd"
+                with self.assertRaises(osc_bundle.ParseError):
+                    osc_bundle.OscBundle(packet)
+
+    def test_rejects_malformed_nested_element(self):
+        inner = _DGRAM_EMPTY_BUNDLE + osc_types.write_int(0)
+        packet = _DGRAM_EMPTY_BUNDLE + osc_types.write_int(len(inner)) + inner
+        with self.assertRaises(osc_bundle.ParseError):
+            osc_bundle.OscBundle(packet)
 
     def test_unknown_type(self):
         osc_bundle.OscBundle(_DGRAM_UNKNOWN_TYPE)
