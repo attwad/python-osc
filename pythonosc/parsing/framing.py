@@ -5,7 +5,6 @@ from struct import pack, unpack_from
 
 from pythonosc.parsing.slip import (
     END,
-    END_END,
     decode as slip_decode,
     encode as slip_encode,
 )
@@ -55,15 +54,16 @@ class SLIPFraming(Framing):
         pos = start
         messages = []
 
-        while (end := buf.find(END_END, pos)) >= 0:
-            if end > pos:
-                messages.append(slip_decode(bytes(buf[pos:end])))
+        scan = start
+        while (end := buf.find(END, scan)) >= 0:
+            if end > scan:
+                messages.append(slip_decode(bytes(buf[scan:end])))
+                pos = end + len(END)
+            scan = end + len(END)
 
-            pos = end + len(END)
-
-        if buf.endswith(END):
-            messages.append(slip_decode(bytes(buf[pos:end])))
-            pos = len(buf)
+        # Consume trailing delimiters, but retain an incomplete packet.
+        if scan == len(buf):
+            pos = scan
 
         return messages, pos - start
 
