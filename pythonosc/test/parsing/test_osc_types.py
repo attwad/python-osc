@@ -34,6 +34,20 @@ class TestString(unittest.TestCase):
         for case in cases:
             self.assertRaises(osc_types.ParseError, osc_types.get_string, case, 0)
 
+    def test_get_string_rejects_invalid_utf8(self):
+        for value in (b"\xff", b"\xc3", b"\xc0\xaf", b"\xed\xa0\x80"):
+            with self.subTest(value=value):
+                dgram = value + b"\x00" * (4 - len(value) % 4)
+                with self.assertRaises(osc_types.ParseError):
+                    osc_types.get_string(dgram, 0)
+
+    def test_get_string_preserves_valid_utf8_and_offset(self):
+        encoded = osc_types.write_string("café 🎵")
+        self.assertEqual(
+            ("café 🎵", 4 + len(encoded)),
+            osc_types.get_string(b"skip" + encoded + b"tail", 4),
+        )
+
     def test_get_string_raises_when_datagram_too_short(self):
         self.assertRaises(osc_types.ParseError, osc_types.get_string, b"abc\x00", 1)
 

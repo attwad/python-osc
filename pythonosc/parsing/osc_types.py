@@ -86,6 +86,8 @@ def get_string(dgram: bytes, start_index: int) -> Tuple[str, int]:
 
         data_str = dgram[start_index : start_index + offset]
         return data_str.decode("utf-8"), start_index + total_len
+    except UnicodeDecodeError as error:
+        raise ParseError(f"Could not decode OSC string: {error}") from error
     except IndexError as ie:
         raise ParseError(f"Could not parse datagram {ie}")
     except TypeError as te:

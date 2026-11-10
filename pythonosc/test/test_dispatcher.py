@@ -14,6 +14,27 @@ class TestDispatcher(unittest.IsolatedAsyncioTestCase):
 
         return self.assertSequenceEqual(sort(expected), sort(result))
 
+    def test_invalid_utf8_is_ignored_before_next_valid_packet(self):
+        received = []
+        self.dispatcher.map("/test", lambda address, *args: received.append(args))
+        for packet in (
+            b"/\xff\x00\x00,s\x00\x00ok\x00\x00",
+            b"/test\x00\x00\x00,\xff\x00\x00",
+            b"/test\x00\x00\x00,s\x00\x00\xff\x00\x00\x00",
+        ):
+            with self.subTest(packet=packet):
+                self.assertEqual(
+                    [],
+                    self.dispatcher.call_handlers_for_packet(
+                        packet, ("127.0.0.1", 1234)
+                    ),
+                )
+        self.assertEqual([], received)
+        self.dispatcher.call_handlers_for_packet(
+            b"/test\x00\x00\x00,s\x00\x00ok\x00\x00", ("127.0.0.1", 1234)
+        )
+        self.assertEqual([("ok",)], received)
+
     def test_empty_by_default(self):
         self.sortAndAssertSequenceEqual(
             [], self.dispatcher.handlers_for_address("/test")
