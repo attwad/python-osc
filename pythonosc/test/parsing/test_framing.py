@@ -70,6 +70,42 @@ class TestSLIPFraming(CommonFramingTest):
     def test_encode(self, framing: Framing) -> None:
         assert framing.encode(b"te\xc0st") == b"\xc0te\xdb\xdcst\xc0"
 
+    @mark.parametrize("prefix", [b"", b"\xc0"])
+    def test_single_end_separates_packets(
+        self, framing: Framing, prefix: bytes
+    ) -> None:
+        data = prefix + b"one\xc0two\xc0"
+        assert framing.decode_stream(data) == ([b"one", b"two"], len(data))
+
+    @mark.parametrize("count", [1, 2, 3, 5])
+    def test_end_markers_do_not_emit_empty_packets(
+        self, framing: Framing, count: int
+    ) -> None:
+        data = b"\xc0" * count
+        assert framing.decode_stream(data) == ([], len(data))
+
+    @mark.parametrize("leading_end", [False, True])
+    def test_every_stream_split_preserves_packets(
+        self, framing: Framing, leading_end: bool
+    ) -> None:
+        expected = [b"one", b"two\xc0\xdb", b"three"]
+        data = b"".join(framing.encode(value)[not leading_end :] for value in expected)
+        for split in range(len(data) + 1):
+            parser = FramingParser(framing)
+            actual = parser.feed(data[:split]) + parser.feed(data[split:])
+            assert actual == expected, split
+            assert parser.remaining == b""
+
+    def test_bytewise_stream_preserves_packets(self, framing: Framing) -> None:
+        parser = FramingParser(framing)
+        expected = [b"one", b"two\xc0\xdb"]
+        data = b"".join(framing.encode(value) for value in expected)
+        actual = []
+        for byte in data:
+            actual.extend(parser.feed(bytes([byte])))
+        assert actual == expected
+        assert parser.remaining == b""
+
 
 class TestBinaryLengthFraming(CommonFramingTest):
     @fixture
