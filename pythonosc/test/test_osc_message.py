@@ -46,6 +46,11 @@ _DGRAM_LONG_LIST = b"/SYNC\x00\x00\x00,[iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
 
 
 class TestOscMessage(unittest.TestCase):
+    def test_blob_cannot_rewind_to_the_previous_argument(self):
+        packet = b"/b\x00\x00,ibi\x00\x00\x00\x00\x00\x00\x00*\xff\xff\xff\xf8"
+        with self.assertRaises(osc_message.ParseError):
+            osc_message.OscMessage(packet)
+
     def test_switch_goes_off(self):
         msg = osc_message.OscMessage(_DGRAM_SWITCH_GOES_OFF)
         self.assertEqual("/SYNC", msg.address)

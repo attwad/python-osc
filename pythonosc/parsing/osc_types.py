@@ -309,7 +309,7 @@ def get_blob(dgram: bytes, start_index: int) -> Tuple[bytes, int]:
 
     Args:
       dgram: A datagram packet.
-      start_index: An index where the float starts in the datagram.
+      start_index: An index where the blob starts in the datagram.
 
     Returns:
       A tuple containing the blob and the new end index.
@@ -317,13 +317,17 @@ def get_blob(dgram: bytes, start_index: int) -> Tuple[bytes, int]:
     Raises:
       ParseError if the datagram could not be parsed.
     """
-    size, int_offset = get_int(dgram, start_index)
-    # Make the size a multiple of 32 bits.
-    total_size = size + (-size % _BLOB_DGRAM_PAD)
-    end_index = int_offset + size
-    if end_index - start_index > len(dgram[start_index:]):
+    if start_index < 0:
+        raise ParseError("start_index < 0")
+    size, payload_start = get_int(dgram, start_index)
+    if size < 0:
+        raise ParseError("Blob length cannot be negative")
+
+    payload_end = payload_start + size
+    next_index = payload_end + (-size % _BLOB_DGRAM_PAD)
+    if next_index > len(dgram):
         raise ParseError("Datagram is too short.")
-    return dgram[int_offset : int_offset + size], int_offset + total_size
+    return dgram[payload_start:payload_end], next_index
 
 
 def write_blob(val: bytes) -> bytes:
