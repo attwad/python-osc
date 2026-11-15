@@ -21,4 +21,4 @@ jobs:
       - name: Build a binary wheel and a source tarball
         run: uv build
       - name: Publish distribution 📦 to PyPI
-        run: uv publish
+        uses: pypa/gh-action-pypi-publish@release/v1

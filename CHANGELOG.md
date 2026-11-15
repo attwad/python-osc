@@ -5,7 +5,18 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## Unreleased
 
-- Preserve explicit empty-string arguments in message helpers and TCP clients while keeping omitted values argument-free.
+
+
+## [1.10.3]
+
+- Decode SLIP packets independently of stream chunk boundaries across TCP streams
+- Validate OSC blob lengths and padding bounds
+- Handle invalid UTF-8 as an OSC parse error
+- Preserve explicit empty-string arguments in message helpers and TCP clients while keeping omitted values argument-free
+- Validate OSC bundle element lengths before parsing
+- Receive complete OSC UDP datagrams larger than 8192 bytes
+- TCP handling logic cleanup
+- Switch PyPI publishing workflow to pypa/gh-action-pypi-publish
 
 ## [1.10.2]
 
